@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-feature-settings: 'tnum' 1;
+  }
+  body {
+    @apply bg-background text-text-primary antialiased;
+    overscroll-behavior: none;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #334155 transparent;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply bg-surface border border-border rounded;
+  }
+  .btn-primary {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-primary text-white text-[13px] font-semibold hover:bg-primary-hover transition-colors active:scale-95;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-border text-text-dim text-[13px] hover:bg-surface hover:text-text-primary transition-colors;
+  }
+  .label {
+    @apply text-muted text-[11px] font-medium uppercase tracking-wider;
+  }
+  .cell-input {
+    @apply w-full bg-transparent outline-none rounded px-2 py-1 text-[13px] text-text-primary placeholder:text-muted focus:ring-1 focus:ring-primary;
+  }
+}
