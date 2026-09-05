@@ -10,12 +10,12 @@ interface GanttBoardProps {
   tasks: TimelineTask[]
   selectedAssignees: string[]
   onTasksChange: (tasks: TimelineTask[]) => void
+  onSelectTask?: (taskId: string) => void
 }
 
-export function GanttBoard({ tasks, selectedAssignees, onTasksChange }: GanttBoardProps) {
+export function GanttBoard({ tasks, selectedAssignees, onTasksChange, onSelectTask }: GanttBoardProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [loading, setLoading] = useState(true)
-  // Track last-rendered input to avoid unnecessary re-init
   const lastRenderRef = useRef<string>('')
 
   const handleDateChange = useCallback(
@@ -32,6 +32,13 @@ export function GanttBoard({ tasks, selectedAssignees, onTasksChange }: GanttBoa
     [tasks, onTasksChange],
   )
 
+  const handleClick = useCallback(
+    (taskId: string) => {
+      onSelectTask?.(taskId)
+    },
+    [onSelectTask],
+  )
+
   // Re-init Gantt when tasks or filter change
   useEffect(() => {
     const el = containerRef.current
@@ -40,14 +47,12 @@ export function GanttBoard({ tasks, selectedAssignees, onTasksChange }: GanttBoa
     const ganttTasks = toGanttTasks(tasks, selectedAssignees)
     const renderKey = JSON.stringify(ganttTasks.map(t => [t.id, t.start, t.end]))
 
-    // Skip re-render if nothing changed
     if (renderKey === lastRenderRef.current) {
       setLoading(false)
       return
     }
     lastRenderRef.current = renderKey
 
-    // Empty state
     if (ganttTasks.length === 0) {
       el.innerHTML =
         '<div class="flex items-center justify-center h-40 text-muted text-[13px]">No tasks. Add rows and generate to build your timeline.</div>'
@@ -55,13 +60,16 @@ export function GanttBoard({ tasks, selectedAssignees, onTasksChange }: GanttBoa
       return
     }
 
-    // Clear prev content before Frappe Gantt appends its own container
     el.innerHTML = ''
-
     setLoading(true)
 
     let cancelled = false
-    initGantt({ element: el, tasks: ganttTasks, onDateChange: handleDateChange }).then(
+    initGantt({
+      element: el,
+      tasks: ganttTasks,
+      onDateChange: handleDateChange,
+      onClick: handleClick,
+    }).then(
       _gantt => {
         if (!cancelled) {
           setLoading(false)
@@ -73,26 +81,14 @@ export function GanttBoard({ tasks, selectedAssignees, onTasksChange }: GanttBoa
     return () => {
       cancelled = true
     }
-  }, [tasks, selectedAssignees, handleDateChange])
+  }, [tasks, selectedAssignees, handleDateChange, handleClick])
 
   return (
-    <div className="flex-1 bg-surface-dim rounded border border-border overflow-hidden flex flex-col min-h-0">
-      {/* Header */}
-      <div className="h-10 bg-surface/80 flex items-center px-3 border-b border-border shrink-0">
-        <span className="text-muted text-[11px] font-medium uppercase tracking-widest">
-          Gantt Timeline
-        </span>
-        <span className="text-muted text-[11px] ml-auto">
-          {selectedAssignees.length > 0
-            ? `${toGanttTasks(tasks, selectedAssignees).length} shown / ${tasks.length} total`
-            : `${tasks.length} tasks`}
-        </span>
-      </div>
-
+    <div className="flex-1 bg-surface-dim rounded-none border-none overflow-hidden flex flex-col min-h-0">
       <div
         ref={containerRef}
         className="gantt-wrapper flex-1 overflow-auto relative"
-        style={{ minHeight: '320px' }}
+        style={{ minHeight: '280px' }}
       />
     </div>
   )
@@ -125,7 +121,6 @@ function applyDarkTheme() {
     .gantt .bar-wrapper.active .bar { fill: #4F46E5 !important; stroke: #6366F1 !important; }
     .gantt .bar-wrapper.active .bar-progress { fill: #6366F1 !important; }
     .gantt .handle { fill: #fff !important; opacity: 0.6; }
-    /* No duplicate .gantt-container rule — Frappe defines its own */
   `
   document.head.appendChild(style)
 }

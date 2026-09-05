@@ -31,7 +31,7 @@ export function RowEditor({ rows, onChange, errors }: RowEditorProps) {
   const addRow = useCallback(() => {
     onChange([
       ...rows,
-      { id: createRowId(), name: '', assignee: '', start: '', duration: '', end: '' },
+      { id: createRowId(), name: '', assignee: '', start: '', duration: '', end: '', dependsOn: '' },
     ])
   }, [rows, onChange])
 
