@@ -1,1 +1,4 @@
-frontend/\n.next\nnode_modules
+node_modules/
+.next/
+*.zip
+.hermes/
