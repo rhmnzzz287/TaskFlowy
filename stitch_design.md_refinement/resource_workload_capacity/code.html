@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"tertiary":"#ffb599","surface-dim":"#0b1326","surface-tint":"#c3c0ff","secondary":"#6bd8cb","error":"#ffb4ab","primary":"#c3c0ff","status-critical":"#EA580C","status-error":"#DC2626","secondary-fixed":"#89f5e7","secondary-container":"#29a195","on-primary":"#1d00a5","primary-container":"#4f46e5","status-milestone":"#7C3AED","on-primary-container":"#dad7ff","surface":"#0b1326","tertiary-fixed-dim":"#ffb599","surface-container-lowest":"#060e20","on-secondary-fixed-variant":"#005049","inverse-primary":"#4d44e3","surface-dark":"#1E293B","surface-container-low":"#131b2e","on-tertiary-fixed-variant":"#7f2b00","status-completed":"#059669","surface-container":"#171f33","on-surface-variant":"#c7c4d8","secondary-fixed-dim":"#6bd8cb","status-critical-alt":"#F97316","tertiary-fixed":"#ffdbce","surface-light":"#FFFFFF","status-standard":"#0D9488","background":"#0b1326","canvas-light":"#F8FAFC","primary-fixed-dim":"#c3c0ff","on-background":"#dae2fd","subdued-tick":"#64748B","outline":"#918fa1","on-surface":"#dae2fd","on-tertiary":"#5a1c00","on-secondary-fixed":"#00201d","on-tertiary-container":"#ffd1c1","surface-container-high":"#222a3d","surface-container-highest":"#2d3449","on-secondary-container":"#00302b","status-warning":"#D97706","primary-hover":"#6366F1","canvas-dark":"#0F172A","surface-variant":"#2d3449","border-dark":"#334155","border-light":"#E2E8F0","error-container":"#93000a","on-primary-fixed-variant":"#3323cc","on-secondary":"#003732","on-tertiary-fixed":"#370e00","inverse-on-surface":"#283044","tertiary-container":"#aa3b00","primary-fixed":"#e2dfff","on-error-container":"#ffdad6","outline-variant":"#464555","surface-bright":"#31394d","status-standard-alt":"#14B8A6","on-primary-fixed":"#0f0069","on-error":"#690005","inverse-surface":"#dae2fd"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"panel-p":"1rem","badge-px":"0.375rem","badge-py":"0.125rem","hit-resize":"0.375rem","cell-px":"0.75rem","base":"0.25rem","gutter-canvas":"1rem","cell-py":"0.375rem"},"fontFamily":{"data-mono":["Inter"],"headline-md":["Inter"],"body-md":["Inter"],"section-title":["Inter"],"headline-sm":["Inter"],"badge-label":["Inter"],"headline-lg":["Inter"],"table-cell":["Inter"],"timeline-tick":["Inter"],"body-sm":["Inter"]},"fontSize":{"data-mono":["12px",{"lineHeight":"16px","fontWeight":"500"}],"headline-md":["16px",{"lineHeight":"22px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"section-title":["14px",{"lineHeight":"20px","letterSpacing":"-0.01em","fontWeight":"500"}],"headline-sm":["14px",{"lineHeight":"20px","letterSpacing":"-0.005em","fontWeight":"600"}],"badge-label":["11px",{"lineHeight":"14px","fontWeight":"600"}],"headline-lg":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"table-cell":["13px",{"lineHeight":"18px","fontWeight":"400"}],"timeline-tick":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"500"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased select-none"><header class="fixed top-0 left-0 right-0 h-14 z-50 bg-surface-container-low border-b border-border-dark flex items-center justify-between px-4 select-none"><div class="flex items-center gap-4 min-w-0"><div class="flex items-center gap-2.5 shrink-0"><img alt="Text-to-Gantt Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WI1ApC0WGYrfBrX_zgY5d0AVS3Qhjt5VPgP4F_90G5p8PsrO8T9rBnpbM0mly2_B5ht-eqfW6JlfkP7Hc6xwVKWBzlASuVTqBaTFb4TuzOPZ4WM5uDm_0SgrKrVDTUWo_6KaBQ1qQmnrA2EkKBdSUf6sz7Ig7NTRNUKZFYm96p3pv88b5w9rZrLp74agNEVU7DgRBZ7KBcmUztt3FRBSQPW9YRwObUJqZx_F1YJiC7muOq-ng-y_dburRS"/><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight font-semibold hidden sm:inline">Text-to-Gantt</span><span class="px-badge-px py-badge-py rounded bg-surface-container-high text-primary font-badge-label text-badge-label uppercase tracking-wider">Workbench</span></div><div class="h-4 w-px bg-border-dark hidden md:block"></div><button class="flex items-center gap-1.5 px-2.5 py-1 rounded hover:bg-surface-container-high transition-colors text-left group"><span class="font-headline-sm text-headline-sm text-on-surface font-medium truncate max-w-[200px] lg:max-w-xs">Q4 Mobile App Launch v2.4</span><span class="material-symbols-outlined text-outline text-base group-hover:text-on-surface transition-colors">arrow_drop_down</span></button><div class="h-4 w-px bg-border-dark hidden xl:block"></div><div class="hidden xl:flex items-center gap-2 text-subdued-tick font-data-mono text-data-mono"><span class="w-2 h-2 rounded-full bg-status-completed"></span><span>All changes saved • Cloud sync active</span></div></div><div class="flex items-center gap-2 shrink-0"><div class="flex items-center border border-border-dark rounded bg-surface-container-lowest p-0.5"><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" title="Undo (Ctrl+Z)"><span class="material-symbols-outlined text-base block">undo</span></button><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" title="Redo (Ctrl+Y)"><span class="material-symbols-outlined text-base block">redo</span></button></div><button class="flex items-center gap-1.5 px-3 py-1.5 rounded border border-border-dark bg-surface-container hover:bg-surface-container-high text-on-surface font-headline-sm text-headline-sm transition-colors"><span class="material-symbols-outlined text-base">share</span><span class="hidden sm:inline">Share</span></button><div class="relative"><button class="flex items-center gap-1.5 px-3 py-1.5 rounded border border-border-dark bg-surface-container hover:bg-surface-container-high text-on-surface font-headline-sm text-headline-sm transition-colors"><span class="material-symbols-outlined text-base">file_download</span><span class="hidden sm:inline">Export</span><span class="material-symbols-outlined text-base text-outline">expand_more</span></button></div><button class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-primary-container hover:bg-primary-hover text-on-primary-container font-headline-sm text-headline-sm transition-colors shadow-sm font-semibold"><span class="material-symbols-outlined text-base">auto_awesome</span><span class="hidden md:inline">Prompt Plan</span></button><div class="h-5 w-px bg-border-dark mx-1"></div><div class="flex items-center gap-2 shrink-0 pl-1"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-border-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_4GQIkEsMPgG09Y-mVSzrzewhjGHtKF7bSSLT7Y_tXPhBj_VLTL7ZNr3TykNvsKb6NASHlSYvyV-eM0wLue62bt6yBWlFzRTdPx1IONIgGOkUT_CZeopy6IalrbE4IrCpP39PtuI82VvmW5iXYRaTOtZrGKt5vxTNrVg7RHKbfx46XtyXPWlqv1Xzcwifn5lEZPfEvieLMRZ5_x5PGZXHBjjFTKz1DOAC3rLgM02OcFG9YQH_snSKwQ"/></div></div></header><aside class="fixed left-0 top-14 bottom-0 w-16 bg-surface-container-low border-r border-border-dark z-40 flex flex-col items-center py-3 justify-between"><nav class="flex flex-col items-center gap-2 w-full px-2" data-active-classes="bg-surface-container-highest text-primary"><a aria-current="page" class="w-11 h-11 flex items-center justify-center rounded transition-colors bg-surface-container-highest text-primary" data-path="gantt-workbench" href="#" title="Gantt Timeline Canvas"><span class="material-symbols-outlined text-xl">waterfall_chart</span></a><a class="w-11 h-11 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" data-path="task-breakdown" href="#" title="WBS &amp; Data Grid"><span class="material-symbols-outlined text-xl">table_rows</span></a><a class="w-11 h-11 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" data-path="dependency-matrix" href="#" title="Dependency Matrix &amp; Graph"><span class="material-symbols-outlined text-xl">account_tree</span></a><a class="w-11 h-11 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" data-path="extraction-telemetry" href="#" title="AI Parse Workbench &amp; Telemetry"><span class="material-symbols-outlined text-xl">psychology</span></a></nav><div class="flex flex-col items-center gap-2 w-full px-2 border-t border-border-dark pt-3"><a class="w-11 h-11 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" data-path="project-settings" href="#" title="Project Settings"><span class="material-symbols-outlined text-xl">settings</span></a></div></aside><div class="pl-16"><main class="w-full pt-14 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Sub-Navigation & Controls Header Bar -->
+<div class="w-full bg-surface-container-low px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 sticky top-14 z-30">
+<!-- View Switcher Tabs -->
+<div class="flex items-center gap-1.5 p-1 bg-surface-container-lowest rounded-lg">
+<a class="px-3 py-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-headline-sm text-headline-sm rounded transition-colors flex items-center gap-1.5" href="#">
+<span class="material-symbols-outlined text-base">waterfall_chart</span>
+<span>Gantt Timeline</span>
+</a>
+<a class="px-3 py-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-headline-sm text-headline-sm rounded transition-colors flex items-center gap-1.5" href="#">
+<span class="material-symbols-outlined text-base">grid_view</span>
+<span>Dependency Matrix (DSM)</span>
+</a>
+<button class="px-3 py-1 bg-primary-container text-on-primary-container font-headline-sm text-headline-sm font-semibold rounded shadow-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">group</span>
+<span>Resource Workload &amp; Capacity</span>
+<span class="w-1.5 h-1.5 rounded-full bg-status-critical-alt animate-pulse"></span>
+</button>
+<a class="px-3 py-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-headline-sm text-headline-sm rounded transition-colors flex items-center gap-1.5" href="#">
+<span class="material-symbols-outlined text-base">account_tree</span>
+<span>DAG Network Graph</span>
+</a>
+</div>
+<!-- Timeline Horizon & Workbench Controls -->
+<div class="flex items-center gap-2.5">
+<!-- Horizon Range Picker -->
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-high text-on-surface font-data-mono text-data-mono">
+<span class="material-symbols-outlined text-subdued-tick text-base">date_range</span>
+<span>Oct 01 — Oct 28, 2025</span>
+<span class="material-symbols-outlined text-subdued-tick text-sm cursor-pointer hover:text-on-surface">arrow_drop_down</span>
+</div>
+<!-- Resolution Mode -->
+<div class="flex items-center p-0.5 bg-surface-container-lowest rounded">
+<button class="px-2 py-0.5 bg-surface-container-highest text-primary font-badge-label text-badge-label rounded uppercase">Daily</button>
+<button class="px-2 py-0.5 text-on-surface-variant hover:text-on-surface font-badge-label text-badge-label rounded uppercase">Weekly</button>
+</div>
+<!-- Capacity Ceiling Select -->
+<div class="flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container-high text-on-surface-variant text-body-sm font-body-sm">
+<span class="text-subdued-tick">Limit:</span>
+<span class="text-on-surface font-semibold">100% (40h/wk)</span>
+<span class="material-symbols-outlined text-xs">expand_more</span>
+</div>
+<!-- AI Auto-Level Engine -->
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-surface-container-highest hover:bg-primary-container hover:text-on-primary-container text-primary font-headline-sm text-headline-sm transition-all shadow-sm">
+<span class="material-symbols-outlined text-base text-secondary">auto_fix_high</span>
+<span class="font-semibold">Auto-Level Resources</span>
+</button>
+</div>
+</div>
+<!-- Resource Analytical KPI Summary Bar -->
+<div class="w-full bg-surface-container px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+<div class="flex flex-wrap items-center gap-4">
+<!-- Headcount -->
+<div class="flex items-center gap-2.5 pr-4">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">badge</span>
+</div>
+<div>
+<div class="font-badge-label text-badge-label uppercase tracking-wider text-subdued-tick">Total Headcount</div>
+<div class="font-headline-md text-headline-md text-on-surface font-bold">4 Members</div>
+</div>
+</div>
+<!-- Total Planned Hours -->
+<div class="flex items-center gap-2.5 pr-4">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-lg">timelapse</span>
+</div>
+<div>
+<div class="font-badge-label text-badge-label uppercase tracking-wider text-subdued-tick">Total Demand</div>
+<div class="font-headline-md text-headline-md text-on-surface font-bold">312.0 <span class="text-body-sm font-body-sm text-subdued-tick">/ 320h max</span></div>
+</div>
+</div>
+<!-- Aggregated Utilization Indicator -->
+<div class="flex items-center gap-2.5 pr-4">
+<div class="w-8 h-8 rounded bg-status-critical/15 flex items-center justify-center text-status-critical">
+<span class="material-symbols-outlined text-lg">warning</span>
+</div>
+<div>
+<div class="font-badge-label text-badge-label uppercase tracking-wider text-subdued-tick">Overall Utilization</div>
+<div class="flex items-center gap-2">
+<span class="font-headline-md text-headline-md text-status-critical font-bold">108.5%</span>
+<span class="px-1.5 py-0.5 rounded bg-status-critical/20 text-status-critical text-badge-label font-badge-label uppercase">Over Capacity</span>
+</div>
+</div>
+</div>
+<!-- Bottleneck Hotspots -->
+<div class="flex items-center gap-2.5 pr-4">
+<div class="w-8 h-8 rounded bg-status-warning/15 flex items-center justify-center text-status-warning">
+<span class="material-symbols-outlined text-lg">priority_high</span>
+</div>
+<div>
+<div class="font-badge-label text-badge-label uppercase tracking-wider text-subdued-tick">Critical Overload</div>
+<div class="text-on-surface font-headline-sm text-headline-sm font-medium">
+<span class="text-status-critical-alt font-semibold">David C. (120%)</span>, <span class="text-status-warning font-semibold">Maya L. (115%)</span>
+</div>
+</div>
+</div>
+<!-- Available Runway -->
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded bg-status-completed/15 flex items-center justify-center text-status-completed">
+<span class="material-symbols-outlined text-lg">energy_savings_leaf</span>
+</div>
+<div>
+<div class="font-badge-label text-badge-label uppercase tracking-wider text-subdued-tick">Spare Buffer</div>
+<div class="text-on-surface font-headline-sm text-headline-sm">
+<span class="text-secondary font-semibold">Alex K.</span> <span class="text-subdued-tick">(+16.0h idle)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Role Filter Pills & Overload Toggle -->
+<div class="flex items-center gap-2">
+<div class="flex items-center bg-surface-container-lowest p-1 rounded gap-1">
+<button class="px-2.5 py-1 bg-surface-container-high text-primary font-badge-label text-badge-label rounded uppercase">All (4)</button>
+<button class="px-2.5 py-1 text-on-surface-variant hover:text-on-surface font-badge-label text-badge-label rounded uppercase">Engineers (2)</button>
+<button class="px-2.5 py-1 text-on-surface-variant hover:text-on-surface font-badge-label text-badge-label rounded uppercase">Design (1)</button>
+<button class="px-2.5 py-1 text-on-surface-variant hover:text-on-surface font-badge-label text-badge-label rounded uppercase">QA &amp; Sec (1)</button>
+</div>
+<label class="flex items-center gap-2 px-2.5 py-1 rounded bg-surface-container-high cursor-pointer hover:bg-surface-container-highest transition-colors">
+<input checked="" class="accent-primary rounded" type="checkbox"/>
+<span class="text-body-sm font-body-sm text-on-surface-variant">Overallocated only</span>
+</label>
+</div>
+</div>
+<!-- Main Split Canvas: Left/Center Heatmap Table + Right Dynamic Capacity Inspector -->
+<div class="flex w-full min-h-[calc(100vh-140px)] bg-surface overflow-hidden">
+<!-- Left + Center: Heatmap Grid Canvas -->
+<div class="flex-1 flex flex-col min-w-0 overflow-x-auto">
+<!-- Matrix Header Grid (Synchronized Horizontal Timeline) -->
+<div class="sticky top-0 z-20 bg-surface-container-low min-w-[1040px] flex">
+<!-- Resource Specifier Header Column (380px) -->
+<div class="w-[380px] shrink-0 p-3 bg-surface-container-high/60 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-section-title text-section-title text-on-surface uppercase tracking-wider font-semibold">Allocated Team Member</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-highest text-subdued-tick font-data-mono text-badge-label">4 POOL</span>
+</div>
+<span class="font-data-mono text-timeline-tick text-subdued-tick uppercase">40H THRESHOLD</span>
+</div>
+<!-- Timeline Chrono Header (Days Mon-Fri for 4 Weeks) -->
+<div class="flex-1 grid grid-cols-4 bg-surface-container-lowest divide-x divide-transparent">
+<!-- W40 -->
+<div class="flex flex-col">
+<div class="py-1 px-2 text-center bg-surface-container-high/40 font-badge-label text-badge-label uppercase tracking-widest text-primary">Week 40 (Oct 01 - 03)</div>
+<div class="grid grid-cols-3 py-1 text-center font-data-mono text-timeline-tick text-subdued-tick">
+<div class="hover:text-on-surface">Wed 01</div>
+<div class="hover:text-on-surface">Thu 02</div>
+<div class="hover:text-on-surface">Fri 03</div>
+</div>
+</div>
+<!-- W41 -->
+<div class="flex flex-col bg-surface-container-low/30">
+<div class="py-1 px-2 text-center bg-surface-container-high/50 font-badge-label text-badge-label uppercase tracking-widest text-on-surface">Week 41 (Oct 06 - 10)</div>
+<div class="grid grid-cols-5 py-1 text-center font-data-mono text-timeline-tick text-subdued-tick">
+<div>M 06</div>
+<div>T 07</div>
+<div>W 08</div>
+<div>T 09</div>
+<div>F 10</div>
+</div>
+</div>
+<!-- W42 Peak Window -->
+<div class="flex flex-col bg-surface-container-high/30">
+<div class="py-1 px-2 text-center bg-status-critical/20 font-badge-label text-badge-label uppercase tracking-widest text-status-critical font-bold flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-xs">local_fire_department</span>
+<span>Week 42 (Oct 13 - 17) [PEAK OVERLOAD]</span>
+</div>
+<div class="grid grid-cols-5 py-1 text-center font-data-mono text-timeline-tick text-subdued-tick">
+<div class="text-on-surface">M 13</div>
+<div class="text-status-critical font-semibold">T 14</div>
+<div class="text-status-critical font-semibold">W 15</div>
+<div class="text-status-critical font-semibold">T 16</div>
+<div class="text-on-surface">F 17</div>
+</div>
+</div>
+<!-- W43 -->
+<div class="flex flex-col">
+<div class="py-1 px-2 text-center bg-surface-container-high/40 font-badge-label text-badge-label uppercase tracking-widest text-on-surface">Week 43 (Oct 20 - 24)</div>
+<div class="grid grid-cols-5 py-1 text-center font-data-mono text-timeline-tick text-subdued-tick">
+<div>M 20</div>
+<div>T 21</div>
+<div>W 22</div>
+<div>T 23</div>
+<div>F 24</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Workload Heatmap Data Rows Container -->
+<div class="flex flex-col min-w-[1040px] divide-y divide-surface-container-low">
+<!-- RESOURCE 1: Sarah Chen (Optimal 95%) -->
+<div class="flex flex-col group hover:bg-surface-container-low/40 transition-colors">
+<div class="flex items-center min-w-[1040px] bg-surface-container-lowest">
+<!-- Left Info Cell -->
+<div class="w-[380px] shrink-0 p-3.5 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<button class="text-subdued-tick hover:text-on-surface p-0.5 rounded transition-transform group-[.expanded]:rotate-90">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</button>
+<div class="relative">
+<div class="w-9 h-9 rounded-md bg-secondary-container/40 text-secondary flex items-center justify-center font-bold text-headline-sm">SC</div>
+<span class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-status-completed"></span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Sarah Chen</span>
+<span class="px-1.5 py-0.2 bg-surface-container-high rounded text-timeline-tick font-data-mono text-subdued-tick">Lead Architect</span>
+</div>
+<span class="font-body-sm text-body-sm text-subdued-tick">1 Assigned Task • 38h / 40h</span>
+</div>
+</div>
+<!-- Workload Load Meter Pill -->
+<div class="flex items-center gap-2">
+<div class="flex flex-col items-end">
+<span class="font-data-mono text-data-mono font-bold text-status-completed">95%</span>
+<span class="font-badge-label text-badge-label text-subdued-tick">OPTIMAL</span>
+</div>
+<div class="w-12 h-2 rounded bg-surface-container-highest overflow-hidden">
+<div class="h-full bg-status-completed" style="width: 95%;"></div>
+</div>
+</div>
+</div>
+<!-- Heatmap Calendar Horizon for Sarah -->
+<div class="flex-1 grid grid-cols-4 h-16 divide-x divide-surface-container-low">
+<!-- W40 Cells -->
+<div class="grid grid-cols-3 p-1.5 gap-1 items-center">
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center"><span class="font-data-mono text-data-mono text-secondary font-bold">8h</span><span class="text-badge-label text-subdued-tick">100%</span></div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center"><span class="font-data-mono text-data-mono text-secondary font-bold">8h</span><span class="text-badge-label text-subdued-tick">100%</span></div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center"><span class="font-data-mono text-data-mono text-secondary font-bold">8h</span><span class="text-badge-label text-subdued-tick">100%</span></div>
+</div>
+<!-- W41 Cells -->
+<div class="grid grid-cols-5 p-1.5 gap-1 items-center">
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/10 flex flex-col items-center justify-center font-data-mono text-data-mono text-on-surface-variant">6h</div>
+<div class="h-10 rounded bg-secondary/10 flex flex-col items-center justify-center font-data-mono text-data-mono text-on-surface-variant">6h</div>
+</div>
+<!-- W42 Cells -->
+<div class="grid grid-cols-5 p-1.5 gap-1 items-center">
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/10 flex flex-col items-center justify-center font-data-mono text-data-mono text-on-surface-variant">6h</div>
+</div>
+<!-- W43 Cells -->
+<div class="grid grid-cols-5 p-1.5 gap-1 items-center">
+<div class="h-10 rounded bg-secondary/10 flex flex-col items-center justify-center font-data-mono text-data-mono text-on-surface-variant">4h</div>
+<div class="h-10 rounded bg-surface-container-high/40 flex flex-col items-center justify-center font-data-mono text-data-mono text-subdued-tick">-</div>
+<div class="h-10 rounded bg-surface-container-high/40 flex flex-col items-center justify-center font-data-mono text-data-mono text-subdued-tick">-</div>
+<div class="h-10 rounded bg-surface-container-high/40 flex flex-col items-center justify-center font-data-mono text-data-mono text-subdued-tick">-</div>
+<div class="h-10 rounded bg-surface-container-high/40 flex flex-col items-center justify-center font-data-mono text-data-mono text-subdued-tick">-</div>
+</div>
+</div>
+</div>
+<!-- Sub-Row: Nested Task Detail -->
+<div class="flex items-center min-w-[1040px] bg-surface-container-low/25 py-2">
+<div class="w-[380px] shrink-0 pl-14 pr-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="font-body-md text-body-md text-on-surface truncate">01 Architecture &amp; System Spec</span>
+</div>
+<span class="font-data-mono text-timeline-tick text-subdued-tick">Oct 01 - 20 • 38h</span>
+</div>
+<div class="flex-1 px-3">
+<div class="w-[72%] h-4 rounded bg-secondary/30 flex items-center px-2 text-badge-label font-data-mono text-secondary">
+                100% committed • On track
+              </div>
+</div>
+</div>
+</div>
+<!-- RESOURCE 2: David Chen (CRITICAL OVERALLOCATION 120% - ACTIVE SELECTION) -->
+<div class="flex flex-col group bg-surface-container-high/20 transition-colors">
+<div class="flex items-center min-w-[1040px] bg-surface-container-lowest">
+<!-- Left Info Cell -->
+<div class="w-[380px] shrink-0 p-3.5 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<button class="text-on-surface p-0.5 rounded rotate-90 transition-transform">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</button>
+<div class="relative">
+<div class="w-9 h-9 rounded-md bg-status-critical/30 text-status-critical flex items-center justify-center font-bold text-headline-sm shadow-sm">DC</div>
+<span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-status-critical flex items-center justify-center text-on-surface text-[9px] font-bold">!</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">David Chen</span>
+<span class="px-1.5 py-0.2 bg-status-critical/20 rounded text-timeline-tick font-data-mono text-status-critical">Senior Backend</span>
+</div>
+<span class="font-body-sm text-body-sm text-status-critical font-medium">2 Active Tasks • 48h / 40h (+8h OVER)</span>
+</div>
+</div>
+<!-- Workload Load Meter Pill -->
+<div class="flex items-center gap-2">
+<div class="flex flex-col items-end">
+<span class="font-data-mono text-data-mono font-bold text-status-critical">120%</span>
+<span class="font-badge-label text-badge-label text-status-critical font-bold">BURNOUT RISK</span>
+</div>
+<div class="w-12 h-2 rounded bg-surface-container-highest overflow-hidden">
+<div class="h-full bg-status-critical" style="width: 100%;"></div>
+</div>
+</div>
+</div>
+<!-- Heatmap Calendar Horizon for David -->
+<div class="flex-1 grid grid-cols-4 h-16 divide-x divide-surface-container-low">
+<!-- W40 Cells -->
+<div class="grid grid-cols-3 p-1.5 gap-1 items-center">
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+</div>
+<!-- W41 Cells -->
+<div class="grid grid-cols-5 p-1.5 gap-1 items-center">
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-status-warning/20 flex flex-col items-center justify-center font-data-mono text-data-mono text-status-warning font-bold">9h</div>
+</div>
+<!-- W42 Peak Critical Overload Window -->
+<div class="grid grid-cols-5 p-1.5 gap-1 items-center bg-status-critical/10">
+<div class="h-10 rounded bg-status-warning/20 flex flex-col items-center justify-center font-data-mono text-data-mono text-status-warning font-bold">9h</div>
+<div class="h-10 rounded bg-status-critical/30 flex flex-col items-center justify-center font-data-mono text-data-mono text-status-critical font-bold relative overflow-hidden">
+<span>10h</span>
+<span class="text-[9px] uppercase tracking-tighter text-status-critical font-black">+25%</span>
+</div>
+<div class="h-10 rounded bg-status-critical/30 flex flex-col items-center justify-center font-data-mono text-data-mono text-status-critical font-bold">
+<span>10h</span>
+<span class="text-[9px] uppercase tracking-tighter text-status-critical font-black">+25%</span>
+</div>
+<div class="h-10 rounded bg-status-critical/30 flex flex-col items-center justify-center font-data-mono text-data-mono text-status-critical font-bold">
+<span>11h</span>
+<span class="text-[9px] uppercase tracking-tighter text-status-critical font-black">+37%</span>
+</div>
+<div class="h-10 rounded bg-status-warning/20 flex flex-col items-center justify-center font-data-mono text-data-mono text-status-warning font-bold">8h</div>
+</div>
+<!-- W43 Cells -->
+<div class="grid grid-cols-5 p-1.5 gap-1 items-center">
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/10 flex flex-col items-center justify-center font-data-mono text-data-mono text-on-surface-variant">4h</div>
+<div class="h-10 rounded bg-surface-container-high/40 flex flex-col items-center justify-center font-data-mono text-data-mono text-subdued-tick">-</div>
+</div>
+</div>
+</div>
+<!-- Expanded Sub-Tasks with Clash Overlap Highlight -->
+<div class="flex flex-col bg-surface-container-low/30 divide-y divide-surface-container-low">
+<!-- Sub-Task 1 -->
+<div class="flex items-center min-w-[1040px] py-2">
+<div class="w-[380px] shrink-0 pl-14 pr-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-status-critical"></span>
+<span class="font-body-md text-body-md text-on-surface">02 Backend REST &amp; GraphQL APIs</span>
+</div>
+<span class="font-data-mono text-timeline-tick text-subdued-tick">Oct 01 - Oct 20 (32h)</span>
+</div>
+<div class="flex-1 px-3">
+<div class="w-[75%] h-4 rounded bg-status-critical/30 flex items-center px-2 text-badge-label font-data-mono text-status-critical">
+                  Core execution • High priority
+                </div>
+</div>
+</div>
+<!-- Sub-Task 2 (Colliding Task) -->
+<div class="flex items-center min-w-[1040px] py-2 bg-status-critical/5">
+<div class="w-[380px] shrink-0 pl-14 pr-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-status-critical">merge</span>
+<span class="font-body-md text-body-md text-status-critical font-medium">07 Canary Deployments Prep</span>
+<span class="px-1 py-0.2 rounded bg-status-critical/20 text-[10px] font-bold text-status-critical">CLASH</span>
+</div>
+<span class="font-data-mono text-timeline-tick text-status-critical">Oct 14 - Oct 17 (16h)</span>
+</div>
+<div class="flex-1 px-3">
+<!-- Stacked bar illustrating horizontal collision -->
+<div class="flex items-center h-4 w-full">
+<div class="w-[45%]"></div>
+<div class="w-[20%] h-full rounded bg-status-critical text-on-surface font-badge-label text-[10px] flex items-center justify-center font-bold shadow-sm">
+                    CONCURRENCY COLLISION (+4h/day)
+                  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RESOURCE 3: Maya Lin (115% - Overallocated) -->
+<div class="flex flex-col group hover:bg-surface-container-low/40 transition-colors">
+<div class="flex items-center min-w-[1040px] bg-surface-container-lowest">
+<!-- Left Info Cell -->
+<div class="w-[380px] shrink-0 p-3.5 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<button class="text-subdued-tick hover:text-on-surface p-0.5 rounded transition-transform">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</button>
+<div class="relative">
+<div class="w-9 h-9 rounded-md bg-status-warning/30 text-status-warning flex items-center justify-center font-bold text-headline-sm">ML</div>
+<span class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-status-warning"></span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Maya Lin</span>
+<span class="px-1.5 py-0.2 bg-surface-container-high rounded text-timeline-tick font-data-mono text-subdued-tick">Lead UI / Design</span>
+</div>
+<span class="font-body-sm text-body-sm text-status-warning">1 Task + 2 Cross-Reviews • 46h / 40h</span>
+</div>
+</div>
+<!-- Workload Load Meter Pill -->
+<div class="flex items-center gap-2">
+<div class="flex flex-col items-end">
+<span class="font-data-mono text-data-mono font-bold text-status-warning">115%</span>
+<span class="font-badge-label text-badge-label text-status-warning font-semibold">OVERLOAD</span>
+</div>
+<div class="w-12 h-2 rounded bg-surface-container-highest overflow-hidden">
+<div class="h-full bg-status-warning" style="width: 100%;"></div>
+</div>
+</div>
+</div>
+<!-- Heatmap Calendar Horizon for Maya -->
+<div class="flex-1 grid grid-cols-4 h-16 divide-x divide-surface-container-low">
+<!-- W40 Cells -->
+<div class="grid grid-cols-3 p-1.5 gap-1 items-center">
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-status-warning/20 flex flex-col items-center justify-center font-data-mono text-data-mono text-status-warning">9h</div>
+</div>
+<!-- W41 Cells -->
+<div class="grid grid-cols-5 p-1.5 gap-1 items-center">
+<div class="h-10 rounded bg-status-warning/20 flex flex-col items-center justify-center font-data-mono text-data-mono text-status-warning">9h</div>
+<div class="h-10 rounded bg-status-warning/20 flex flex-col items-center justify-center font-data-mono text-data-mono text-status-warning">9h</div>
+<div class="h-10 rounded bg-status-warning/20 flex flex-col items-center justify-center font-data-mono text-data-mono text-status-warning">9h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+</div>
+<!-- W42 Cells -->
+<div class="grid grid-cols-5 p-1.5 gap-1 items-center">
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/10 flex flex-col items-center justify-center font-data-mono text-data-mono text-on-surface-variant">6h</div>
+<div class="h-10 rounded bg-secondary/10 flex flex-col items-center justify-center font-data-mono text-data-mono text-on-surface-variant">6h</div>
+</div>
+<!-- W43 Cells -->
+<div class="grid grid-cols-5 p-1.5 gap-1 items-center">
+<div class="h-10 rounded bg-secondary/10 flex flex-col items-center justify-center font-data-mono text-data-mono text-on-surface-variant">4h</div>
+<div class="h-10 rounded bg-surface-container-high/40 flex flex-col items-center justify-center font-data-mono text-data-mono text-subdued-tick">-</div>
+<div class="h-10 rounded bg-surface-container-high/40 flex flex-col items-center justify-center font-data-mono text-data-mono text-subdued-tick">-</div>
+<div class="h-10 rounded bg-surface-container-high/40 flex flex-col items-center justify-center font-data-mono text-data-mono text-subdued-tick">-</div>
+<div class="h-10 rounded bg-surface-container-high/40 flex flex-col items-center justify-center font-data-mono text-data-mono text-subdued-tick">-</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RESOURCE 4: Alex Kumar (60% - Underallocated / Spare Runway) -->
+<div class="flex flex-col group hover:bg-surface-container-low/40 transition-colors">
+<div class="flex items-center min-w-[1040px] bg-surface-container-lowest">
+<!-- Left Info Cell -->
+<div class="w-[380px] shrink-0 p-3.5 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<button class="text-subdued-tick hover:text-on-surface p-0.5 rounded transition-transform">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</button>
+<div class="relative">
+<div class="w-9 h-9 rounded-md bg-primary-container/40 text-primary flex items-center justify-center font-bold text-headline-sm">AK</div>
+<span class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-secondary"></span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Alex Kumar</span>
+<span class="px-1.5 py-0.2 bg-surface-container-high rounded text-timeline-tick font-data-mono text-subdued-tick">QA &amp; Security Lead</span>
+</div>
+<span class="font-body-sm text-body-sm text-secondary font-medium">1 Task • 24h / 40h (16h FREE)</span>
+</div>
+</div>
+<!-- Workload Load Meter Pill -->
+<div class="flex items-center gap-2">
+<div class="flex flex-col items-end">
+<span class="font-data-mono text-data-mono font-bold text-secondary">60%</span>
+<span class="font-badge-label text-badge-label text-subdued-tick">SPARE CAPACITY</span>
+</div>
+<div class="w-12 h-2 rounded bg-surface-container-highest overflow-hidden">
+<div class="h-full bg-secondary" style="width: 60%;"></div>
+</div>
+</div>
+</div>
+<!-- Heatmap Calendar Horizon for Alex -->
+<div class="flex-1 grid grid-cols-4 h-16 divide-x divide-surface-container-low">
+<!-- W40 Cells -->
+<div class="grid grid-cols-3 p-1.5 gap-1 items-center">
+<div class="h-10 rounded bg-surface-container-high/40 flex flex-col items-center justify-center font-data-mono text-data-mono text-subdued-tick">-</div>
+<div class="h-10 rounded bg-secondary/10 flex flex-col items-center justify-center font-data-mono text-data-mono text-on-surface-variant">4h</div>
+<div class="h-10 rounded bg-secondary/10 flex flex-col items-center justify-center font-data-mono text-data-mono text-on-surface-variant">4h</div>
+</div>
+<!-- W41 Cells -->
+<div class="grid grid-cols-5 p-1.5 gap-1 items-center">
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">6h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">6h</div>
+<div class="h-10 rounded bg-surface-container-high/30 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary-fixed">
+<span class="text-[10px] text-secondary font-bold">READY</span>
+</div>
+<div class="h-10 rounded bg-surface-container-high/30 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary-fixed">
+<span class="text-[10px] text-secondary font-bold">READY</span>
+</div>
+<div class="h-10 rounded bg-secondary/10 flex flex-col items-center justify-center font-data-mono text-data-mono text-on-surface-variant">4h</div>
+</div>
+<!-- W42 Cells (Available during peak bottleneck!) -->
+<div class="grid grid-cols-5 p-1.5 gap-1 items-center bg-secondary/5">
+<div class="h-10 rounded bg-secondary/10 flex flex-col items-center justify-center font-data-mono text-data-mono text-on-surface-variant">4h</div>
+<div class="h-10 rounded bg-surface-container-highest/60 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">
+<span class="font-bold">0h</span>
+<span class="text-[9px] text-secondary">8h Avail</span>
+</div>
+<div class="h-10 rounded bg-surface-container-highest/60 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">
+<span class="font-bold">0h</span>
+<span class="text-[9px] text-secondary">8h Avail</span>
+</div>
+<div class="h-10 rounded bg-secondary/10 flex flex-col items-center justify-center font-data-mono text-data-mono text-on-surface-variant">4h</div>
+<div class="h-10 rounded bg-secondary/10 flex flex-col items-center justify-center font-data-mono text-data-mono text-on-surface-variant">4h</div>
+</div>
+<!-- W43 Cells -->
+<div class="grid grid-cols-5 p-1.5 gap-1 items-center">
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-secondary/15 flex flex-col items-center justify-center font-data-mono text-data-mono text-secondary">8h</div>
+<div class="h-10 rounded bg-surface-container-high/40 flex flex-col items-center justify-center font-data-mono text-data-mono text-subdued-tick">-</div>
+<div class="h-10 rounded bg-surface-container-high/40 flex flex-col items-center justify-center font-data-mono text-data-mono text-subdued-tick">-</div>
+<div class="h-10 rounded bg-surface-container-high/40 flex flex-col items-center justify-center font-data-mono text-data-mono text-subdued-tick">-</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Capacity Legend Footer Strip -->
+<div class="mt-auto bg-surface-container-low p-2.5 flex items-center justify-between text-body-sm font-body-sm text-subdued-tick">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded bg-surface-container-highest"></span>
+<span>Idle / 0h</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded bg-secondary/20"></span>
+<span>Normal (&lt;8h/day)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded bg-secondary"></span>
+<span>100% Full (8h/day)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded bg-status-warning"></span>
+<span>At Risk (9h/day)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded bg-status-critical"></span>
+<span>Overload (&gt;9h/day)</span>
+</div>
+</div>
+<div class="font-data-mono text-data-mono">
+          Threshold Rule: 40.0h max / 5 business days per resource
+        </div>
+</div>
+</div>
+<!-- Right Analytical Workstation Drawer / Inspector (380px) -->
+<aside class="w-[380px] shrink-0 bg-surface-container-low flex flex-col overflow-y-auto">
+<!-- Inspector Header -->
+<div class="p-3.5 bg-surface-container-high/40 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">tune</span>
+<span class="font-section-title text-section-title text-on-surface font-semibold">Capacity Inspector</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1 text-subdued-tick hover:text-on-surface hover:bg-surface-container rounded transition-colors" title="Focus Mode">
+<span class="material-symbols-outlined text-base">center_focus_strong</span>
+</button>
+<button class="p-1 text-subdued-tick hover:text-on-surface hover:bg-surface-container rounded transition-colors" title="Close panel">
+<span class="material-symbols-outlined text-base">close</span>
+</button>
+</div>
+</div>
+<!-- Inspected Profile Card -->
+<div class="p-4 bg-surface-container flex items-start gap-3.5">
+<div class="w-12 h-12 rounded-lg bg-status-critical/20 text-status-critical flex items-center justify-center font-bold text-headline-md shadow-sm shrink-0">
+          DC
+        </div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between gap-1">
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface truncate">David Chen</h3>
+<span class="px-1.5 py-0.5 rounded bg-status-critical/20 text-status-critical font-badge-label text-badge-label uppercase font-bold">120% Load</span>
+</div>
+<p class="font-body-sm text-body-sm text-subdued-tick truncate">Senior Backend Engineer</p>
+<span class="font-data-mono text-timeline-tick text-on-surface-variant">david@platform.internal</span>
+</div>
+</div>
+<!-- Overload Dial & Metrics Breakdown -->
+<div class="p-4 bg-surface-container-lowest/60 flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="font-section-title text-section-title text-on-surface font-semibold">Weekly Load Analysis</span>
+<span class="text-status-critical font-data-mono text-data-mono font-bold">+8h Deficit</span>
+</div>
+<!-- Metric Bars -->
+<div class="space-y-2">
+<div>
+<div class="flex justify-between text-body-sm font-body-sm mb-1">
+<span class="text-subdued-tick">Week 42 Allocation</span>
+<span class="font-data-mono text-status-critical font-bold">48.0h / 40.0h max</span>
+</div>
+<div class="w-full h-2 rounded bg-surface-container-high overflow-hidden flex">
+<div class="bg-secondary h-full" style="width: 83.3%;"></div>
+<div class="bg-status-critical h-full" style="width: 16.7%;"></div>
+</div>
+</div>
+<div class="p-2 rounded bg-status-critical/10 text-body-sm font-body-sm text-status-critical flex items-start gap-2">
+<span class="material-symbols-outlined text-base shrink-0 mt-0.5">error_outline</span>
+<span>Task collision between <strong>#02 API Layer</strong> and <strong>#07 Canary Scripts</strong> peaks on Thu Oct 16 (11h scheduled).</span>
+</div>
+</div>
+</div>
+<!-- AI Natural Language Leveling Suggestions Section -->
+<div class="p-4 flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-base">auto_awesome</span>
+<span class="font-section-title text-section-title text-on-surface font-semibold">AI Leveling Recommendations</span>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-primary/10 text-primary font-badge-label text-badge-label font-bold">2 FEASIBLE</span>
+</div>
+<!-- Suggestion Card 1 -->
+<div class="p-3 rounded-lg bg-surface-container-high hover:bg-surface-container-highest/80 transition-colors flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="px-1.5 py-0.5 rounded bg-status-completed/20 text-status-completed font-badge-label text-badge-label uppercase font-semibold">Zero-Slack Shift</span>
+<span class="font-data-mono text-timeline-tick text-subdued-tick">98% confidence</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface">
+            Shift <strong>Task #07 (Canary Deploy)</strong> start date by <strong>+3 days</strong> to Oct 19.
+          </p>
+<div class="flex items-center gap-1 text-timeline-tick font-data-mono text-secondary">
+<span class="material-symbols-outlined text-xs">check_circle</span>
+<span>Eliminates overload without shifting Milestone 06.</span>
+</div>
+<button class="w-full mt-1 py-1.5 px-2.5 bg-primary-container hover:bg-primary-hover text-on-primary-container font-headline-sm text-headline-sm rounded font-semibold transition-colors flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-base">flash_on</span>
+<span>Apply 3-Day Schedule Shift</span>
+</button>
+</div>
+<!-- Suggestion Card 2 -->
+<div class="p-3 rounded-lg bg-surface-container-high hover:bg-surface-container-highest/80 transition-colors flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="px-1.5 py-0.5 rounded bg-secondary/20 text-secondary font-badge-label text-badge-label uppercase font-semibold">Workload Hand-off</span>
+<span class="font-data-mono text-timeline-tick text-subdued-tick">Alex K. (16h free)</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface">
+            Delegate Canary automated test suite creation to <strong>Alex Kumar</strong>.
+          </p>
+<div class="flex items-center gap-1 text-timeline-tick font-data-mono text-subdued-tick">
+<span class="material-symbols-outlined text-xs">swap_horiz</span>
+<span>Transfers 12h demand. David drops to 36h (90%).</span>
+</div>
+<button class="w-full mt-1 py-1.5 px-2.5 bg-surface-container-lowest hover:bg-surface-container text-primary font-headline-sm text-headline-sm rounded transition-colors flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-base">person_add</span>
+<span>Reassign to Alex Kumar</span>
+</button>
+</div>
+</div>
+<!-- Assigned Task Fine-tuning List -->
+<div class="p-4 bg-surface-container-lowest flex flex-col gap-2.5 mt-auto">
+<span class="font-badge-label text-badge-label uppercase text-subdued-tick tracking-wider font-semibold">Direct Demand Override</span>
+<div class="flex items-center justify-between p-2 rounded bg-surface-container-high text-body-sm font-body-sm">
+<span class="text-on-surface truncate max-w-[200px]">02 Backend REST APIs</span>
+<div class="flex items-center gap-1 font-data-mono">
+<button class="w-5 h-5 rounded bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-highest">-</button>
+<span class="px-1 font-bold text-on-surface">32h</span>
+<button class="w-5 h-5 rounded bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-highest">+</button>
+</div>
+</div>
+<div class="flex items-center justify-between p-2 rounded bg-surface-container-high text-body-sm font-body-sm">
+<span class="text-status-critical truncate max-w-[200px]">07 Canary Prep (Overlap)</span>
+<div class="flex items-center gap-1 font-data-mono">
+<button class="w-5 h-5 rounded bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-highest">-</button>
+<span class="px-1 font-bold text-status-critical">16h</span>
+<button class="w-5 h-5 rounded bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-highest">+</button>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</div></main></div></body></html>

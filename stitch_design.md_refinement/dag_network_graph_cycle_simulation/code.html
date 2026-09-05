@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}
+@keyframes dash {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+.animated-cycle-edge {
+  stroke-dasharray: 6 4;
+  animation: dash 0.85s linear infinite;
+}
+</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"tertiary":"#ffb599","surface-dim":"#0b1326","surface-tint":"#c3c0ff","secondary":"#6bd8cb","error":"#ffb4ab","primary":"#c3c0ff","status-critical":"#EA580C","status-error":"#DC2626","secondary-fixed":"#89f5e7","secondary-container":"#29a195","on-primary":"#1d00a5","primary-container":"#4f46e5","status-milestone":"#7C3AED","on-primary-container":"#dad7ff","surface":"#0b1326","tertiary-fixed-dim":"#ffb599","surface-container-lowest":"#060e20","on-secondary-fixed-variant":"#005049","inverse-primary":"#4d44e3","surface-dark":"#1E293B","surface-container-low":"#131b2e","on-tertiary-fixed-variant":"#7f2b00","status-completed":"#059669","surface-container":"#171f33","on-surface-variant":"#c7c4d8","secondary-fixed-dim":"#6bd8cb","status-critical-alt":"#F97316","tertiary-fixed":"#ffdbce","surface-light":"#FFFFFF","status-standard":"#0D9488","background":"#0b1326","canvas-light":"#F8FAFC","primary-fixed-dim":"#c3c0ff","on-background":"#dae2fd","subdued-tick":"#64748B","outline":"#918fa1","on-surface":"#dae2fd","on-tertiary":"#5a1c00","on-secondary-fixed":"#00201d","on-tertiary-container":"#ffd1c1","surface-container-high":"#222a3d","surface-container-highest":"#2d3449","on-secondary-container":"#00302b","status-warning":"#D97706","primary-hover":"#6366F1","canvas-dark":"#0F172A","surface-variant":"#2d3449","border-dark":"#334155","border-light":"#E2E8F0","error-container":"#93000a","on-primary-fixed-variant":"#3323cc","on-secondary":"#003732","on-tertiary-fixed":"#370e00","inverse-on-surface":"#283044","tertiary-container":"#aa3b00","primary-fixed":"#e2dfff","on-error-container":"#ffdad6","outline-variant":"#464555","surface-bright":"#31394d","status-standard-alt":"#14B8A6","on-primary-fixed":"#0f0069","on-error":"#690005","inverse-surface":"#dae2fd"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"panel-p":"1rem","badge-px":"0.375rem","badge-py":"0.125rem","hit-resize":"0.375rem","cell-px":"0.75rem","base":"0.25rem","gutter-canvas":"1rem","cell-py":"0.375rem"},"fontFamily":{"data-mono":["Inter"],"headline-md":["Inter"],"body-md":["Inter"],"section-title":["Inter"],"headline-sm":["Inter"],"badge-label":["Inter"],"headline-lg":["Inter"],"table-cell":["Inter"],"timeline-tick":["Inter"],"body-sm":["Inter"]},"fontSize":{"data-mono":["12px",{"lineHeight":"16px","fontWeight":"500"}],"headline-md":["16px",{"lineHeight":"22px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"section-title":["14px",{"lineHeight":"20px","letterSpacing":"-0.01em","fontWeight":"500"}],"headline-sm":["14px",{"lineHeight":"20px","letterSpacing":"-0.005em","fontWeight":"600"}],"badge-label":["11px",{"lineHeight":"14px","fontWeight":"600"}],"headline-lg":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"table-cell":["13px",{"lineHeight":"18px","fontWeight":"400"}],"timeline-tick":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"500"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased select-none"><header class="fixed top-0 left-0 right-0 h-14 z-50 bg-surface-container-low border-b border-border-dark flex items-center justify-between px-4 select-none"><div class="flex items-center gap-4 min-w-0"><div class="flex items-center gap-2.5 shrink-0"><img alt="Text-to-Gantt Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WI1ApC0WGYrfBrX_zgY5d0AVS3Qhjt5VPgP4F_90G5p8PsrO8T9rBnpbM0mly2_B5ht-eqfW6JlfkP7Hc6xwVKWBzlASuVTqBaTFb4TuzOPZ4WM5uDm_0SgrKrVDTUWo_6KaBQ1qQmnrA2EkKBdSUf6sz7Ig7NTRNUKZFYm96p3pv88b5w9rZrLp74agNEVU7DgRBZ7KBcmUztt3FRBSQPW9YRwObUJqZx_F1YJiC7muOq-ng-y_dburRS"/><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight font-semibold hidden sm:inline">Text-to-Gantt</span><span class="px-badge-px py-badge-py rounded bg-surface-container-high text-primary font-badge-label text-badge-label uppercase tracking-wider">Workbench</span></div><div class="h-4 w-px bg-border-dark hidden md:block"></div><button class="flex items-center gap-1.5 px-2.5 py-1 rounded hover:bg-surface-container-high transition-colors text-left group"><span class="font-headline-sm text-headline-sm text-on-surface font-medium truncate max-w-[200px] lg:max-w-xs">Q4 Mobile App Launch v2.4</span><span class="material-symbols-outlined text-outline text-base group-hover:text-on-surface transition-colors">arrow_drop_down</span></button><div class="h-4 w-px bg-border-dark hidden xl:block"></div><div class="hidden xl:flex items-center gap-2 text-subdued-tick font-data-mono text-data-mono"><span class="w-2 h-2 rounded-full bg-status-completed"></span><span>All changes saved • Cloud sync active</span></div></div><div class="flex items-center gap-2 shrink-0"><div class="flex items-center border border-border-dark rounded bg-surface-container-lowest p-0.5"><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" title="Undo (Ctrl+Z)"><span class="material-symbols-outlined text-base block">undo</span></button><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" title="Redo (Ctrl+Y)"><span class="material-symbols-outlined text-base block">redo</span></button></div><button class="flex items-center gap-1.5 px-3 py-1.5 rounded border border-border-dark bg-surface-container hover:bg-surface-container-high text-on-surface font-headline-sm text-headline-sm transition-colors"><span class="material-symbols-outlined text-base">share</span><span class="hidden sm:inline">Share</span></button><div class="relative"><button class="flex items-center gap-1.5 px-3 py-1.5 rounded border border-border-dark bg-surface-container hover:bg-surface-container-high text-on-surface font-headline-sm text-headline-sm transition-colors"><span class="material-symbols-outlined text-base">file_download</span><span class="hidden sm:inline">Export</span><span class="material-symbols-outlined text-base text-outline">expand_more</span></button></div><button class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-primary-container hover:bg-primary-hover text-on-primary-container font-headline-sm text-headline-sm transition-colors shadow-sm font-semibold"><span class="material-symbols-outlined text-base">auto_awesome</span><span class="hidden md:inline">Prompt Plan</span></button><div class="h-5 w-px bg-border-dark mx-1"></div><div class="flex items-center gap-2 shrink-0 pl-1"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-border-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_4GQIkEsMPgG09Y-mVSzrzewhjGHtKF7bSSLT7Y_tXPhBj_VLTL7ZNr3TykNvsKb6NASHlSYvyV-eM0wLue62bt6yBWlFzRTdPx1IONIgGOkUT_CZeopy6IalrbE4IrCpP39PtuI82VvmW5iXYRaTOtZrGKt5vxTNrVg7RHKbfx46XtyXPWlqv1Xzcwifn5lEZPfEvieLMRZ5_x5PGZXHBjjFTKz1DOAC3rLgM02OcFG9YQH_snSKwQ"/></div></div></header><aside class="fixed left-0 top-14 bottom-0 w-16 bg-surface-container-low border-r border-border-dark z-40 flex flex-col items-center py-3 justify-between"><nav class="flex flex-col items-center gap-2 w-full px-2" data-active-classes="bg-surface-container-highest text-primary"><a aria-current="page" class="w-11 h-11 flex items-center justify-center rounded transition-colors bg-surface-container-highest text-primary" data-path="gantt-workbench" href="#" title="Gantt Timeline Canvas"><span class="material-symbols-outlined text-xl">waterfall_chart</span></a><a class="w-11 h-11 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" data-path="task-breakdown" href="#" title="WBS &amp; Data Grid"><span class="material-symbols-outlined text-xl">table_rows</span></a><a class="w-11 h-11 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" data-path="dependency-matrix" href="#" title="Dependency Matrix &amp; Graph"><span class="material-symbols-outlined text-xl">account_tree</span></a><a class="w-11 h-11 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" data-path="extraction-telemetry" href="#" title="AI Parse Workbench &amp; Telemetry"><span class="material-symbols-outlined text-xl">psychology</span></a></nav><div class="flex flex-col items-center gap-2 w-full px-2 border-t border-border-dark pt-3"><a class="w-11 h-11 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" data-path="project-settings" href="#" title="Project Settings"><span class="material-symbols-outlined text-xl">settings</span></a></div></aside><div class="pl-16"><main class="w-full pt-14 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Sub-Navigation / Workspace Context Tab Strip -->
+<div class="w-full bg-surface-container-low px-4 flex flex-wrap items-center justify-between gap-3 select-none">
+<div class="flex items-center gap-1 overflow-x-auto py-1">
+<a class="flex items-center gap-2 px-3 py-2 rounded-t font-headline-sm text-headline-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined text-base">waterfall_chart</span>
+<span>Gantt Timeline</span>
+</a>
+<a class="flex items-center gap-2 px-3 py-2 rounded-t font-headline-sm text-headline-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined text-base">grid_on</span>
+<span>Dependency Matrix (DSM)</span>
+</a>
+<a class="flex items-center gap-2 px-3 py-2 rounded-t font-headline-sm text-headline-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined text-base">group</span>
+<span>Resource Workload &amp; Capacity</span>
+</a>
+<a class="flex items-center gap-2 px-3 py-2 rounded-t font-headline-sm text-headline-sm text-primary bg-surface-container font-semibold" href="#">
+<span class="material-symbols-outlined text-base text-primary">account_tree</span>
+<span>DAG Network Graph</span>
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+</a>
+</div>
+<!-- Telemetry Graph Summary Chips -->
+<div class="hidden 2xl:flex items-center gap-2 py-1">
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-highest font-data-mono text-data-mono text-on-surface">
+<span class="text-on-surface-variant">Nodes:</span>
+<span class="font-semibold text-primary">7</span>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-highest font-data-mono text-data-mono text-on-surface">
+<span class="text-on-surface-variant">Critical Path:</span>
+<span class="font-semibold text-status-critical" id="summaryCriticalPath">21d (3 Nodes)</span>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-highest font-data-mono text-data-mono text-on-surface">
+<span class="text-on-surface-variant">Total Slack:</span>
+<span class="font-semibold text-secondary" id="summarySlack">4d</span>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-highest font-data-mono text-data-mono text-on-surface" id="summaryTopologyChip">
+<span class="text-on-surface-variant">Topology:</span>
+<span class="font-semibold text-status-completed flex items-center gap-1" id="topologyStatusText">
+<span class="material-symbols-outlined text-xs">verified</span>
+<span>100% DAG (Acyclic)</span>
+</span>
+</div>
+</div>
+</div>
+<!-- Primary Canvas Top Control Toolbar -->
+<div class="w-full bg-surface-container px-4 py-2 flex flex-wrap items-center justify-between gap-3 select-none">
+<!-- Left: Layout Algorithm & Toggles -->
+<div class="flex items-center gap-2 flex-wrap">
+<!-- Layout Modes -->
+<div class="flex items-center bg-surface-container-lowest p-0.5 rounded">
+<button class="px-2.5 py-1 rounded bg-primary-container text-on-primary-container font-headline-sm text-headline-sm font-medium flex items-center gap-1.5 transition-colors shadow-sm" id="btnSugiyama">
+<span class="material-symbols-outlined text-sm">account_tree</span>
+<span>Hierarchical DAG</span>
+</button>
+<button class="px-2.5 py-1 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface font-headline-sm text-headline-sm transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm">bubble_chart</span>
+<span>Force-Directed</span>
+</button>
+<button class="px-2.5 py-1 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface font-headline-sm text-headline-sm transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm">grid_view</span>
+<span>Orthogonal</span>
+</button>
+</div>
+<div class="h-4 w-px bg-surface-container-highest mx-1 hidden sm:block"></div>
+<!-- Analysis Toggles -->
+<button class="px-2.5 py-1 rounded bg-status-critical/15 text-status-critical-alt hover:bg-status-critical/25 font-headline-sm text-headline-sm flex items-center gap-1.5 transition-colors font-medium" id="toggleCritical">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span>Highlight Critical Path</span>
+</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-high text-on-surface hover:bg-surface-bright font-headline-sm text-headline-sm flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-sm">timelapse</span>
+<span>Show Float / Slack</span>
+</button>
+<!-- Interactive Detect Cycles / Cycle Simulation Toggle -->
+<button class="px-3 py-1 rounded bg-surface-container-high text-on-surface hover:bg-surface-bright font-headline-sm text-headline-sm flex items-center gap-2 transition-all font-medium border border-transparent shadow-sm" id="btnDetectCycles" title="Click to simulate cycle conflict or detect loops">
+<span class="material-symbols-outlined text-sm text-status-completed" id="cycleBtnIcon">sync</span>
+<span id="cycleBtnLabel">Detect Cycles (0 Found)</span>
+<span class="px-1.5 py-0.2 rounded font-data-mono text-[10px] uppercase bg-surface-container-lowest text-primary tracking-wide hidden sm:inline" id="cycleBtnActionHint">Simulate</span>
+</button>
+</div>
+<!-- Right: Zoom & Export Controls -->
+<div class="flex items-center gap-2">
+<!-- Auto Re-rank Button -->
+<button class="px-2.5 py-1 rounded bg-surface-container-high hover:bg-surface-bright text-primary font-headline-sm text-headline-sm flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-sm">auto_fix_high</span>
+<span class="hidden md:inline">Auto-Rank by Slack</span>
+</button>
+<!-- Zoom Preset Controls -->
+<div class="flex items-center bg-surface-container-lowest rounded px-2 py-0.5 text-on-surface-variant font-data-mono text-data-mono">
+<button class="p-1 hover:text-on-surface transition-colors" id="btnZoomOut" title="Zoom Out"><span class="material-symbols-outlined text-sm block">remove</span></button>
+<span class="px-1.5 font-semibold text-on-surface" id="zoomLevel">100%</span>
+<button class="p-1 hover:text-on-surface transition-colors" id="btnZoomIn" title="Zoom In"><span class="material-symbols-outlined text-sm block">add</span></button>
+<button class="p-1 hover:text-on-surface ml-1 transition-colors" id="btnZoomFit" title="Fit to Screen"><span class="material-symbols-outlined text-sm block">fit_screen</span></button>
+</div>
+<!-- Export SVG Dropdown -->
+<button class="px-2.5 py-1 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-headline-sm text-headline-sm flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-sm">download</span>
+<span class="hidden sm:inline">Export Graph</span>
+</button>
+</div>
+</div>
+<!-- Interactive Cycle Simulation Banner Notification (Visible when cycle mode active) -->
+<div class="hidden w-full bg-gradient-to-r from-status-error/20 via-status-critical/15 to-surface-container border-y border-status-error/40 px-4 py-2 select-none items-center justify-between gap-3 shadow-inner" id="cycleActiveBanner">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="flex h-2.5 w-2.5 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-error opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-status-error"></span>
+</span>
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-data-mono text-badge-label font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-status-error/30 text-error flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">sync_problem</span>
+<span>Cycle Simulation Active</span>
+</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">
+Loop Detected: <span class="font-data-mono text-status-critical font-bold">Node 05 ➔ Node 02 ➔ Node 05</span>
+</span>
+<span class="text-body-sm text-on-surface-variant hidden lg:inline">• Topological schedule deadlock detected (Acyclic invariant violated)</span>
+</div>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="px-3 py-1 rounded bg-status-error hover:bg-status-error/80 text-white font-headline-sm text-headline-sm font-semibold flex items-center gap-1.5 transition-colors shadow" id="bannerSeverBtn">
+<span class="material-symbols-outlined text-sm">content_cut</span>
+<span>Sever Loop Edge</span>
+</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface-variant hover:text-on-surface font-headline-sm text-headline-sm flex items-center gap-1 transition-colors" id="bannerExitBtn" title="Restore pristine DAG">
+<span class="material-symbols-outlined text-sm">close</span>
+<span class="hidden sm:inline">Exit Simulation</span>
+</button>
+</div>
+</div>
+<!-- Animated Toast for Success Notification -->
+<div class="hidden fixed bottom-6 right-8 z-50 bg-surface-container-highest border border-status-completed/40 text-on-surface shadow-2xl rounded-lg p-3 flex items-center gap-3 transition-all duration-300 transform" id="cycleToast">
+<span class="material-symbols-outlined text-status-completed text-xl">check_circle</span>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold">Graph Repaired • Valid DAG Restored</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Feedback edge removed. Topological sort re-indexed with 0 cycles.</div>
+</div>
+</div>
+<!-- Workbench Master Area: Graph Canvas + Right Inspector Sheet -->
+<div class="w-full flex relative overflow-hidden h-[calc(100vh-148px)]">
+<!-- Primary Canvas Graph Workspace -->
+<div class="flex-1 relative overflow-auto bg-surface-container-lowest select-none flex flex-col" id="graphViewport">
+<!-- Architectural Canvas Grid Overlay (SVG pattern) -->
+<div class="absolute inset-0 pointer-events-none opacity-40">
+<svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern height="24" id="dagSmallGrid" patternunits="userSpaceOnUse" width="24">
+<path d="M 24 0 L 0 0 0 24" fill="none" stroke="#222A3D" stroke-width="0.75"></path>
+</pattern>
+<pattern height="96" id="dagGrid" patternunits="userSpaceOnUse" width="96">
+<rect fill="url(#dagSmallGrid)" height="96" width="96"></rect>
+<path d="M 96 0 L 0 0 0 96" fill="none" stroke="#334155" stroke-width="1.2"></path>
+</pattern>
+</defs>
+<rect fill="url(#dagGrid)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<!-- Topological Rank Stage Indicators (Top Sticky Ruler) -->
+<div class="sticky top-0 z-30 w-full min-w-[1240px] px-8 py-2 bg-surface-container-lowest/80 backdrop-blur flex justify-between">
+<div class="flex items-center gap-3">
+<span class="font-data-mono text-timeline-tick uppercase text-subdued-tick tracking-wider">Level 1 • Initialization</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-data-mono text-body-sm">Rank 0</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-data-mono text-timeline-tick uppercase text-subdued-tick tracking-wider">Level 2 • Concurrent Build</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-data-mono text-body-sm">Rank 1</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-data-mono text-timeline-tick uppercase text-subdued-tick tracking-wider">Level 3 • Quality &amp; Compliance</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-data-mono text-body-sm">Rank 2</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-data-mono text-timeline-tick uppercase text-subdued-tick tracking-wider">Level 4 • Review &amp; Deployment</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-data-mono text-body-sm">Rank 3</span>
+</div>
+</div>
+<!-- Main Node-Link Stage Container -->
+<div class="relative w-[1380px] h-[640px] p-8 shrink-0 transition-transform duration-150 origin-top-left" id="dagStage">
+<!-- SVG Vector Connector Layer (z-index 10) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none z-10" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<!-- Critical Path Arrow Marker -->
+<marker id="arrow-critical" markerheight="6" markerwidth="6" orient="auto-start-reverse" refx="7" refy="5" viewbox="0 0 10 10">
+<path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#EA580C"></path>
+</marker>
+<!-- Cycle Error Arrow Marker -->
+<marker id="arrow-cycle-error" markerheight="7" markerwidth="7" orient="auto-start-reverse" refx="8" refy="5" viewbox="0 0 10 10">
+<path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#DC2626"></path>
+</marker>
+<!-- Standard Path Arrow Marker -->
+<marker id="arrow-standard" markerheight="6" markerwidth="6" orient="auto-start-reverse" refx="7" refy="5" viewbox="0 0 10 10">
+<path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#6BD8CB"></path>
+</marker>
+<!-- Ambiguous/Warning Path Arrow Marker -->
+<marker id="arrow-warning" markerheight="6" markerwidth="6" orient="auto-start-reverse" refx="7" refy="5" viewbox="0 0 10 10">
+<path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#D97706"></path>
+</marker>
+<!-- Milestone Glow Filter -->
+<filter height="140%" id="glow-critical" width="140%" x="-20%" y="-20%">
+<fedropshadow dx="0" dy="0" flood-color="#EA580C" flood-opacity="0.6" stddeviation="3"></fedropshadow>
+</filter>
+<!-- Cycle Hazard Red Glow Filter -->
+<filter height="180%" id="glow-cycle-hazard" width="180%" x="-40%" y="-40%">
+<fedropshadow dx="0" dy="0" flood-color="#DC2626" flood-opacity="0.9" stddeviation="4"></fedropshadow>
+</filter>
+</defs>
+<!-- CONNECTORS -->
+<!-- 1. Node 01 -> Node 02 (CRITICAL PATH) -->
+<path d="M 284 212 C 340 212, 360 148, 420 148" fill="none" filter="url(#glow-critical)" marker-end="url(#arrow-critical)" stroke="#EA580C" stroke-width="2.5"></path>
+<!-- 2. Node 01 -> Node 03 (Standard Parallel) -->
+<path d="M 284 212 C 340 212, 360 330, 420 330" fill="none" marker-end="url(#arrow-standard)" stroke="#6BD8CB" stroke-dasharray="0" stroke-width="1.8"></path>
+<!-- 3. Node 02 -> Node 05 (CRITICAL PATH) -->
+<path d="M 684 148 C 730 148, 745 285, 784 285" fill="none" filter="url(#glow-critical)" marker-end="url(#arrow-critical)" stroke="#EA580C" stroke-width="2.5"></path>
+<!-- 4. Node 03 -> Node 05 (Standard Merge) -->
+<path d="M 684 330 C 730 330, 745 295, 784 295" fill="none" marker-end="url(#arrow-standard)" stroke="#6BD8CB" stroke-width="1.8"></path>
+<!-- 5. Node 02 -> Node 04 (Security Audit Dependency - with ambiguity float lag) -->
+<path d="M 684 138 C 730 138, 735 110, 784 110" fill="none" marker-end="url(#arrow-warning)" stroke="#D97706" stroke-dasharray="4 3" stroke-width="1.8"></path>
+<!-- 6. Node 05 -> Node 06 (Milestone trigger) -->
+<path d="M 1048 290 C 1080 290, 1090 190, 1120 190" fill="none" marker-end="url(#arrow-standard)" stroke="#6BD8CB" stroke-width="1.8"></path>
+<!-- 7. Node 05 -> Node 07 (CRITICAL PATH to Release) -->
+<path d="M 1048 290 C 1080 290, 1090 380, 1120 380" fill="none" filter="url(#glow-critical)" marker-end="url(#arrow-critical)" stroke="#EA580C" stroke-width="2.5"></path>
+<!-- 8. SIMULATED REVERSE CYCLE CONNECTOR (Node 05 -> Node 02) -->
+<g class="hidden" id="cycleEdgeGroup">
+<!-- Shadow background line -->
+<path d="M 784 315 C 720 385, 520 350, 480 240 C 468 205, 470 180, 484 165" fill="none" stroke="#DC2626" stroke-opacity="0.3" stroke-width="8"></path>
+<!-- Animated dotted reverse error vector -->
+<path class="animated-cycle-edge" d="M 784 315 C 720 385, 520 350, 480 240 C 468 205, 470 180, 484 165" fill="none" filter="url(#glow-cycle-hazard)" marker-end="url(#arrow-cycle-error)" stroke="#DC2626" stroke-width="3"></path>
+</g>
+</svg>
+<!-- Directed Edge Inline Metric Badges (Positioned mid-path) -->
+<div class="absolute left-[336px] top-[162px] z-20 px-1.5 py-0.5 rounded bg-surface-container-high shadow-md font-data-mono text-badge-label text-status-critical-alt flex items-center gap-0.5">
+<span class="font-bold">FS</span> +0d
+</div>
+<div class="absolute left-[336px] top-[282px] z-20 px-1.5 py-0.5 rounded bg-surface-container-high shadow-md font-data-mono text-badge-label text-secondary flex items-center gap-0.5">
+<span class="font-bold">FS</span> +0d
+</div>
+<div class="absolute left-[718px] top-[112px] z-20 px-1.5 py-0.5 rounded bg-surface-container-high shadow-md font-data-mono text-badge-label text-status-warning flex items-center gap-0.5">
+<span class="font-bold">SS</span> +2d lag
+</div>
+<div class="absolute left-[718px] top-[204px] z-20 px-1.5 py-0.5 rounded bg-surface-container-high shadow-md font-data-mono text-badge-label text-status-critical flex items-center gap-0.5">
+<span class="font-bold">FS</span> +0d (Crit)
+</div>
+<div class="absolute left-[1066px] top-[224px] z-20 px-1.5 py-0.5 rounded bg-surface-container-high shadow-md font-data-mono text-badge-label text-secondary flex items-center gap-0.5">
+<span class="font-bold">FS</span> +0d
+</div>
+<div class="absolute left-[1066px] top-[342px] z-20 px-1.5 py-0.5 rounded bg-surface-container-high shadow-md font-data-mono text-badge-label text-status-critical flex items-center gap-0.5">
+<span class="font-bold">FS</span> +0d (Release)
+</div>
+<!-- Simulated Feedback Edge Floating Badge -->
+<div class="hidden absolute left-[560px] top-[342px] z-30 px-2 py-1 rounded bg-status-error/95 text-white border border-error/50 shadow-2xl font-data-mono text-badge-label flex items-center gap-1.5 animate-bounce" id="cycleEdgeBadge">
+<span class="material-symbols-outlined text-xs">block</span>
+<span class="font-bold tracking-wide">Invalid Feedback: FS Edge (Creates Cycle 05➔02)</span>
+</div>
+<!-- ============================================ -->
+<!-- LEVEL 1 NODES (Left: 24px)                  -->
+<!-- ============================================ -->
+<!-- Node 01: Architecture & System Spec -->
+<div class="absolute left-[24px] top-[156px] w-[260px] bg-surface-container rounded-lg shadow-xl p-3.5 z-20 cursor-pointer hover:bg-surface-container-high transition-all border border-transparent" onclick="selectNode('task-01')">
+<div class="flex items-center justify-between gap-2 mb-2">
+<span class="px-1.5 py-0.5 rounded bg-status-completed/15 text-status-completed font-data-mono text-badge-label flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-xs">check_circle</span>
+<span>DONE</span>
+</span>
+<span class="font-data-mono text-badge-label text-on-surface-variant">ES: Oct 01 • EF: Oct 07</span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mb-1 font-semibold">01 Architecture &amp; System Spec</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-2.5 truncate">Database schemas, auth flow, and RPC spec</p>
+<div class="flex items-center justify-between text-on-surface-variant pt-2 bg-surface-container-lowest/40 -mx-3.5 -mb-3.5 px-3.5 py-2 rounded-b-lg">
+<div class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded bg-surface-container-highest text-secondary text-center text-xs font-semibold flex items-center justify-center">SC</span>
+<span class="font-body-sm text-body-sm">Sarah C.</span>
+</div>
+<div class="flex items-center gap-2 font-data-mono text-body-sm">
+<span>5d</span>
+<span class="w-1.5 h-1.5 rounded-full bg-status-completed"></span>
+<span class="text-on-surface font-semibold">100%</span>
+</div>
+</div>
+</div>
+<!-- ============================================ -->
+<!-- LEVEL 2 NODES (Left: 420px)                 -->
+<!-- ============================================ -->
+<!-- Node 02: Backend REST & GraphQL APIs (ACTIVE CRITICAL NODE) -->
+<div class="absolute left-[420px] top-[84px] w-[264px] bg-surface-container rounded-lg shadow-2xl p-3.5 z-25 cursor-pointer bg-gradient-to-br from-surface-container via-surface-container to-surface-container-high transition-all border border-transparent" id="node-02" onclick="selectNode('task-02')">
+<div class="flex items-center justify-between gap-2 mb-2">
+<div class="flex items-center gap-1.5">
+<span class="px-1.5 py-0.5 rounded bg-status-critical/20 text-status-critical-alt font-data-mono text-badge-label flex items-center gap-1 font-semibold animate-pulse" id="node02Badge">
+<span class="material-symbols-outlined text-xs">local_fire_department</span>
+<span>CRITICAL PATH</span>
+</span>
+</div>
+<span class="font-data-mono text-badge-label text-status-critical" id="node02Slack">Slack: 0d</span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mb-1 font-semibold flex items-center justify-between">
+<span>02 Backend APIs &amp; GraphQL</span>
+<span class="material-symbols-outlined text-sm text-primary">verified</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-2 truncate">Core controllers, mutation resolvers &amp; JWT cache</p>
+<!-- Progress Bar Fill -->
+<div class="w-full bg-surface-container-lowest h-1.5 rounded-full overflow-hidden mb-2.5">
+<div class="bg-status-critical-alt h-full rounded-full w-[40%]"></div>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant pt-2 bg-surface-container-lowest/60 -mx-3.5 -mb-3.5 px-3.5 py-2 rounded-b-lg">
+<div class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded bg-surface-container-highest text-primary text-center text-xs font-semibold flex items-center justify-center">DC</span>
+<span class="font-body-sm text-body-sm text-on-surface">David Chen</span>
+</div>
+<div class="flex items-center gap-2 font-data-mono text-body-sm">
+<span class="text-on-surface font-semibold">10d</span>
+<span class="w-1.5 h-1.5 rounded-full bg-status-critical"></span>
+<span class="text-status-critical-alt font-semibold">40%</span>
+</div>
+</div>
+</div>
+<!-- Node 03: Design System & UI Components (Parallel) -->
+<div class="absolute left-[420px] top-[270px] w-[264px] bg-surface-container rounded-lg shadow-xl p-3.5 z-20 cursor-pointer hover:bg-surface-container-high transition-all border border-transparent" onclick="selectNode('task-03')">
+<div class="flex items-center justify-between gap-2 mb-2">
+<span class="px-1.5 py-0.5 rounded bg-secondary-container/20 text-secondary font-data-mono text-badge-label flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-xs">pending</span>
+<span>IN PROGRESS</span>
+</span>
+<span class="font-data-mono text-badge-label text-secondary">Slack: 4d</span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mb-1 font-semibold">03 Design System &amp; UI Components</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-2 truncate">React Native atomic tokens, bottom sheets, icons</p>
+<!-- Progress Bar Fill -->
+<div class="w-full bg-surface-container-lowest h-1.5 rounded-full overflow-hidden mb-2.5">
+<div class="bg-secondary h-full rounded-full w-[60%]"></div>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant pt-2 bg-surface-container-lowest/40 -mx-3.5 -mb-3.5 px-3.5 py-2 rounded-b-lg">
+<div class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded bg-surface-container-highest text-secondary-fixed text-center text-xs font-semibold flex items-center justify-center">ML</span>
+<span class="font-body-sm text-body-sm">Maya Lin</span>
+</div>
+<div class="flex items-center gap-2 font-data-mono text-body-sm">
+<span>10d</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="text-on-surface font-semibold">60%</span>
+</div>
+</div>
+</div>
+<!-- ============================================ -->
+<!-- LEVEL 3 NODES (Left: 784px)                 -->
+<!-- ============================================ -->
+<!-- Node 04: Security Audit & Compliance (Flagged with Ambiguity) -->
+<div class="absolute left-[784px] top-[60px] w-[264px] bg-surface-container rounded-lg shadow-xl p-3.5 z-20 cursor-pointer hover:bg-surface-container-high transition-all border border-transparent" onclick="selectNode('task-04')">
+<div class="flex items-center justify-between gap-2 mb-2">
+<span class="px-1.5 py-0.5 rounded bg-status-warning/20 text-status-warning font-data-mono text-badge-label flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-xs">warning</span>
+<span>AMBIGUOUS (+2d lag)</span>
+</span>
+<span class="font-data-mono text-badge-label text-status-warning font-semibold">Float: 2d</span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mb-1 font-semibold">04 Security Audit &amp; Compliance</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-2 truncate">Pen-testing, OWASP checks, SOC2 access matrix</p>
+<div class="flex items-center justify-between text-on-surface-variant pt-2 bg-surface-container-lowest/40 -mx-3.5 -mb-3.5 px-3.5 py-2 rounded-b-lg">
+<div class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded bg-surface-container-highest text-tertiary text-center text-xs font-semibold flex items-center justify-center">AK</span>
+<span class="font-body-sm text-body-sm">Alex Kumar</span>
+</div>
+<div class="flex items-center gap-2 font-data-mono text-body-sm">
+<span>3d</span>
+<span class="text-on-surface-variant font-medium">Lag: +2d</span>
+</div>
+</div>
+</div>
+<!-- Node 05: E2E Integration Testing (CRITICAL PATH MERGE / CYCLE ANCHOR) -->
+<div class="absolute left-[784px] top-[235px] w-[264px] bg-surface-container rounded-lg shadow-2xl p-3.5 z-25 cursor-pointer hover:bg-surface-container-high transition-all border border-transparent" id="node-05" onclick="selectNode('task-05')">
+<div class="flex items-center justify-between gap-2 mb-2">
+<span class="px-1.5 py-0.5 rounded bg-status-critical/15 text-status-critical-alt font-data-mono text-badge-label flex items-center gap-1 font-semibold" id="node05Badge">
+<span class="material-symbols-outlined text-xs">local_fire_department</span>
+<span>CRITICAL CONFLUENCE</span>
+</span>
+<span class="font-data-mono text-badge-label text-status-critical" id="node05Slack">Slack: 0d</span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mb-1 font-semibold">05 E2E Integration Testing</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-2 truncate">Playwright suite, end-to-end device farm passes</p>
+<!-- Status Indicator -->
+<div class="flex items-center gap-1 text-on-surface-variant font-data-mono text-body-sm mb-2.5" id="node05WaitsText">
+<span class="material-symbols-outlined text-sm text-outline">call_split</span>
+<span>Waits on Tasks [02, 03]</span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant pt-2 bg-surface-container-lowest/40 -mx-3.5 -mb-3.5 px-3.5 py-2 rounded-b-lg">
+<div class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded bg-surface-container-highest text-primary text-center text-xs font-semibold flex items-center justify-center">DC</span>
+<span class="w-5 h-5 rounded bg-surface-container-highest text-secondary-fixed text-center text-xs font-semibold flex items-center justify-center -ml-2.5">ML</span>
+<span class="font-body-sm text-body-sm">David &amp; Maya</span>
+</div>
+<div class="flex items-center gap-2 font-data-mono text-body-sm">
+<span class="text-on-surface font-semibold">5d</span>
+<span class="text-on-surface-variant">Planned</span>
+</div>
+</div>
+</div>
+<!-- ============================================ -->
+<!-- LEVEL 4 NODES (Left: 1120px)                -->
+<!-- ============================================ -->
+<!-- Node 06: Client Review & Sign-Off (Milestone Diamond) -->
+<div class="absolute left-[1120px] top-[140px] w-[230px] bg-surface-container rounded-lg shadow-xl p-3.5 z-20 cursor-pointer hover:bg-surface-container-high transition-all border border-transparent" onclick="selectNode('task-06')">
+<div class="flex items-center justify-between gap-2 mb-2">
+<span class="px-1.5 py-0.5 rounded bg-status-milestone/20 text-on-primary-container font-data-mono text-badge-label flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-xs">diamond</span>
+<span>MILESTONE</span>
+</span>
+<span class="font-data-mono text-badge-label text-on-surface-variant">0 Days</span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mb-1 font-semibold flex items-center gap-1.5">
+<span class="text-status-milestone font-bold">◆</span>
+<span>06 Client Review &amp; Sign-Off</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-2 truncate">Final executive approval &amp; store metadata</p>
+<div class="flex items-center justify-between text-on-surface-variant pt-2 bg-surface-container-lowest/40 -mx-3.5 -mb-3.5 px-3.5 py-2 rounded-b-lg">
+<div class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded bg-surface-container-highest text-secondary text-center text-xs font-semibold flex items-center justify-center">SC</span>
+<span class="font-body-sm text-body-sm">Sarah Chen</span>
+</div>
+<div class="font-data-mono text-body-sm text-status-milestone font-semibold">Oct 28</div>
+</div>
+</div>
+<!-- Node 07: Production Canary Deployments (CRITICAL FINALE) -->
+<div class="absolute left-[1120px] top-[320px] w-[230px] bg-surface-container rounded-lg shadow-2xl p-3.5 z-25 cursor-pointer hover:bg-surface-container-high transition-all border border-transparent" onclick="selectNode('task-07')">
+<div class="flex items-center justify-between gap-2 mb-2">
+<span class="px-1.5 py-0.5 rounded bg-status-critical/20 text-status-critical-alt font-data-mono text-badge-label flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-xs">rocket_launch</span>
+<span>FINAL RELEASE</span>
+</span>
+<span class="font-data-mono text-badge-label text-status-critical font-bold">Slack: 0d</span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mb-1 font-semibold">07 Canary Deployments</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-2 truncate">5% staged traffic rollout to App Store &amp; Play</p>
+<div class="flex items-center justify-between text-on-surface-variant pt-2 bg-surface-container-lowest/40 -mx-3.5 -mb-3.5 px-3.5 py-2 rounded-b-lg">
+<div class="flex items-center gap-1.5">
+<span class="w-5 h-5 rounded bg-surface-container-highest text-primary text-center text-xs font-semibold flex items-center justify-center">DC</span>
+<span class="font-body-sm text-body-sm">David Chen</span>
+</div>
+<div class="flex items-center gap-2 font-data-mono text-body-sm">
+<span class="text-on-surface font-semibold">2d</span>
+<span class="text-status-critical-alt font-bold">Oct 30</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Canvas Bottom Radar Minimap + Graph Legend Floating Bar -->
+<div class="sticky bottom-4 left-4 z-40 flex items-end gap-3 px-4 pointer-events-none">
+<!-- Radar Mini-map Box -->
+<div class="pointer-events-auto bg-surface-container-high/90 backdrop-blur rounded-lg shadow-2xl p-2 w-48 hidden sm:block">
+<div class="flex items-center justify-between mb-1.5">
+<span class="font-data-mono text-badge-label text-on-surface-variant uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">map</span>
+<span>Minimap Overview</span>
+</span>
+<span class="text-xs text-on-surface-variant font-data-mono">1:1</span>
+</div>
+<!-- Miniature graph projection -->
+<div class="w-full h-20 bg-surface-container-lowest rounded relative overflow-hidden flex items-center justify-center">
+<!-- Simulated nodes in miniature -->
+<div class="absolute left-2 top-8 w-4 h-3 rounded-sm bg-status-completed"></div>
+<div class="absolute left-10 top-3 w-5 h-4 rounded-sm bg-status-critical" id="miniNode02"></div>
+<div class="absolute left-10 top-11 w-5 h-4 rounded-sm bg-secondary"></div>
+<div class="absolute left-20 top-2 w-5 h-3 rounded-sm bg-status-warning"></div>
+<div class="absolute left-20 top-9 w-5 h-4 rounded-sm bg-status-critical" id="miniNode05"></div>
+<div class="absolute left-32 top-4 w-4 h-3 rounded-sm bg-status-milestone"></div>
+<div class="absolute left-32 top-12 w-4 h-3 rounded-sm bg-status-critical"></div>
+<!-- Viewport rectangle outline -->
+<div class="absolute inset-1 rounded bg-primary/10"></div>
+</div>
+</div>
+<!-- Interactive Visual Legend Strip -->
+<div class="pointer-events-auto bg-surface-container-high/90 backdrop-blur rounded-lg shadow-xl px-3.5 py-2 flex flex-wrap items-center gap-4 text-body-sm">
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-status-critical"></span>
+<span class="text-on-surface font-medium">Critical Path (0d float)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="text-on-surface-variant">Parallel (Float &gt; 0d)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-status-completed"></span>
+<span class="text-on-surface-variant">Completed Task</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-sm bg-status-warning"></span>
+<span class="text-on-surface-variant">Ambiguous / Lag Warning</span>
+</div>
+<div class="flex items-center gap-1.5 hidden lg:flex" id="legendCycleItem">
+<span class="w-2.5 h-2.5 rounded-full bg-status-error animate-ping"></span>
+<span class="text-error font-medium">Cycle Deadlock (Loop)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="text-status-milestone font-bold text-xs">◆</span>
+<span class="text-on-surface-variant">Zero-day Milestone</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Contextual Graph Inspector Panel (Right Drawer: 340px) -->
+<div class="w-80 lg:w-[340px] bg-surface-container-low shrink-0 flex flex-col z-30 select-none overflow-y-auto" id="nodeInspector">
+<!-- NORMAL INSPECTOR VIEW -->
+<div class="flex flex-col h-full" id="normalInspectorView">
+<!-- Drawer Header -->
+<div class="px-4 py-3 bg-surface-container flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base">hub</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Node Inspector</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1 text-on-surface-variant hover:text-on-surface rounded hover:bg-surface-container-high transition-colors" title="Lock Inspector">
+<span class="material-symbols-outlined text-sm">lock_open</span>
+</button>
+<button class="p-1 text-on-surface-variant hover:text-on-surface rounded hover:bg-surface-container-high transition-colors" title="Close">
+<span class="material-symbols-outlined text-sm">close</span>
+</button>
+</div>
+</div>
+<!-- Current Selected Element Banner -->
+<div class="p-4 bg-surface-container-lowest">
+<div class="flex items-center justify-between gap-2 mb-1.5">
+<span class="font-data-mono text-badge-label uppercase text-status-critical font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">crisis_alert</span>
+<span>Task Node #02 (Active)</span>
+</span>
+<span class="px-1.5 py-0.5 rounded bg-status-critical/15 text-status-critical-alt font-data-mono text-badge-label font-semibold">Rank 1 Concurrency</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold leading-tight">Backend REST &amp; GraphQL APIs</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Owner: David Chen • Target: 10 working days</p>
+</div>
+<!-- Critical Zero-Float Alert Card -->
+<div class="mx-4 mt-4 p-3 rounded bg-status-critical/10 text-on-surface">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-status-critical text-lg shrink-0 mt-0.5">warning</span>
+<div>
+<div class="font-headline-sm text-headline-sm text-status-critical font-semibold">Zero-Float Vulnerability</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Any schedule delay on Node 02 propagates directly to Milestone 06 and delays final Canary rollout.</p>
+</div>
+</div>
+</div>
+<!-- Mathematical CPM (Critical Path Method) Grid -->
+<div class="p-4">
+<div class="flex items-center justify-between mb-2.5">
+<span class="font-data-mono text-timeline-tick uppercase text-subdued-tick tracking-wider">CPM Topological Metrics</span>
+<span class="font-data-mono text-badge-label text-primary">Float = LS - ES</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div class="p-2.5 rounded bg-surface-container flex flex-col">
+<span class="font-data-mono text-badge-label text-on-surface-variant uppercase">Early Start (ES)</span>
+<span class="font-data-mono text-section-title text-on-surface font-semibold mt-0.5">Oct 08, 2025</span>
+</div>
+<div class="p-2.5 rounded bg-surface-container flex flex-col">
+<span class="font-data-mono text-badge-label text-on-surface-variant uppercase">Early Finish (EF)</span>
+<span class="font-data-mono text-section-title text-on-surface font-semibold mt-0.5">Oct 18, 2025</span>
+</div>
+<div class="p-2.5 rounded bg-surface-container flex flex-col">
+<span class="font-data-mono text-badge-label text-on-surface-variant uppercase">Late Start (LS)</span>
+<span class="font-data-mono text-section-title text-status-critical-alt font-semibold mt-0.5">Oct 08, 2025</span>
+</div>
+<div class="p-2.5 rounded bg-surface-container flex flex-col">
+<span class="font-data-mono text-badge-label text-on-surface-variant uppercase">Late Finish (LF)</span>
+<span class="font-data-mono text-section-title text-status-critical-alt font-semibold mt-0.5">Oct 18, 2025</span>
+</div>
+<div class="p-2.5 rounded bg-surface-container flex flex-col">
+<span class="font-data-mono text-badge-label text-on-surface-variant uppercase">Total Float</span>
+<span class="font-data-mono text-section-title text-status-critical font-bold mt-0.5">0.0 Days</span>
+</div>
+<div class="p-2.5 rounded bg-surface-container flex flex-col">
+<span class="font-data-mono text-badge-label text-on-surface-variant uppercase">Free Float</span>
+<span class="font-data-mono text-section-title text-status-critical font-bold mt-0.5">0.0 Days</span>
+</div>
+</div>
+</div>
+<!-- Topological In/Out Degree Connectivity -->
+<div class="px-4 pb-4">
+<span class="font-data-mono text-timeline-tick uppercase text-subdued-tick tracking-wider block mb-2.5">Adjacency List &amp; Degree</span>
+<div class="space-y-2">
+<!-- Predecessors (In-Degree = 1) -->
+<div class="p-2.5 rounded bg-surface-container">
+<div class="flex items-center justify-between text-body-sm mb-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-secondary">arrow_downward</span>
+<span>In-Degree: 1 Predecessor</span>
+</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-data-mono text-badge-label">Strict FS</span>
+</div>
+<div class="flex items-center justify-between text-body-sm pl-2">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-status-completed"></span>
+<span class="text-on-surface font-medium truncate max-w-[170px]">01 Architecture &amp; System Spec</span>
+</div>
+<span class="font-data-mono text-badge-label text-status-completed">100%</span>
+</div>
+</div>
+<!-- Successors (Out-Degree = 2) -->
+<div class="p-2.5 rounded bg-surface-container">
+<div class="flex items-center justify-between text-body-sm mb-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-primary">arrow_upward</span>
+<span>Out-Degree: 2 Successors</span>
+</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-data-mono text-badge-label">Branching</span>
+</div>
+<div class="space-y-1.5 pl-2">
+<div class="flex items-center justify-between text-body-sm">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-status-critical"></span>
+<span class="text-on-surface font-medium truncate max-w-[170px]">05 E2E Integration Testing</span>
+</div>
+<span class="font-data-mono text-badge-label text-status-critical font-bold">FS (Crit)</span>
+</div>
+<div class="flex items-center justify-between text-body-sm">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-status-warning"></span>
+<span class="text-on-surface font-medium truncate max-w-[170px]">04 Security Audit &amp; Compliance</span>
+</div>
+<span class="font-data-mono text-badge-label text-status-warning font-semibold">SS +2d</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Natural Language AI Parse Traceability -->
+<div class="px-4 pb-4">
+<span class="font-data-mono text-timeline-tick uppercase text-subdued-tick tracking-wider block mb-2">LLM Extraction Telemetry</span>
+<div class="p-3 rounded bg-surface-container-lowest font-data-mono text-body-sm text-on-surface-variant">
+<div class="flex items-center justify-between mb-1 text-badge-label">
+<span class="text-primary font-semibold">Prompt Reference #3</span>
+<span class="text-status-completed font-semibold">98.4% Confidence</span>
+</div>
+<p class="italic text-on-surface leading-snug">
+            "...Task 02 requires Architecture signoff before backend APIs can proceed. Testing (Task 05) cannot start until backend and design system meet..."
+          </p>
+</div>
+</div>
+<!-- Inspector Bottom Quick Actions -->
+<div class="mt-auto p-4 bg-surface-container flex flex-col gap-2">
+<button class="w-full py-1.5 px-3 rounded bg-primary-container hover:bg-primary-hover text-on-primary-container font-headline-sm text-headline-sm font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-base">alt_route</span>
+<span>Isolate Subgraph Branch</span>
+</button>
+<button class="w-full py-1.5 px-3 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-headline-sm text-headline-sm flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-base">edit_calendar</span>
+<span>Re-calculate Float &amp; Buffers</span>
+</button>
+</div>
+</div>
+<!-- DEDICATED CYCLE DIAGNOSTICS & RESOLUTION INSPECTOR (Shown in Cycle Simulation Mode) -->
+<div class="hidden flex flex-col h-full bg-surface-container-low" id="cycleDiagnosticsView">
+<!-- Cycle Header -->
+<div class="px-4 py-3 bg-status-error/15 border-b border-status-error/30 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-status-error text-lg animate-pulse">sync_problem</span>
+<div>
+<span class="font-headline-sm text-headline-sm text-error font-bold block">Cycle Diagnostics</span>
+<span class="font-data-mono text-[11px] text-on-surface-variant">Tarjan's Strongly Connected Component #1</span>
+</div>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-status-error/25 text-error font-data-mono text-badge-label font-bold uppercase">Deadlock</span>
+</div>
+<!-- Loop Visualizer Card -->
+<div class="p-4 bg-surface-container-lowest border-b border-border-dark">
+<div class="flex items-center justify-between text-badge-label text-subdued-tick font-data-mono uppercase mb-2">
+<span>Detected Path Recurrence</span>
+<span class="text-status-error font-bold">2 Nodes Involved</span>
+</div>
+<!-- Flow steps -->
+<div class="p-3 rounded-lg bg-surface-container border border-status-error/40 space-y-2 font-data-mono text-body-sm">
+<div class="flex items-center justify-between bg-surface-container-lowest p-2 rounded border border-status-error/30">
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-status-error/20 text-status-error flex items-center justify-center text-xs font-bold">1</span>
+<span class="font-semibold text-on-surface">Node 02 (Backend APIs)</span>
+</div>
+<span class="text-status-critical font-bold text-xs">➔ FS Edge</span>
+</div>
+<div class="flex items-center justify-between bg-surface-container-lowest p-2 rounded border border-status-error/30">
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-status-error/20 text-status-error flex items-center justify-center text-xs font-bold">2</span>
+<span class="font-semibold text-on-surface">Node 05 (Integration Testing)</span>
+</div>
+<span class="text-error font-bold text-xs">➔ FEEDBACK</span>
+</div>
+<div class="flex items-center justify-between bg-status-error/15 p-2 rounded border border-status-error">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-error animate-spin">sync</span>
+<span class="font-bold text-error">Cycles Back to Node 02</span>
+</div>
+<span class="text-error font-bold text-xs">[INVALID]</span>
+</div>
+</div>
+</div>
+<!-- Algorithmic Impact Summary -->
+<div class="p-4 space-y-3">
+<div class="p-3 rounded bg-status-error/10 border border-status-error/30 text-on-surface">
+<div class="font-headline-sm text-headline-sm text-error font-semibold flex items-center gap-1.5 mb-1">
+<span class="material-symbols-outlined text-base">error</span>
+<span>Schedule Engine Halting</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+Topological sort invalid (<strong class="text-on-surface">Kahn's Algorithm halted</strong> with in-degree &gt; 0). Earliest finish &amp; critical path calculations are deadlocked. Project completion date is indeterminate (∞).
+</p>
+</div>
+<!-- Cycle Metrics Details -->
+<div class="space-y-1.5 font-data-mono text-body-sm">
+<div class="flex items-center justify-between p-2 rounded bg-surface-container">
+<span class="text-on-surface-variant">Cyclomatic Complexity</span>
+<span class="font-semibold text-status-error">V(G) = 3 (+1 loop)</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded bg-surface-container">
+<span class="text-on-surface-variant">Unresolved In-degree</span>
+<span class="font-semibold text-status-critical">Node 02 (2) / Node 05 (3)</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded bg-surface-container">
+<span class="text-on-surface-variant">AI Proposed Remediation</span>
+<span class="font-semibold text-primary">Prune Feedback Edge</span>
+</div>
+</div>
+</div>
+<!-- Remediation Section -->
+<div class="px-4 pb-4">
+<span class="font-data-mono text-timeline-tick uppercase text-subdued-tick tracking-wider block mb-2">Automated Resolutions</span>
+<div class="space-y-2">
+<!-- Option 1: Primary Sever -->
+<button class="w-full p-3 rounded-lg bg-status-error hover:bg-status-error/85 text-white text-left transition-all shadow-md group" id="btnSeverLoopAction">
+<div class="flex items-center justify-between mb-1">
+<span class="font-headline-sm text-headline-sm font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm">content_cut</span>
+<span>Sever Feedback Loop</span>
+</span>
+<span class="px-1.5 py-0.5 rounded bg-white/20 text-[10px] font-data-mono uppercase font-bold">Recommended</span>
+</div>
+<p class="font-body-sm text-body-sm opacity-90">Delete dependency edge (Node 05 ➔ Node 02) to restore linear acyclic DAG topology.</p>
+</button>
+<!-- Option 2: Convert to Lagged SS -->
+<button class="w-full p-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high border border-border-dark text-left transition-all group" id="btnConvertLagAction">
+<div class="flex items-center justify-between mb-0.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-medium flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm text-status-warning">published_with_changes</span>
+<span>Convert to SS with Offset</span>
+</span>
+<span class="font-data-mono text-badge-label text-status-warning">Safe Lag</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Converts back-dependency to iterative start-to-start lag without blocking completion.</p>
+</button>
+</div>
+</div>
+<!-- Bottom Exit simulation bar -->
+<div class="mt-auto p-4 bg-surface-container border-t border-border-dark flex flex-col gap-2">
+<button class="w-full py-1.5 px-3 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-headline-sm text-headline-sm flex items-center justify-center gap-1.5 transition-colors" id="btnExitSimulation">
+<span class="material-symbols-outlined text-base">restore</span>
+<span>Exit Simulation (Restore Valid DAG)</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  let currentZoom = 1.0;
+  const stage = document.getElementById('dagStage');
+  const zoomDisplay = document.getElementById('zoomLevel');
+
+  function updateZoom(newZoom) {
+    currentZoom = Math.min(Math.max(newZoom, 0.6), 1.6);
+    stage.style.transform = `scale(${currentZoom})`;
+    zoomDisplay.textContent = `${Math.round(currentZoom * 100)}%`;
+  }
+
+  document.getElementById('btnZoomIn').addEventListener('click', () => updateZoom(currentZoom + 0.15));
+  document.getElementById('btnZoomOut').addEventListener('click', () => updateZoom(currentZoom - 0.15));
+  document.getElementById('btnZoomFit').addEventListener('click', () => updateZoom(1.0));
+
+  // Critical path highlight toggle
+  let criticalPathVisible = true;
+  document.getElementById('toggleCritical').addEventListener('click', function() {
+    criticalPathVisible = !criticalPathVisible;
+    const paths = document.querySelectorAll('path[filter="url(#glow-critical)"]');
+    paths.forEach(p => {
+      p.style.opacity = criticalPathVisible ? '1' : '0.25';
+    });
+    this.classList.toggle('bg-status-critical/15');
+    this.classList.toggle('bg-surface-container-high');
+  });
+
+  // Node selection micro-interaction
+  function selectNode(nodeId) {
+    const nodes = document.querySelectorAll('#dagStage > div[onclick]');
+    nodes.forEach(n => {
+      n.classList.remove('ring-2', 'ring-primary');
+    });
+    const target = event.currentTarget;
+    if (target) {
+      target.classList.add('ring-2', 'ring-primary');
+    }
+  }
+
+  // ========================================================
+  // CYCLE SIMULATION MODE & LOOP DETECTION INTERACTION
+  // ========================================================
+  let cycleModeActive = false;
+
+  const btnDetectCycles = document.getElementById('btnDetectCycles');
+  const cycleBtnIcon = document.getElementById('cycleBtnIcon');
+  const cycleBtnLabel = document.getElementById('cycleBtnLabel');
+  const cycleBtnActionHint = document.getElementById('cycleBtnActionHint');
+  const cycleActiveBanner = document.getElementById('cycleActiveBanner');
+  const cycleEdgeGroup = document.getElementById('cycleEdgeGroup');
+  const cycleEdgeBadge = document.getElementById('cycleEdgeBadge');
+  const node02 = document.getElementById('node-02');
+  const node05 = document.getElementById('node-05');
+  const node02Badge = document.getElementById('node02Badge');
+  const node05Badge = document.getElementById('node05Badge');
+  const node02Slack = document.getElementById('node02Slack');
+  const node05Slack = document.getElementById('node05Slack');
+  const node05WaitsText = document.getElementById('node05WaitsText');
+  const normalInspectorView = document.getElementById('normalInspectorView');
+  const cycleDiagnosticsView = document.getElementById('cycleDiagnosticsView');
+  const topologyStatusText = document.getElementById('topologyStatusText');
+  const summaryCriticalPath = document.getElementById('summaryCriticalPath');
+  const summarySlack = document.getElementById('summarySlack');
+  const miniNode02 = document.getElementById('miniNode02');
+  const miniNode05 = document.getElementById('miniNode05');
+  const cycleToast = document.getElementById('cycleToast');
+  const legendCycleItem = document.getElementById('legendCycleItem');
+
+  function showToast(message, detail) {
+    cycleToast.classList.remove('hidden');
+    if (message) cycleToast.querySelector('.font-headline-sm').textContent = message;
+    if (detail) cycleToast.querySelector('.font-body-sm').textContent = detail;
+    setTimeout(() => {
+      cycleToast.classList.add('hidden');
+    }, 4000);
+  }
+
+  function setCycleState(active) {
+    cycleModeActive = active;
+
+    if (active) {
+      // 1. Top toolbar button styling
+      btnDetectCycles.className = 'px-3 py-1 rounded bg-status-error/25 text-error hover:bg-status-error/35 font-headline-sm text-headline-sm flex items-center gap-2 transition-all font-semibold border border-status-error/60 shadow-lg';
+      cycleBtnIcon.textContent = 'warning';
+      cycleBtnIcon.className = 'material-symbols-outlined text-sm text-error animate-spin';
+      cycleBtnLabel.textContent = '1 Cycle Detected!';
+      cycleBtnActionHint.textContent = 'Active';
+      cycleBtnActionHint.className = 'px-1.5 py-0.2 rounded font-data-mono text-[10px] uppercase bg-status-error text-white font-bold tracking-wide animate-pulse';
+
+      // 2. Banner
+      cycleActiveBanner.classList.remove('hidden');
+      cycleActiveBanner.classList.add('flex');
+
+      // 3. Canvas SVG Reverse loop arrow & badge
+      cycleEdgeGroup.classList.remove('hidden');
+      cycleEdgeBadge.classList.remove('hidden');
+      legendCycleItem.classList.remove('hidden');
+
+      // 4. Highlight Cycle Participant Nodes (Node 02 & Node 05)
+      node02.classList.add('ring-2', 'ring-status-error', 'border-status-error/80', 'bg-status-error/10');
+      node05.classList.add('ring-2', 'ring-status-error', 'border-status-error/80', 'bg-status-error/10');
+
+      node02Badge.innerHTML = '<span class="material-symbols-outlined text-xs">sync_problem</span><span>CYCLE PARTICIPANT</span>';
+      node02Badge.className = 'px-1.5 py-0.5 rounded bg-status-error/30 text-error font-data-mono text-badge-label flex items-center gap-1 font-bold animate-pulse';
+      node02Slack.textContent = 'DEADLOCK (∞)';
+      node02Slack.className = 'font-data-mono text-badge-label text-error font-bold';
+
+      node05Badge.innerHTML = '<span class="material-symbols-outlined text-xs">block</span><span>CYCLE CONFLICT</span>';
+      node05Badge.className = 'px-1.5 py-0.5 rounded bg-status-error/30 text-error font-data-mono text-badge-label flex items-center gap-1 font-bold animate-pulse';
+      node05Slack.textContent = 'CIRCULAR WAIT';
+      node05Slack.className = 'font-data-mono text-badge-label text-error font-bold';
+
+      node05WaitsText.innerHTML = '<span class="material-symbols-outlined text-sm text-error">sync_problem</span><span class="text-error font-semibold">Self-blocked via Node 02 feedback</span>';
+
+      // Minimap indicator
+      if (miniNode02) miniNode02.className = 'absolute left-10 top-3 w-5 h-4 rounded-sm bg-status-error animate-pulse';
+      if (miniNode05) miniNode05.className = 'absolute left-20 top-9 w-5 h-4 rounded-sm bg-status-error animate-pulse';
+
+      // 5. Update summary chips
+      topologyStatusText.innerHTML = '<span class="material-symbols-outlined text-xs">cancel</span><span>Invalid (Circular Loop)</span>';
+      topologyStatusText.className = 'font-semibold text-status-error flex items-center gap-1';
+      summaryCriticalPath.textContent = 'Unresolvable (∞)';
+      summaryCriticalPath.className = 'font-semibold text-status-error';
+      summarySlack.textContent = 'Deadlocked';
+      summarySlack.className = 'font-semibold text-status-error';
+
+      // 6. Switch to Cycle Diagnostics Inspector
+      normalInspectorView.classList.add('hidden');
+      cycleDiagnosticsView.classList.remove('hidden');
+
+    } else {
+      // Restore normal DAG state
+      btnDetectCycles.className = 'px-3 py-1 rounded bg-surface-container-high text-on-surface hover:bg-surface-bright font-headline-sm text-headline-sm flex items-center gap-2 transition-all font-medium border border-transparent shadow-sm';
+      cycleBtnIcon.textContent = 'sync';
+      cycleBtnIcon.className = 'material-symbols-outlined text-sm text-status-completed';
+      cycleBtnLabel.textContent = 'Detect Cycles (0 Found)';
+      cycleBtnActionHint.textContent = 'Simulate';
+      cycleBtnActionHint.className = 'px-1.5 py-0.2 rounded font-data-mono text-[10px] uppercase bg-surface-container-lowest text-primary tracking-wide hidden sm:inline';
+
+      // 2. Banner
+      cycleActiveBanner.classList.add('hidden');
+      cycleActiveBanner.classList.remove('flex');
+
+      // 3. Hide Canvas feedback edge & badge
+      cycleEdgeGroup.classList.add('hidden');
+      cycleEdgeBadge.classList.add('hidden');
+
+      // 4. Remove highlight from nodes
+      node02.classList.remove('ring-2', 'ring-status-error', 'border-status-error/80', 'bg-status-error/10');
+      node05.classList.remove('ring-2', 'ring-status-error', 'border-status-error/80', 'bg-status-error/10');
+
+      node02Badge.innerHTML = '<span class="material-symbols-outlined text-xs">local_fire_department</span><span>CRITICAL PATH</span>';
+      node02Badge.className = 'px-1.5 py-0.5 rounded bg-status-critical/20 text-status-critical-alt font-data-mono text-badge-label flex items-center gap-1 font-semibold animate-pulse';
+      node02Slack.textContent = 'Slack: 0d';
+      node02Slack.className = 'font-data-mono text-badge-label text-status-critical';
+
+      node05Badge.innerHTML = '<span class="material-symbols-outlined text-xs">local_fire_department</span><span>CRITICAL CONFLUENCE</span>';
+      node05Badge.className = 'px-1.5 py-0.5 rounded bg-status-critical/15 text-status-critical-alt font-data-mono text-badge-label flex items-center gap-1 font-semibold';
+      node05Slack.textContent = 'Slack: 0d';
+      node05Slack.className = 'font-data-mono text-badge-label text-status-critical';
+
+      node05WaitsText.innerHTML = '<span class="material-symbols-outlined text-sm text-outline">call_split</span><span>Waits on Tasks [02, 03]</span>';
+
+      // Minimap restore
+      if (miniNode02) miniNode02.className = 'absolute left-10 top-3 w-5 h-4 rounded-sm bg-status-critical';
+      if (miniNode05) miniNode05.className = 'absolute left-20 top-9 w-5 h-4 rounded-sm bg-status-critical';
+
+      // 5. Restore summary chips
+      topologyStatusText.innerHTML = '<span class="material-symbols-outlined text-xs">verified</span><span>100% DAG (Acyclic)</span>';
+      topologyStatusText.className = 'font-semibold text-status-completed flex items-center gap-1';
+      summaryCriticalPath.textContent = '21d (3 Nodes)';
+      summaryCriticalPath.className = 'font-semibold text-status-critical';
+      summarySlack.textContent = '4d';
+      summarySlack.className = 'font-semibold text-secondary';
+
+      // 6. Switch back to normal Inspector
+      normalInspectorView.classList.remove('hidden');
+      cycleDiagnosticsView.classList.add('hidden');
+    }
+  }
+
+  // Toggle button event
+  btnDetectCycles.addEventListener('click', () => {
+    setCycleState(!cycleModeActive);
+    if (cycleModeActive) {
+      showToast('Cycle Simulation Triggered', 'Simulated reverse feedback dependency from Task 05 to Task 02.');
+    }
+  });
+
+  // Action: Sever feedback edge from banner or inspector
+  function severCycleAndRepair() {
+    setCycleState(false);
+    showToast('Graph Repaired • Valid DAG Restored', 'Feedback edge 05 ➔ 02 severed. Kahn\'s algorithm verified 0 cycles.');
+  }
+
+  document.getElementById('bannerSeverBtn').addEventListener('click', severCycleAndRepair);
+  document.getElementById('btnSeverLoopAction').addEventListener('click', severCycleAndRepair);
+  document.getElementById('bannerExitBtn').addEventListener('click', () => setCycleState(false));
+  document.getElementById('btnExitSimulation').addEventListener('click', () => setCycleState(false));
+
+  document.getElementById('btnConvertLagAction').addEventListener('click', () => {
+    setCycleState(false);
+    showToast('Converted to SS +2d Offset', 'Cycle resolved into non-blocking parallel start-to-start lag.');
+  });
+</script></main></div></body></html>

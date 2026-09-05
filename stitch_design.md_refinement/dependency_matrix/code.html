@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"tertiary":"#ffb599","surface-dim":"#0b1326","surface-tint":"#c3c0ff","secondary":"#6bd8cb","error":"#ffb4ab","primary":"#c3c0ff","status-critical":"#EA580C","status-error":"#DC2626","secondary-fixed":"#89f5e7","secondary-container":"#29a195","on-primary":"#1d00a5","primary-container":"#4f46e5","status-milestone":"#7C3AED","on-primary-container":"#dad7ff","surface":"#0b1326","tertiary-fixed-dim":"#ffb599","surface-container-lowest":"#060e20","on-secondary-fixed-variant":"#005049","inverse-primary":"#4d44e3","surface-dark":"#1E293B","surface-container-low":"#131b2e","on-tertiary-fixed-variant":"#7f2b00","status-completed":"#059669","surface-container":"#171f33","on-surface-variant":"#c7c4d8","secondary-fixed-dim":"#6bd8cb","status-critical-alt":"#F97316","tertiary-fixed":"#ffdbce","surface-light":"#FFFFFF","status-standard":"#0D9488","background":"#0b1326","canvas-light":"#F8FAFC","primary-fixed-dim":"#c3c0ff","on-background":"#dae2fd","subdued-tick":"#64748B","outline":"#918fa1","on-surface":"#dae2fd","on-tertiary":"#5a1c00","on-secondary-fixed":"#00201d","on-tertiary-container":"#ffd1c1","surface-container-high":"#222a3d","surface-container-highest":"#2d3449","on-secondary-container":"#00302b","status-warning":"#D97706","primary-hover":"#6366F1","canvas-dark":"#0F172A","surface-variant":"#2d3449","border-dark":"#334155","border-light":"#E2E8F0","error-container":"#93000a","on-primary-fixed-variant":"#3323cc","on-secondary":"#003732","on-tertiary-fixed":"#370e00","inverse-on-surface":"#283044","tertiary-container":"#aa3b00","primary-fixed":"#e2dfff","on-error-container":"#ffdad6","outline-variant":"#464555","surface-bright":"#31394d","status-standard-alt":"#14B8A6","on-primary-fixed":"#0f0069","on-error":"#690005","inverse-surface":"#dae2fd"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"panel-p":"1rem","badge-px":"0.375rem","badge-py":"0.125rem","hit-resize":"0.375rem","cell-px":"0.75rem","base":"0.25rem","gutter-canvas":"1rem","cell-py":"0.375rem"},"fontFamily":{"data-mono":["Inter"],"headline-md":["Inter"],"body-md":["Inter"],"section-title":["Inter"],"headline-sm":["Inter"],"badge-label":["Inter"],"headline-lg":["Inter"],"table-cell":["Inter"],"timeline-tick":["Inter"],"body-sm":["Inter"]},"fontSize":{"data-mono":["12px",{"lineHeight":"16px","fontWeight":"500"}],"headline-md":["16px",{"lineHeight":"22px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"section-title":["14px",{"lineHeight":"20px","letterSpacing":"-0.01em","fontWeight":"500"}],"headline-sm":["14px",{"lineHeight":"20px","letterSpacing":"-0.005em","fontWeight":"600"}],"badge-label":["11px",{"lineHeight":"14px","fontWeight":"600"}],"headline-lg":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"table-cell":["13px",{"lineHeight":"18px","fontWeight":"400"}],"timeline-tick":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"500"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased select-none"><header class="fixed top-0 left-0 right-0 h-14 z-50 bg-surface-container-low border-b border-border-dark flex items-center justify-between px-4 select-none"><div class="flex items-center gap-4 min-w-0"><div class="flex items-center gap-2.5 shrink-0"><img alt="Text-to-Gantt Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WI1ApC0WGYrfBrX_zgY5d0AVS3Qhjt5VPgP4F_90G5p8PsrO8T9rBnpbM0mly2_B5ht-eqfW6JlfkP7Hc6xwVKWBzlASuVTqBaTFb4TuzOPZ4WM5uDm_0SgrKrVDTUWo_6KaBQ1qQmnrA2EkKBdSUf6sz7Ig7NTRNUKZFYm96p3pv88b5w9rZrLp74agNEVU7DgRBZ7KBcmUztt3FRBSQPW9YRwObUJqZx_F1YJiC7muOq-ng-y_dburRS"/><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight font-semibold hidden sm:inline">Text-to-Gantt</span><span class="px-badge-px py-badge-py rounded bg-surface-container-high text-primary font-badge-label text-badge-label uppercase tracking-wider">Workbench</span></div><div class="h-4 w-px bg-border-dark hidden md:block"></div><button class="flex items-center gap-1.5 px-2.5 py-1 rounded hover:bg-surface-container-high transition-colors text-left group"><span class="font-headline-sm text-headline-sm text-on-surface font-medium truncate max-w-[200px] lg:max-w-xs">Q4 Mobile App Launch v2.4</span><span class="material-symbols-outlined text-outline text-base group-hover:text-on-surface transition-colors">arrow_drop_down</span></button><div class="h-4 w-px bg-border-dark hidden xl:block"></div><div class="hidden xl:flex items-center gap-2 text-subdued-tick font-data-mono text-data-mono"><span class="w-2 h-2 rounded-full bg-status-completed"></span><span>All changes saved • Cloud sync active</span></div></div><div class="flex items-center gap-2 shrink-0"><div class="flex items-center border border-border-dark rounded bg-surface-container-lowest p-0.5"><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" title="Undo (Ctrl+Z)"><span class="material-symbols-outlined text-base block">undo</span></button><button class="p-1 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" title="Redo (Ctrl+Y)"><span class="material-symbols-outlined text-base block">redo</span></button></div><button class="flex items-center gap-1.5 px-3 py-1.5 rounded border border-border-dark bg-surface-container hover:bg-surface-container-high text-on-surface font-headline-sm text-headline-sm transition-colors"><span class="material-symbols-outlined text-base">share</span><span class="hidden sm:inline">Share</span></button><div class="relative"><button class="flex items-center gap-1.5 px-3 py-1.5 rounded border border-border-dark bg-surface-container hover:bg-surface-container-high text-on-surface font-headline-sm text-headline-sm transition-colors"><span class="material-symbols-outlined text-base">file_download</span><span class="hidden sm:inline">Export</span><span class="material-symbols-outlined text-base text-outline">expand_more</span></button></div><button class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-primary-container hover:bg-primary-hover text-on-primary-container font-headline-sm text-headline-sm transition-colors shadow-sm font-semibold"><span class="material-symbols-outlined text-base">auto_awesome</span><span class="hidden md:inline">Prompt Plan</span></button><div class="h-5 w-px bg-border-dark mx-1"></div><div class="flex items-center gap-2 shrink-0 pl-1"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-border-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_4GQIkEsMPgG09Y-mVSzrzewhjGHtKF7bSSLT7Y_tXPhBj_VLTL7ZNr3TykNvsKb6NASHlSYvyV-eM0wLue62bt6yBWlFzRTdPx1IONIgGOkUT_CZeopy6IalrbE4IrCpP39PtuI82VvmW5iXYRaTOtZrGKt5vxTNrVg7RHKbfx46XtyXPWlqv1Xzcwifn5lEZPfEvieLMRZ5_x5PGZXHBjjFTKz1DOAC3rLgM02OcFG9YQH_snSKwQ"/></div></div></header><aside class="fixed left-0 top-14 bottom-0 w-16 bg-surface-container-low border-r border-border-dark z-40 flex flex-col items-center py-3 justify-between"><nav class="flex flex-col items-center gap-2 w-full px-2" data-active-classes="bg-surface-container-highest text-primary"><a aria-current="page" class="w-11 h-11 flex items-center justify-center rounded transition-colors bg-surface-container-highest text-primary" data-path="gantt-workbench" href="#" title="Gantt Timeline Canvas"><span class="material-symbols-outlined text-xl">waterfall_chart</span></a><a class="w-11 h-11 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" data-path="task-breakdown" href="#" title="WBS &amp; Data Grid"><span class="material-symbols-outlined text-xl">table_rows</span></a><a class="w-11 h-11 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" data-path="dependency-matrix" href="#" title="Dependency Matrix &amp; Graph"><span class="material-symbols-outlined text-xl">account_tree</span></a><a class="w-11 h-11 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" data-path="extraction-telemetry" href="#" title="AI Parse Workbench &amp; Telemetry"><span class="material-symbols-outlined text-xl">psychology</span></a></nav><div class="flex flex-col items-center gap-2 w-full px-2 border-t border-border-dark pt-3"><a class="w-11 h-11 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" data-path="project-settings" href="#" title="Project Settings"><span class="material-symbols-outlined text-xl">settings</span></a></div></aside><div class="pl-16"><main class="w-full pt-14 bg-surface min-h-screen"><div class="flex flex-col w-full text-on-surface select-none pb-12">
+<!-- Sub-Header / View Switch & Analytical Filter Bar -->
+<div class="w-full bg-surface-container-low border-b border-border-dark flex flex-col shrink-0">
+<!-- View Navigation Tabs -->
+<div class="flex items-center justify-between px-4 h-11 border-b border-border-dark/60 bg-surface-container-lowest/50">
+<div class="flex items-center gap-1 h-full">
+<a class="px-3 h-full flex items-center gap-2 text-on-surface-variant hover:text-on-surface font-headline-sm text-headline-sm transition-colors relative group" href="#">
+<span class="material-symbols-outlined text-base">waterfall_chart</span>
+<span>Gantt Timeline</span>
+</a>
+<a class="px-3 h-full flex items-center gap-2 text-primary font-headline-sm text-headline-sm font-semibold transition-colors relative" href="#">
+<span class="material-symbols-outlined text-base text-primary">account_tree</span>
+<span>Dependency Matrix (DSM)</span>
+<span class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary shadow-[0_0_8px_rgba(195,192,255,0.7)]"></span>
+</a>
+<a class="px-3 h-full flex items-center gap-2 text-on-surface-variant hover:text-on-surface font-headline-sm text-headline-sm transition-colors" href="#">
+<span class="material-symbols-outlined text-base">group</span>
+<span>Resource Workload</span>
+</a>
+<a class="px-3 h-full flex items-center gap-2 text-on-surface-variant hover:text-on-surface font-headline-sm text-headline-sm transition-colors" href="#">
+<span class="material-symbols-outlined text-base">hub</span>
+<span>DAG Network Graph</span>
+</a>
+</div>
+<div class="flex items-center gap-3">
+<!-- Matrix View Selector Segmented Control -->
+<div class="flex items-center bg-surface-container-lowest rounded p-0.5 border border-border-dark">
+<button class="px-2.5 py-1 rounded text-primary bg-surface-container-high font-badge-label text-badge-label uppercase tracking-wide font-semibold shadow-xs" id="viewBtnDsm">
+            N × N DSM
+          </button>
+<button class="px-2.5 py-1 rounded text-on-surface-variant hover:text-on-surface font-badge-label text-badge-label uppercase tracking-wide transition-colors" id="viewBtnPrecedence">
+            Precedence Table
+          </button>
+</div>
+<div class="h-4 w-px bg-border-dark"></div>
+<button class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high border border-border-dark text-on-surface font-headline-sm text-headline-sm transition-colors text-xs">
+<span class="material-symbols-outlined text-base">file_download</span>
+<span>Export Matrix</span>
+</button>
+</div>
+</div>
+<!-- Matrix Controls & Filter Pill Strip -->
+<div class="flex flex-wrap items-center justify-between px-4 py-2 gap-3">
+<!-- Toggles & Algo Triggers -->
+<div class="flex flex-wrap items-center gap-2">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-primary-container hover:bg-primary-hover text-on-primary-container font-headline-sm text-headline-sm transition-all shadow-sm" id="topoSortBtn">
+<span class="material-symbols-outlined text-base">sort</span>
+<span>Auto-Sequence (Kahn's Algo)</span>
+</button>
+<button class="flex items-center gap-1 px-2.5 py-1.5 rounded border border-border-dark bg-surface-container-high/60 text-secondary font-headline-sm text-headline-sm text-xs hover:bg-surface-container-high transition-colors" id="toggleLagBtn">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>Lead/Lag Offsets</span>
+</button>
+<button class="flex items-center gap-1 px-2.5 py-1.5 rounded border border-border-dark bg-surface-container-high/60 text-status-critical-alt font-headline-sm text-headline-sm text-xs hover:bg-surface-container-high transition-colors" id="toggleCriticalBtn">
+<span class="material-symbols-outlined text-xs">local_fire_department</span>
+<span>Critical Links Only</span>
+</button>
+<button class="flex items-center gap-1 px-2.5 py-1.5 rounded border border-border-dark bg-surface-container text-on-surface-variant font-headline-sm text-headline-sm text-xs hover:text-on-surface hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-xs">filter_list</span>
+<span>Transitive Reductions</span>
+</button>
+<button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-border-dark bg-surface-container hover:bg-surface-container-high text-on-surface font-headline-sm text-headline-sm text-xs transition-colors">
+<span class="material-symbols-outlined text-base text-primary">add_link</span>
+<span>Add Dependency</span>
+</button>
+</div>
+<!-- Live Graph Diagnostics Pill Strip -->
+<div class="flex items-center gap-1.5 overflow-x-auto py-0.5">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-lowest border border-border-dark font-data-mono text-data-mono text-[11px] text-on-surface">
+<span class="text-on-surface-variant">Nodes:</span>
+<span class="font-semibold text-primary">7</span>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-lowest border border-border-dark font-data-mono text-data-mono text-[11px] text-on-surface">
+<span class="text-on-surface-variant">Edges:</span>
+<span class="font-semibold text-secondary">9</span>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-lowest border border-border-dark font-data-mono text-data-mono text-[11px] text-on-surface">
+<span class="text-on-surface-variant">Depth:</span>
+<span class="font-semibold text-on-surface">4 Lvl</span>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-lowest border border-border-dark font-data-mono text-data-mono text-[11px] text-on-surface">
+<span class="text-on-surface-variant">Parallelism:</span>
+<span class="font-semibold text-on-surface">2.3×</span>
+</span>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-status-completed/10 border border-status-completed/40 font-data-mono text-data-mono text-[11px] text-status-completed font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-completed animate-pulse"></span>
+<span>DAG Valid (0 Cycles)</span>
+</span>
+</div>
+</div>
+</div>
+<!-- Primary Workstation Canvas Split -->
+<div class="flex-1 w-full grid grid-cols-1 xl:grid-cols-12 gap-0 overflow-hidden bg-surface">
+<!-- Left/Center Main Workspace: DSM Grid (Cols 1-8) -->
+<div class="xl:col-span-8 flex flex-col border-r border-border-dark overflow-x-auto bg-surface-dim">
+<!-- Matrix Top Legend & Reading Direction Banner -->
+<div class="px-4 py-2 bg-surface-container-lowest border-b border-border-dark flex items-center justify-between text-xs">
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="flex items-center gap-1">
+<span class="font-data-mono font-semibold text-primary">Row (i)</span>
+<span class="material-symbols-outlined text-xs">arrow_forward</span>
+<span>Depends On</span>
+<span class="material-symbols-outlined text-xs">arrow_forward</span>
+<span class="font-data-mono font-semibold text-secondary">Col (j)</span>
+</span>
+<span class="hidden sm:inline text-outline">•</span>
+<span class="hidden sm:inline text-on-surface-variant/80">Lower triangular elements indicate forward precedence</span>
+</div>
+<!-- Legend Pills -->
+<div class="flex items-center gap-2 font-data-mono text-[11px]">
+<span class="inline-flex items-center gap-1 text-on-surface">
+<span class="w-2.5 h-2.5 rounded-xs bg-secondary"></span> FS
+          </span>
+<span class="inline-flex items-center gap-1 text-on-surface">
+<span class="w-2.5 h-2.5 rounded-xs bg-primary"></span> SS
+          </span>
+<span class="inline-flex items-center gap-1 text-status-critical-alt font-semibold">
+<span class="w-2.5 h-2.5 rounded-xs bg-status-critical"></span> Critical
+          </span>
+<span class="inline-flex items-center gap-1 text-status-warning">
+<span class="w-2.5 h-2.5 rounded-xs border border-dashed border-status-warning bg-status-warning/20"></span> Ambiguous
+          </span>
+</div>
+</div>
+<!-- Matrix Canvas Wrapper -->
+<div class="p-4 overflow-auto min-w-[760px]">
+<div class="inline-block border border-border-dark rounded-lg overflow-hidden bg-surface-container-lowest shadow-md">
+<!-- DSM Header Row: Column Indices -->
+<div class="flex border-b border-border-dark bg-surface-container">
+<!-- Top Left Corner Cell -->
+<div class="w-72 h-12 flex flex-col justify-center px-3 border-r border-border-dark shrink-0">
+<span class="font-data-mono text-[10px] text-on-surface-variant uppercase tracking-wider">Node Precedence DSM</span>
+<span class="font-headline-sm text-headline-sm text-on-surface text-xs font-semibold">Row Task Depends On Column Task ↓</span>
+</div>
+<!-- Col 01 -->
+<div class="w-16 h-12 flex flex-col items-center justify-center border-r border-border-dark/60 shrink-0 bg-surface-container-high/40 hover:bg-surface-container-highest transition-colors cursor-pointer group" title="01. Architecture &amp; System Spec">
+<span class="font-data-mono text-xs font-bold text-primary group-hover:underline">01</span>
+<span class="font-badge-label text-[10px] text-on-surface-variant uppercase">[SC]</span>
+</div>
+<!-- Col 02 -->
+<div class="w-16 h-12 flex flex-col items-center justify-center border-r border-border-dark/60 shrink-0 bg-status-critical/10 hover:bg-status-critical/20 transition-colors cursor-pointer group" title="02. Backend REST &amp; GraphQL APIs">
+<span class="font-data-mono text-xs font-bold text-status-critical-alt group-hover:underline">02</span>
+<span class="font-badge-label text-[10px] text-status-critical-alt uppercase">[DC]</span>
+</div>
+<!-- Col 03 -->
+<div class="w-16 h-12 flex flex-col items-center justify-center border-r border-border-dark/60 shrink-0 bg-surface-container-high/40 hover:bg-surface-container-highest transition-colors cursor-pointer group" title="03. Design System &amp; UI Components">
+<span class="font-data-mono text-xs font-bold text-secondary group-hover:underline">03</span>
+<span class="font-badge-label text-[10px] text-on-surface-variant uppercase">[ML]</span>
+</div>
+<!-- Col 04 -->
+<div class="w-16 h-12 flex flex-col items-center justify-center border-r border-border-dark/60 shrink-0 bg-status-warning/10 hover:bg-status-warning/20 transition-colors cursor-pointer group" title="04. Security Audit &amp; Compliance">
+<span class="font-data-mono text-xs font-bold text-status-warning group-hover:underline">04</span>
+<span class="font-badge-label text-[10px] text-status-warning uppercase">[AK]</span>
+</div>
+<!-- Col 05 -->
+<div class="w-16 h-12 flex flex-col items-center justify-center border-r border-border-dark/60 shrink-0 bg-status-critical/10 hover:bg-status-critical/20 transition-colors cursor-pointer group" title="05. E2E Integration Testing">
+<span class="font-data-mono text-xs font-bold text-status-critical-alt group-hover:underline">05</span>
+<span class="font-badge-label text-[10px] text-status-critical-alt uppercase">[DC]</span>
+</div>
+<!-- Col 06 -->
+<div class="w-16 h-12 flex flex-col items-center justify-center border-r border-border-dark/60 shrink-0 bg-surface-container-high/40 hover:bg-surface-container-highest transition-colors cursor-pointer group" title="06. Client Review &amp; Sign-Off">
+<span class="font-data-mono text-xs font-bold text-primary group-hover:underline">06</span>
+<span class="font-badge-label text-[10px] text-on-surface-variant uppercase">[SC]</span>
+</div>
+<!-- Col 07 -->
+<div class="w-16 h-12 flex flex-col items-center justify-center shrink-0 bg-status-critical/10 hover:bg-status-critical/20 transition-colors cursor-pointer group" title="07. Production Canary Deployment">
+<span class="font-data-mono text-xs font-bold text-status-critical-alt group-hover:underline">07</span>
+<span class="font-badge-label text-[10px] text-status-critical-alt uppercase">[DC]</span>
+</div>
+</div>
+<!-- ROW 01: Architecture & System Spec -->
+<div class="flex border-b border-border-dark/70 hover:bg-surface-container-high/30 transition-colors" data-row="01">
+<div class="w-72 h-14 flex items-center justify-between px-3 border-r border-border-dark shrink-0 bg-surface-container-low">
+<div class="flex items-center gap-2 min-w-0">
+<span class="font-data-mono text-xs font-bold text-primary shrink-0">01</span>
+<span class="font-table-cell text-table-cell font-medium text-on-surface truncate" title="Architecture &amp; System Spec">Architecture &amp; System Spec</span>
+</div>
+<span class="font-badge-label text-badge-label px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant shrink-0">SC</span>
+</div>
+<!-- [01,01] Self -->
+<div class="w-16 h-14 border-r border-border-dark/50 bg-surface-container-high/50 flex items-center justify-center text-outline/40 font-data-mono text-xs font-semibold">●</div>
+<!-- [01,02] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [01,03] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [01,04] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [01,05] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [01,06] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [01,07] -->
+<div class="w-16 h-14 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+</div>
+<!-- ROW 02: Backend REST & GraphQL APIs (Critical Path) -->
+<div class="flex border-b border-border-dark/70 hover:bg-surface-container-high/30 transition-colors" data-row="02">
+<div class="w-72 h-14 flex items-center justify-between px-3 border-r border-border-dark shrink-0 bg-surface-container-low">
+<div class="flex items-center gap-2 min-w-0">
+<span class="font-data-mono text-xs font-bold text-status-critical-alt shrink-0">02</span>
+<span class="font-table-cell text-table-cell font-medium text-on-surface truncate" title="Backend REST &amp; GraphQL APIs">Backend REST &amp; GraphQL APIs</span>
+<span class="material-symbols-outlined text-xs text-status-critical-alt" title="Critical Path Task">local_fire_department</span>
+</div>
+<span class="font-badge-label text-badge-label px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant shrink-0">DC</span>
+</div>
+<!-- [02,01] ACTIVE CRITICAL LINK (Task 02 depends on Task 01 Finish-to-Start) -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center bg-status-critical/15 hover:bg-status-critical/25 cursor-pointer relative transition-all group ring-1 ring-status-critical/50" title="Selected: Task 02 depends on Task 01 (FS +0d)">
+<div class="flex flex-col items-center">
+<span class="px-1 py-0.5 rounded bg-status-critical text-surface-light font-badge-label text-[10px] font-bold tracking-tight shadow-xs flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[10px]">bolt</span>
+                  FS
+                </span>
+<span class="font-data-mono text-[10px] text-status-critical-alt font-semibold mt-0.5">+0d</span>
+</div>
+<span class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-status-critical"></span>
+</div>
+<!-- [02,02] Self -->
+<div class="w-16 h-14 border-r border-border-dark/50 bg-surface-container-high/50 flex items-center justify-center text-outline/40 font-data-mono text-xs font-semibold">●</div>
+<!-- [02,03] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [02,04] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [02,05] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [02,06] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [02,07] -->
+<div class="w-16 h-14 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+</div>
+<!-- ROW 03: Design System & UI Components -->
+<div class="flex border-b border-border-dark/70 hover:bg-surface-container-high/30 transition-colors" data-row="03">
+<div class="w-72 h-14 flex items-center justify-between px-3 border-r border-border-dark shrink-0 bg-surface-container-low">
+<div class="flex items-center gap-2 min-w-0">
+<span class="font-data-mono text-xs font-bold text-secondary shrink-0">03</span>
+<span class="font-table-cell text-table-cell font-medium text-on-surface truncate" title="Design System &amp; UI Components">Design System &amp; UI Components</span>
+</div>
+<span class="font-badge-label text-badge-label px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant shrink-0">ML</span>
+</div>
+<!-- [03,01] Task 03 depends on Task 01 FS +0d -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center bg-secondary/10 hover:bg-secondary/20 cursor-pointer transition-colors" title="Task 03 depends on Task 01 (FS +0d)">
+<div class="flex flex-col items-center">
+<span class="px-1 py-0.5 rounded bg-secondary text-surface font-badge-label text-[10px] font-bold tracking-tight shadow-xs">FS</span>
+<span class="font-data-mono text-[10px] text-secondary font-semibold mt-0.5">+0d</span>
+</div>
+</div>
+<!-- [03,02] Task 03 paired with Task 02 in parallel (SS +1d) -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center bg-primary/10 hover:bg-primary/20 cursor-pointer transition-colors" title="Task 03 synchronized with Task 02 (SS +1d lag)">
+<div class="flex flex-col items-center">
+<span class="px-1 py-0.5 rounded bg-primary-container text-on-primary-container font-badge-label text-[10px] font-bold tracking-tight shadow-xs">SS</span>
+<span class="font-data-mono text-[10px] text-primary font-semibold mt-0.5">+1d</span>
+</div>
+</div>
+<!-- [03,03] Self -->
+<div class="w-16 h-14 border-r border-border-dark/50 bg-surface-container-high/50 flex items-center justify-center text-outline/40 font-data-mono text-xs font-semibold">●</div>
+<!-- [03,04] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [03,05] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [03,06] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [03,07] -->
+<div class="w-16 h-14 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+</div>
+<!-- ROW 04: Security Audit & Compliance (Flagged Ambiguity) -->
+<div class="flex border-b border-border-dark/70 hover:bg-surface-container-high/30 transition-colors" data-row="04">
+<div class="w-72 h-14 flex items-center justify-between px-3 border-r border-border-dark shrink-0 bg-surface-container-low">
+<div class="flex items-center gap-2 min-w-0">
+<span class="font-data-mono text-xs font-bold text-status-warning shrink-0">04</span>
+<span class="font-table-cell text-table-cell font-medium text-on-surface truncate" title="Security Audit &amp; Compliance">Security Audit &amp; Compliance</span>
+<span class="material-symbols-outlined text-xs text-status-warning" title="Parse Ambiguity Warning">warning</span>
+</div>
+<span class="font-badge-label text-badge-label px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant shrink-0">AK</span>
+</div>
+<!-- [04,01] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [04,02] Task 04 depends on Task 02 (Ambiguous FS with +2d inferred lag) -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center bg-status-warning/10 hover:bg-status-warning/20 cursor-pointer transition-colors relative group" title="Ambiguous Extraction (74% confidence): FS +2d">
+<div class="flex flex-col items-center">
+<span class="px-1 py-0.5 rounded border border-status-warning/80 bg-status-warning/20 text-status-warning font-badge-label text-[10px] font-bold tracking-tight shadow-xs flex items-center gap-0.5">
+<span class="text-[9px]">⚠️</span>
+                  FS
+                </span>
+<span class="font-data-mono text-[10px] text-status-warning font-semibold mt-0.5">+2d*</span>
+</div>
+</div>
+<!-- [04,03] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [04,04] Self -->
+<div class="w-16 h-14 border-r border-border-dark/50 bg-surface-container-high/50 flex items-center justify-center text-outline/40 font-data-mono text-xs font-semibold">●</div>
+<!-- [04,05] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [04,06] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [04,07] -->
+<div class="w-16 h-14 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+</div>
+<!-- ROW 05: E2E Integration Testing (Critical Path) -->
+<div class="flex border-b border-border-dark/70 hover:bg-surface-container-high/30 transition-colors" data-row="05">
+<div class="w-72 h-14 flex items-center justify-between px-3 border-r border-border-dark shrink-0 bg-surface-container-low">
+<div class="flex items-center gap-2 min-w-0">
+<span class="font-data-mono text-xs font-bold text-status-critical-alt shrink-0">05</span>
+<span class="font-table-cell text-table-cell font-medium text-on-surface truncate" title="E2E Integration Testing">E2E Integration Testing</span>
+<span class="material-symbols-outlined text-xs text-status-critical-alt" title="Critical Path Task">local_fire_department</span>
+</div>
+<span class="font-badge-label text-badge-label px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant shrink-0">DC/ML</span>
+</div>
+<!-- [05,01] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [05,02] Task 05 depends on Task 02 (CRITICAL FS +0d) -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center bg-status-critical/15 hover:bg-status-critical/25 cursor-pointer transition-colors" title="Critical: Task 05 depends on Task 02 (FS +0d)">
+<div class="flex flex-col items-center">
+<span class="px-1 py-0.5 rounded bg-status-critical text-surface-light font-badge-label text-[10px] font-bold tracking-tight shadow-xs">FS</span>
+<span class="font-data-mono text-[10px] text-status-critical-alt font-semibold mt-0.5">+0d</span>
+</div>
+</div>
+<!-- [05,03] Task 05 depends on Task 03 (Finish-to-Finish FF +0d) -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center bg-secondary/10 hover:bg-secondary/20 cursor-pointer transition-colors" title="Task 05 depends on Task 03 (FF +0d)">
+<div class="flex flex-col items-center">
+<span class="px-1 py-0.5 rounded bg-secondary text-surface font-badge-label text-[10px] font-bold tracking-tight shadow-xs">FF</span>
+<span class="font-data-mono text-[10px] text-secondary font-semibold mt-0.5">+0d</span>
+</div>
+</div>
+<!-- [05,04] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [05,05] Self -->
+<div class="w-16 h-14 border-r border-border-dark/50 bg-surface-container-high/50 flex items-center justify-center text-outline/40 font-data-mono text-xs font-semibold">●</div>
+<!-- [05,06] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [05,07] -->
+<div class="w-16 h-14 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+</div>
+<!-- ROW 06: Client Review & Sign-Off (Milestone) -->
+<div class="flex border-b border-border-dark/70 hover:bg-surface-container-high/30 transition-colors" data-row="06">
+<div class="w-72 h-14 flex items-center justify-between px-3 border-r border-border-dark shrink-0 bg-surface-container-low">
+<div class="flex items-center gap-2 min-w-0">
+<span class="font-data-mono text-xs font-bold text-status-milestone shrink-0">06</span>
+<span class="font-table-cell text-table-cell font-medium text-on-surface truncate" title="Client Review &amp; Sign-Off">Client Review &amp; Sign-Off</span>
+<span class="font-badge-label text-[9px] px-1 py-0.2 rounded bg-status-milestone/20 text-status-milestone uppercase">M-Stone</span>
+</div>
+<span class="font-badge-label text-badge-label px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant shrink-0">SC</span>
+</div>
+<!-- [06,01] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [06,02] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [06,03] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [06,04] Task 06 depends on Task 04 (FS +0d) -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center bg-secondary/10 hover:bg-secondary/20 cursor-pointer transition-colors" title="Task 06 depends on Task 04 (FS +0d)">
+<div class="flex flex-col items-center">
+<span class="px-1 py-0.5 rounded bg-secondary text-surface font-badge-label text-[10px] font-bold tracking-tight shadow-xs">FS</span>
+<span class="font-data-mono text-[10px] text-secondary font-semibold mt-0.5">+0d</span>
+</div>
+</div>
+<!-- [06,05] Task 06 depends on Task 05 (CRITICAL FS +0d) -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center bg-status-critical/15 hover:bg-status-critical/25 cursor-pointer transition-colors" title="Critical: Task 06 depends on Task 05 (FS +0d)">
+<div class="flex flex-col items-center">
+<span class="px-1 py-0.5 rounded bg-status-critical text-surface-light font-badge-label text-[10px] font-bold tracking-tight shadow-xs">FS</span>
+<span class="font-data-mono text-[10px] text-status-critical-alt font-semibold mt-0.5">+0d</span>
+</div>
+</div>
+<!-- [06,06] Self -->
+<div class="w-16 h-14 border-r border-border-dark/50 bg-surface-container-high/50 flex items-center justify-center text-outline/40 font-data-mono text-xs font-semibold">●</div>
+<!-- [06,07] -->
+<div class="w-16 h-14 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+</div>
+<!-- ROW 07: Production Canary Deployment (Critical Path) -->
+<div class="flex hover:bg-surface-container-high/30 transition-colors" data-row="07">
+<div class="w-72 h-14 flex items-center justify-between px-3 border-r border-border-dark shrink-0 bg-surface-container-low">
+<div class="flex items-center gap-2 min-w-0">
+<span class="font-data-mono text-xs font-bold text-status-critical-alt shrink-0">07</span>
+<span class="font-table-cell text-table-cell font-medium text-on-surface truncate" title="Production Canary Deployment">Production Canary Deployment</span>
+<span class="material-symbols-outlined text-xs text-status-critical-alt" title="Critical Path Task">local_fire_department</span>
+</div>
+<span class="font-badge-label text-badge-label px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant shrink-0">DC</span>
+</div>
+<!-- [07,01] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [07,02] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [07,03] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [07,04] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [07,05] -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center group relative hover:bg-surface-container-high/40 transition-colors">
+<button class="opacity-0 group-hover:opacity-100 text-outline hover:text-primary transition-opacity text-xs"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<!-- [07,06] Task 07 depends on Task 06 (CRITICAL FS +1d) -->
+<div class="w-16 h-14 border-r border-border-dark/50 flex items-center justify-center bg-status-critical/15 hover:bg-status-critical/25 cursor-pointer transition-colors" title="Critical: Task 07 depends on Task 06 (FS +1d lag)">
+<div class="flex flex-col items-center">
+<span class="px-1 py-0.5 rounded bg-status-critical text-surface-light font-badge-label text-[10px] font-bold tracking-tight shadow-xs">FS</span>
+<span class="font-data-mono text-[10px] text-status-critical-alt font-semibold mt-0.5">+1d</span>
+</div>
+</div>
+<!-- [07,07] Self -->
+<div class="w-16 h-14 bg-surface-container-high/50 flex items-center justify-center text-outline/40 font-data-mono text-xs font-semibold">●</div>
+</div>
+</div>
+</div>
+<!-- Compact Footnote Matrix Insights & Micro-Analysis -->
+<div class="mt-auto px-4 py-3 bg-surface-container-low border-t border-border-dark flex flex-wrap items-center justify-between gap-3 text-xs">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-secondary">analytics</span>
+<span class="font-headline-sm text-headline-sm text-xs font-semibold text-on-surface">Topological Order Verified:</span>
+<span class="font-data-mono text-on-surface-variant">01 → [02 ‖ 03] → 04 → 05 → 06 → 07</span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-data-mono text-[11px]">
+<span>Feedforward Links: <strong class="text-on-surface">100%</strong></span>
+<span>Feedback Loops: <strong class="text-status-completed">0%</strong></span>
+<span>Density: <strong class="text-on-surface">18.4%</strong></span>
+</div>
+</div>
+</div>
+<!-- Right Analytical Panel / Inspector (Cols 9-12) -->
+<div class="xl:col-span-4 bg-surface-container-low flex flex-col h-full overflow-y-auto">
+<!-- Panel Sticky Header -->
+<div class="p-4 border-b border-border-dark bg-surface-container flex items-center justify-between sticky top-0 z-10">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">timeline</span>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Topology &amp; Precedence Inspector</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-[11px]">Edge verification, path criticalities &amp; NLP links</p>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-primary-container/30 border border-primary/40 text-primary font-badge-label text-badge-label uppercase">
+          Edge #02→#01
+        </span>
+</div>
+<div class="p-4 space-y-4">
+<!-- Selected Edge Focus Card -->
+<div class="p-3.5 rounded-lg bg-surface-container border border-border-dark space-y-3 shadow-sm">
+<div class="flex items-center justify-between border-b border-border-dark pb-2.5">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded bg-status-critical/20 text-status-critical flex items-center justify-center font-data-mono text-xs font-bold">
+                01
+              </span>
+<span class="material-symbols-outlined text-sm text-outline">arrow_forward</span>
+<span class="w-6 h-6 rounded bg-status-critical text-surface-light flex items-center justify-center font-data-mono text-xs font-bold shadow-xs">
+                02
+              </span>
+<span class="font-headline-sm text-headline-sm text-on-surface text-xs font-semibold ml-1">Finish-to-Start (FS)</span>
+</div>
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-status-critical/15 text-status-critical-alt font-badge-label text-badge-label font-bold uppercase">
+<span class="material-symbols-outlined text-xs">local_fire_department</span> Critical
+            </span>
+</div>
+<!-- Edge Properties Grid -->
+<div class="grid grid-cols-3 gap-2">
+<div class="p-2 rounded bg-surface-container-lowest border border-border-dark/60">
+<span class="block font-badge-label text-[10px] text-on-surface-variant uppercase">Edge Type</span>
+<span class="font-data-mono text-xs font-bold text-secondary mt-0.5 block">FS (Standard)</span>
+</div>
+<div class="p-2 rounded bg-surface-container-lowest border border-border-dark/60">
+<span class="block font-badge-label text-[10px] text-on-surface-variant uppercase">Lag Days</span>
+<span class="font-data-mono text-xs font-bold text-on-surface mt-0.5 block">0 days (+0d)</span>
+</div>
+<div class="p-2 rounded bg-surface-container-lowest border border-border-dark/60">
+<span class="block font-badge-label text-[10px] text-on-surface-variant uppercase">Total Float</span>
+<span class="font-data-mono text-xs font-bold text-status-critical-alt mt-0.5 block">0 days (Zero)</span>
+</div>
+</div>
+<!-- Impact Simulation Card -->
+<div class="p-2.5 rounded bg-surface-container-lowest border-l-2 border-status-critical-alt border border-border-dark/60 space-y-1">
+<div class="flex items-center gap-1.5 text-status-critical-alt font-headline-sm text-headline-sm text-xs font-semibold">
+<span class="material-symbols-outlined text-sm">crisis_alert</span>
+<span>Downstream Impact Forecast</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-[11px] leading-relaxed">
+              Delaying <strong class="text-on-surface">Task 01</strong> by <span class="font-data-mono text-status-critical-alt font-semibold">+2 days</span> directly cascades along the critical chain, moving Milestone 06 from <span class="font-data-mono text-on-surface">Oct 23</span> to <span class="font-data-mono text-status-critical-alt font-semibold">Oct 25</span>.
+            </p>
+</div>
+<!-- NLP Prompt Extraction Telemetry Source -->
+<div class="p-2.5 rounded bg-surface-container-high/40 border border-border-dark/60 space-y-1.5">
+<div class="flex items-center justify-between">
+<span class="font-badge-label text-[10px] text-primary uppercase tracking-wider flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-xs">psychology</span>
+                Natural Language Ingestion Source
+              </span>
+<span class="font-data-mono text-[10px] text-status-completed font-semibold">98.4% Match</span>
+</div>
+<p class="font-data-mono text-[11px] text-on-surface italic bg-surface-container-lowest/80 p-2 rounded border border-border-dark/40 leading-snug">
+              "...Sarah leads architecture design starting Oct 3. <span class="text-primary font-bold underline decoration-primary/60">Then</span> David and Maya develop backend APIs and design system concurrently..."
+            </p>
+</div>
+<!-- Action Buttons for Selected Edge -->
+<div class="grid grid-cols-3 gap-1.5 pt-1">
+<button class="px-2 py-1.5 rounded bg-surface-container-high hover:bg-surface-container-highest border border-border-dark text-on-surface font-headline-sm text-headline-sm text-[11px] transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-xs">swap_horiz</span> Reverse
+            </button>
+<button class="px-2 py-1.5 rounded bg-surface-container-high hover:bg-surface-container-highest border border-border-dark text-on-surface font-headline-sm text-headline-sm text-[11px] transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-xs">sync_alt</span> To SS
+            </button>
+<button class="px-2 py-1.5 rounded bg-error-container/30 hover:bg-error-container/50 border border-status-error/40 text-error font-headline-sm text-headline-sm text-[11px] transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-xs">link_off</span> Sever
+            </button>
+</div>
+</div>
+<!-- Mini Precedence Hierarchy Flow / Local Subgraph -->
+<div class="p-3.5 rounded-lg bg-surface-container border border-border-dark space-y-3">
+<div class="flex items-center justify-between">
+<h4 class="font-headline-sm text-headline-sm text-xs font-semibold text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm text-secondary">account_tree</span>
+<span>Task 02 Local Precedence DAG</span>
+</h4>
+<span class="font-data-mono text-[10px] text-on-surface-variant">In-degree: 1 | Out-degree: 2</span>
+</div>
+<!-- Inline Visual Precedence Diagram -->
+<div class="p-3 bg-surface-container-lowest rounded border border-border-dark/60 flex items-center justify-between gap-1 overflow-x-auto">
+<!-- Upstream Predecessor -->
+<div class="flex flex-col items-center shrink-0">
+<span class="font-badge-label text-[9px] text-on-surface-variant uppercase mb-1">Predecessor</span>
+<div class="px-2 py-1.5 rounded bg-surface-container-high border border-border-dark text-center">
+<span class="font-data-mono text-xs font-bold text-primary block">Task 01</span>
+<span class="font-body-sm text-[10px] text-on-surface-variant">Architecture</span>
+</div>
+</div>
+<!-- Vector Connector Line -->
+<div class="flex items-center flex-1 justify-center px-1">
+<div class="h-0.5 flex-1 bg-status-critical relative">
+<span class="absolute -top-3 left-1/2 -translate-x-1/2 font-data-mono text-[9px] text-status-critical-alt font-bold">FS</span>
+<span class="absolute -right-1 -top-1 material-symbols-outlined text-xs text-status-critical">arrow_right</span>
+</div>
+</div>
+<!-- Focused Current Node -->
+<div class="flex flex-col items-center shrink-0">
+<span class="font-badge-label text-[9px] text-status-critical-alt uppercase mb-1 font-bold">Focus Node</span>
+<div class="px-2.5 py-1.5 rounded bg-status-critical/20 border border-status-critical text-center ring-2 ring-status-critical/30">
+<span class="font-data-mono text-xs font-bold text-status-critical-alt block">Task 02</span>
+<span class="font-body-sm text-[10px] text-on-surface">APIs</span>
+</div>
+</div>
+<!-- Vector Connector Split -->
+<div class="flex items-center flex-1 justify-center px-1">
+<div class="h-0.5 flex-1 bg-border-dark relative">
+<span class="absolute -top-3 left-1/2 -translate-x-1/2 font-data-mono text-[9px] text-on-surface-variant">FS</span>
+<span class="absolute -right-1 -top-1 material-symbols-outlined text-xs text-outline">arrow_right</span>
+</div>
+</div>
+<!-- Downstream Successors -->
+<div class="flex flex-col gap-1.5 shrink-0">
+<span class="font-badge-label text-[9px] text-on-surface-variant uppercase text-center">Successors</span>
+<div class="px-2 py-1 rounded bg-status-critical/15 border border-status-critical/40 text-center">
+<span class="font-data-mono text-[11px] font-bold text-status-critical-alt">05 Testing</span>
+</div>
+<div class="px-2 py-1 rounded bg-status-warning/15 border border-status-warning/40 text-center">
+<span class="font-data-mono text-[11px] font-bold text-status-warning">04 Audit</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Ambiguity & Parse Validation Resolution Card -->
+<div class="p-3.5 rounded-lg bg-surface-container border border-border-dark space-y-2.5">
+<div class="flex items-center justify-between">
+<span class="flex items-center gap-1.5 font-headline-sm text-headline-sm text-xs font-semibold text-status-warning">
+<span class="material-symbols-outlined text-sm">error_outline</span>
+<span>1 Unconfirmed Relationship</span>
+</span>
+<span class="font-data-mono text-[10px] text-status-warning font-semibold">Edge 04 → 02</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-[11px] leading-snug">
+            Task 04 (Security Audit) was assigned an inferred <span class="font-data-mono text-on-surface font-semibold">+2d lag</span> after API completion. Ambiguity in prompt: <em class="text-on-surface">"Security review should happen shortly after APIs finish."</em>
+</p>
+<div class="flex items-center gap-2 pt-1">
+<button class="flex-1 py-1 px-2 rounded bg-status-warning/20 hover:bg-status-warning/30 border border-status-warning/60 text-status-warning font-headline-sm text-headline-sm text-[11px] font-semibold transition-colors">
+              Accept Inferred (+2d)
+            </button>
+<button class="py-1 px-2.5 rounded bg-surface-container-high hover:bg-surface-container-highest border border-border-dark text-on-surface font-headline-sm text-headline-sm text-[11px] transition-colors">
+              Set 0d Lag
+            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Dynamic Tab and Micro-Interaction Handling
+  (function() {
+    const topoBtn = document.getElementById('topoSortBtn');
+    if (topoBtn) {
+      topoBtn.addEventListener('click', function() {
+        const originalText = topoBtn.innerHTML;
+        topoBtn.innerHTML = '<span class="material-symbols-outlined text-base animate-spin">sync</span><span>Kahn Sorting...</span>';
+        setTimeout(() => {
+          topoBtn.innerHTML = '<span class="material-symbols-outlined text-base text-status-completed">check_circle</span><span>Graph Sorted (DAG Valid)</span>';
+          setTimeout(() => {
+            topoBtn.innerHTML = originalText;
+          }, 2400);
+        }, 600);
+      });
+    }
+
+    // Toggle Lead/Lag Days Visual Pill
+    const toggleLagBtn = document.getElementById('toggleLagBtn');
+    let showLags = true;
+    if (toggleLagBtn) {
+      toggleLagBtn.addEventListener('click', function() {
+        showLags = !showLags;
+        const lagSpans = document.querySelectorAll('[data-row] .font-data-mono.text-\\[10px\\]');
+        lagSpans.forEach(span => {
+          span.style.display = showLags ? 'block' : 'none';
+        });
+        toggleLagBtn.classList.toggle('opacity-50', !showLags);
+      });
+    }
+
+    // Matrix View Toggle Buttons
+    const viewBtnDsm = document.getElementById('viewBtnDsm');
+    const viewBtnPrecedence = document.getElementById('viewBtnPrecedence');
+    if (viewBtnDsm && viewBtnPrecedence) {
+      viewBtnPrecedence.addEventListener('click', function() {
+        viewBtnPrecedence.className = 'px-2.5 py-1 rounded text-primary bg-surface-container-high font-badge-label text-badge-label uppercase tracking-wide font-semibold shadow-xs';
+        viewBtnDsm.className = 'px-2.5 py-1 rounded text-on-surface-variant hover:text-on-surface font-badge-label text-badge-label uppercase tracking-wide transition-colors';
+      });
+      viewBtnDsm.addEventListener('click', function() {
+        viewBtnDsm.className = 'px-2.5 py-1 rounded text-primary bg-surface-container-high font-badge-label text-badge-label uppercase tracking-wide font-semibold shadow-xs';
+        viewBtnPrecedence.className = 'px-2.5 py-1 rounded text-on-surface-variant hover:text-on-surface font-badge-label text-badge-label uppercase tracking-wide transition-colors';
+      });
+    }
+  })();
+</script></main></div></body></html>
