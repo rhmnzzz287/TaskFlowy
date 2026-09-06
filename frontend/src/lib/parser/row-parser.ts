@@ -1,6 +1,6 @@
 // Row parser — combines date + duration grammar per field into canonical TimelineTask[]
 
-import { parseDate, formatDateISO, DateResult } from './date-grammar'
+import { parseDate, formatDateISO } from './date-grammar'
 import { parseDuration } from './duration-grammar'
 import { ParseRowInput, TimelineTask, createTaskId, dateDiffDays } from '../schema'
 

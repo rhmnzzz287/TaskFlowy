@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { TimelineTask } from '@/lib/schema'
+import type { TimelineTask } from '@/lib/schema'
 import { formatDateDisplay, deadlineBadge } from '@/lib/parser/date-grammar'
+import { taskStatus } from '@/lib/task-status'
 import { Diamond, Flame, ArrowUpDown } from 'lucide-react'
 
 interface TableViewProps {
@@ -28,9 +29,7 @@ export function TableView({ tasks, onSelectTask, selectedTaskId }: TableViewProp
     arr.sort((a, b) => {
       let cmp = 0
       if (sortKey === 'status') {
-        const sa = (a.progress ?? 0) >= 100 ? 3 : a.isCritical ? 2 : a.isMilestone ? 4 : 1
-        const sb = (b.progress ?? 0) >= 100 ? 3 : b.isCritical ? 2 : b.isMilestone ? 4 : 1
-        cmp = sa - sb
+        cmp = taskStatus(a).rank - taskStatus(b).rank
       } else {
         const va = a[sortKey] ?? ''
         const vb = b[sortKey] ?? ''
@@ -41,13 +40,7 @@ export function TableView({ tasks, onSelectTask, selectedTaskId }: TableViewProp
     return arr
   }, [tasks, sortKey, sortDir])
 
-  const statusBadge = (t: TimelineTask) => {
-    if (t.isMilestone) return { label: 'Milestone', cls: 'text-milestone bg-milestone/10' }
-    if ((t.progress ?? 0) >= 100) return { label: 'Done', cls: 'text-completed bg-completed/10' }
-    if (t.isCritical) return { label: 'Critical', cls: 'text-critical bg-critical/10' }
-    if ((t.progress ?? 0) > 0) return { label: `${t.progress}%`, cls: 'text-secondary bg-secondary/10' }
-    return { label: 'Planned', cls: 'text-text-dim bg-surface-hi/50' }
-  }
+  const statusBadge = (t: TimelineTask) => taskStatus(t)
 
   const SortHeader = ({ k, children }: { k: SortKey; children: React.ReactNode }) => (
     <button className="flex items-center gap-1 hover:text-text-primary transition-colors text-inherit"

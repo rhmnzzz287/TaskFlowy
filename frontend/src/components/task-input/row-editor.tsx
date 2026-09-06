@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useEffect } from 'react'
 import { Plus, Trash2, ArrowUp, ArrowDown, Copy } from 'lucide-react'
 import { ParseRowState, createRowId } from '@/lib/schema'
 import { parseDate, formatDateISO } from '@/lib/parser/date-grammar'
@@ -31,6 +31,17 @@ export function RowEditor({ rows, onChange, errors }: RowEditorProps) {
   // value we last auto-filled per row, so we can clear stale auto-fills
   // without clobbering a manual override the user typed into the End field.
   const lastAutoEndRef = useRef<Record<string, string>>({})
+  // Focus the name cell of a freshly appended row so typing immediately
+  // grows the live chart (an empty row otherwise renders nothing). Skipped
+  // on first mount / bulk loads (template, draft) to avoid stealing focus.
+  const prevCountRef = useRef(rows.length)
+  const lastNameRef = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (rows.length > prevCountRef.current && prevCountRef.current > 0) {
+      lastNameRef.current?.focus()
+    }
+    prevCountRef.current = rows.length
+  }, [rows.length])
 
   const updateRow = useCallback(
     (id: string, field: keyof ParseRowState, value: string) => {
@@ -125,6 +136,7 @@ export function RowEditor({ rows, onChange, errors }: RowEditorProps) {
             <div key={row.id} className="h-10 flex items-center px-2 hover:bg-surface-hi/30 transition-colors group">
               <div className="w-[30%] min-w-[140px] pr-1">
                 <input
+                  ref={idx === rows.length - 1 ? lastNameRef : undefined}
                   className="cell-input"
                   placeholder="Task name"
                   value={row.name}

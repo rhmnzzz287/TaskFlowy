@@ -3,11 +3,9 @@ import { TimelineTask } from '@/lib/schema'
 interface ParseTelemetryBarProps {
   tasks: TimelineTask[]
   timezone: string
-  show?: boolean
 }
 
-export function ParseTelemetryBar({ tasks, timezone, show = true }: ParseTelemetryBarProps) {
-  if (!show) return null
+export function ParseTelemetryBar({ tasks, timezone }: ParseTelemetryBarProps) {
 
   const nodeCount = tasks.length
   const criticalCount = tasks.filter(t => t.isCritical).length

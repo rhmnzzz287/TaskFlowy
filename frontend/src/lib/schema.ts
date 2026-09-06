@@ -27,17 +27,6 @@ export interface TimelineTask {
   progress?: number   // 0-100 completion %
   isMilestone?: boolean
   isCritical?: boolean
-  color?: string
-  status?: 'planned' | 'in-progress' | 'completed' | 'flagged'
-}
-
-export interface ExtractTelemetry {
-  nodeCount: number
-  topologicalLoops: number
-  timezoneLock: string
-  scheduleRisk: 'Low' | 'Moderate' | 'High'
-  parseLatencyMs: number
-  confidence: number
 }
 
 export interface ParseRowState {
@@ -62,27 +51,52 @@ export interface GanttTask {
   custom_class?: string
 }
 
+// ID generator with graceful fallback — crypto.randomUUID() only exists in
+// secure contexts (https / localhost). Without this guard, any parse/render
+// on plain-http hosts throws and the whole timeline UI goes dead.
+function safeId(prefix: string): string {
+  try {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return `${prefix}-${crypto.randomUUID().slice(0, 8)}`
+    }
+  } catch { /* fall through to Math.random below */ }
+  const rand = Math.floor(Math.random() * 0xffffff).toString(36).padStart(4, '0')
+  return `${prefix}-${Date.now().toString(36)}-${rand}`
+}
+
 export function createTaskId(): string {
-  return `task-${crypto.randomUUID().slice(0, 8)}`
+  return safeId('task')
 }
 
 export function createRowId(): string {
-  return `row-${crypto.randomUUID().slice(0, 8)}`
+  return safeId('row')
 }
 
 export function createDepId(): string {
-  return `dep-${crypto.randomUUID().slice(0, 8)}`
+  return safeId('dep')
 }
 
 export const DEFAULT_TIMEZONE = 'Asia/Jakarta'
 
 export function todayRef(): string {
+  // Local calendar date — toISOString() is UTC and shifts the day back for
+  // WIB (UTC+7) users accessing late at night.
   const d = new Date()
-  return d.toISOString().slice(0, 10)
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
 }
 
 export function dateDiffDays(start: Date, end: Date): number {
   return Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
+}
+
+/** Display order: chronological by start date (ties: end, then name). */
+export function compareTasksByDate(a: TimelineTask, b: TimelineTask): number {
+  if (a.start !== b.start) return a.start < b.start ? -1 : 1
+  if (a.end !== b.end) return a.end < b.end ? -1 : 1
+  return a.name.localeCompare(b.name)
 }
 
 // Compute critical path via longest-path through dependency DAG
@@ -146,21 +160,23 @@ export function computeCriticalPath(tasks: TimelineTask[], deps: TimelineDepende
     return Math.max(max, es + dur)
   }, 0)
 
-  // backward pass
-  latest.set(topo[topo.length - 1] ?? '', projectEnd)
+  // backward pass: latest START times.
+  // LS(u) = min over successors v of (LS(v) - dur(u)); sinks finish at projectEnd.
   ;[...topo].reverse().forEach(id => {
+    const dur = idToTask.get(id)!.isMilestone ? 0 : idToTask.get(id)!.durationDays
     const next = adj.get(id)!
-    const lf = next.length
-      ? Math.min(...next.map(nt => latest.get(nt)! - (idToTask.get(nt)!.isMilestone ? 0 : idToTask.get(nt)!.durationDays)))
-      : projectEnd
-    latest.set(id, lf)
+    const ls = next.length
+      ? Math.min(...next.map(nt => latest.get(nt)! - dur))
+      : projectEnd - dur
+    latest.set(id, ls)
   })
 
-  // slack = latest - earliest; critical = slack == 0 on longest chain
-  const maxEarliest = Math.max(...tasks.map(t => earliest.get(t.id)!))
+  // slack = latest-start - earliest-start; zero slack (head included) = critical.
+  // (Nodes unreachable by topo order — e.g. inside a dependency cycle — keep
+  // latest=Infinity and are never flagged.)
   tasks.forEach(t => {
-    const slack = (latest.get(t.id) || Infinity) - (earliest.get(t.id) || 0)
-    if (slack === 0 && (earliest.get(t.id) || 0) > 0) {
+    const slack = (latest.get(t.id) ?? Infinity) - (earliest.get(t.id) ?? 0)
+    if (slack === 0) {
       critical.add(t.id)
     }
   })

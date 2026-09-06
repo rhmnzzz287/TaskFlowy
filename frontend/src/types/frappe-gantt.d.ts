@@ -22,6 +22,8 @@ declare module 'frappe-gantt' {
     popup?: false | ((task: unknown) => string)
     on_date_change?: (task: { id: string }, start: Date, end: Date) => void
     on_click?: (task: unknown) => void
+    on_progress_change?: (task: { id: string }, progress: number) => void
+    column_width?: number
     on_contextmenu?: (task: unknown) => void
   }
 

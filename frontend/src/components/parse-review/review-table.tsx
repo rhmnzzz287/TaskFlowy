@@ -1,29 +1,20 @@
 'use client'
 
 import { Diamond, Flame } from 'lucide-react'
-import { TimelineTask } from '@/lib/schema'
+import type { TimelineTask } from '@/lib/schema'
+import { taskStatus } from '@/lib/task-status'
 
 interface ReviewTableProps {
   tasks: TimelineTask[]
-  warnings: string[]
   onSelectTask?: (taskId: string) => void
   selectedTaskId?: string | null
 }
 
-export function ReviewTable({ tasks, warnings, onSelectTask, selectedTaskId }: ReviewTableProps) {
+export function ReviewTable({ tasks, onSelectTask, selectedTaskId }: ReviewTableProps) {
   if (tasks.length === 0) return null
 
   return (
     <div className="flex flex-col h-full">
-      {/* Warnings */}
-      {warnings.length > 0 && (
-        <div className="bg-warning/10 border-b border-warning/30 px-3 py-2">
-          {warnings.map((w, i) => (
-            <p key={i} className="text-warning text-[12px]">{w}</p>
-          ))}
-        </div>
-      )}
-
       {/* Header */}
       <div className="h-9 bg-surface/50 flex items-center px-2 text-muted text-[11px] font-medium uppercase tracking-wider border-b border-border">
         <div className="w-6 text-center shrink-0">#</div>
@@ -36,15 +27,13 @@ export function ReviewTable({ tasks, warnings, onSelectTask, selectedTaskId }: R
       {/* Rows */}
       <div className="flex-1 overflow-y-auto divide-y divide-border/50">
         {tasks.map((t, i) => {
-          const status = (t.progress ?? 0) >= 100 ? 'completed'
-            : t.isMilestone ? 'milestone'
-            : t.isCritical ? 'critical'
-            : 'in-progress'
+          const st = taskStatus(t)
           const statusColors: Record<string, string> = {
             'completed': 'text-completed',
             'critical': 'text-critical',
             'milestone': 'text-milestone',
             'in-progress': 'text-secondary',
+            'planned': 'text-text-dim',
           }
 
           return (
@@ -86,18 +75,14 @@ export function ReviewTable({ tasks, warnings, onSelectTask, selectedTaskId }: R
               </div>
               {/* Days */}
               <div className="w-12 text-center shrink-0">
-                <span className={`font-mono text-[12px] ${statusColors[status] || 'text-text-dim'}`}>
+                <span className={`font-mono text-[12px] ${statusColors[st.status] || 'text-text-dim'}`}>
                   {t.isMilestone ? '◆' : `${t.durationDays}d`}
                 </span>
               </div>
               {/* Status */}
               <div className="w-16 flex justify-center shrink-0">
-                <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase ${statusColors[status]} bg-surface-hi/50`}>
-                  {t.isMilestone ? 'Milestone'
-                    : t.isCritical ? 'Critical'
-                    : (t.progress ?? 0) >= 100 ? 'Done'
-                    : (t.progress ?? 0) > 0 ? `${t.progress}%`
-                    : status}
+                <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase ${st.cls}`}>
+                  {st.label}
                 </span>
               </div>
             </div>

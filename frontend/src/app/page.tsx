@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import {
   Play, Image, ChevronLeft, ChevronRight, ZoomIn, ZoomOut,
-  BarChart3, Table2, GitBranch, Loader2, FileText, ImageDown, Copy, Check, Trash2, Printer,
+  BarChart3, Table2, GitBranch, Loader2, FileText, ImageDown, Copy, Check, Trash2, Printer, FileSpreadsheet,
 } from 'lucide-react'
 import { RowEditor } from '@/components/task-input/row-editor'
 import { RawTextEditor } from '@/components/task-input/raw-text-editor'
@@ -24,20 +24,23 @@ import type { GanttBoardHandle } from '@/components/gantt-board/gantt-board'
 import {
   ParseRowState, TimelineTask, TimelineDependency,
   createRowId, createDepId, todayRef, DEFAULT_TIMEZONE,
-  computeCriticalPath, detectCycles,
+  computeCriticalPath, detectCycles, compareTasksByDate,
 } from '@/lib/schema'
-import { parseRawText, tasksToRawText, rowsToRawText } from '@/lib/format/raw-text'
-import { parseRows, type BatchParseResult } from '@/lib/parser/row-parser'
+import { parseRawText, rowsToRawText } from '@/lib/format/raw-text'
+import { parseRows } from '@/lib/parser/row-parser'
 import { parseDate, formatDateISO } from '@/lib/parser/date-grammar'
 import { encodeRowsToHash, decodeHashToRows, pushHash } from '@/lib/url-state'
 import { exportGanttPNG, exportGanttSVG } from '@/lib/visual-exporter'
+import { tasksToCSV, downloadCSV } from '@/lib/csv-export'
 import { generateChatSummary } from '@/lib/format/text-summary'
 import { useDrafts } from '@/hooks/use-drafts'
+import { ProfileDashboardModal } from '@/components/profile/profile-dashboard-modal'
+import { loadUserProfile } from '@/lib/profile-store'
 
 type InputMode = 'raw' | 'table'
 
 export default function Home() {
-  const { saveDraft, loadDraft, listDrafts, deleteDraft, currentDraftId, setCurrentDraftId } = useDrafts()
+  const { saveDraft, loadDraft, listDrafts, deleteDraft, currentDraftId } = useDrafts()
   const [activeTemplate, setActiveTemplate] = useState<string | null>('software-sprint')
   const [inputMode, setInputMode] = useState<InputMode>('raw')
   const [rawText, setRawText] = useState('')
@@ -55,6 +58,11 @@ export default function Home() {
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const successTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
+  // Name of the task the chart should reveal on the next task-set change
+  // (new/renamed task). Identity tracks by NAME because task ids regenerate
+  // on every parse.
+  const [focusTaskName, setFocusTaskName] = useState<string | null>(null)
+  const prevTaskNamesRef = useRef<Set<string>>(new Set())
   const [view, setView] = useState<'gantt' | 'table' | 'dependency'>('gantt')
   const [viewMode, setViewMode] = useState<'Day' | 'Week' | 'Month'>('Week')
   const [showCritical, setShowCritical] = useState(true)
@@ -65,6 +73,17 @@ export default function Home() {
   const ganttRef = useRef<GanttBoardHandle>(null)
   const restoredRef = useRef(false)
   const [copiedSummary, setCopiedSummary] = useState(false)
+  const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [headerProfile, setHeaderProfile] = useState({ name: 'Pengguna', avatarEmoji: '👤' })
+
+  // Keep the navbar avatar in sync with the saved profile (mount + localStorage
+  // writes from other tabs/modals).
+  useEffect(() => {
+    const sync = () => setHeaderProfile(loadUserProfile())
+    sync()
+    window.addEventListener('storage', sync)
+    return () => window.removeEventListener('storage', sync)
+  }, [])
 
   // Core parse logic — runs against provided rows.
   // silent = background auto-update: renders on success, never flashes the error banner.
@@ -108,14 +127,21 @@ export default function Home() {
       ...t,
       progress: parseInt(goodRows[i]?.progress || '0'),
       isMilestone: t.durationDays === 0,
-      status: 'in-progress' as const,
       dependsOn: goodRows[i]?.dependsOn?.trim() || null,
     }))
     const criticalIds = computeCriticalPath(tasksWithMeta, deps)
     const cycles = detectCycles(tasksWithMeta, deps)
     // Bar fill/stroke is owned by the stylesheet (.bar-critical rules) so it
     // stays theme-aware — no inline color here.
-    setTasks(tasksWithMeta.map(t => ({ ...t, isCritical: criticalIds.has(t.id) })))
+    // Display order is chronological: any add/date change re-slots the chart.
+    const sorted = tasksWithMeta
+      .map(t => ({ ...t, isCritical: criticalIds.has(t.id) }))
+      .sort(compareTasksByDate)
+    const known = prevTaskNamesRef.current
+    const added = sorted.find(t => !known.has(t.name))
+    prevTaskNamesRef.current = new Set(sorted.map(t => t.name))
+    setFocusTaskName(added ? added.name : null)
+    setTasks(sorted)
     setDependencies(deps)
     setWarnings([...result.warnings, ...cycles])
     setHasGenerated(true)
@@ -271,9 +297,16 @@ export default function Home() {
   // (layout rules live in globals.css @media print).
   const handlePrint = useCallback(() => window.print(), [])
 
-  const handleTasksChange = useCallback((updated: TimelineTask[]) => {
-    setTasks(updated)
-    // Two-way bridge: Gantt drag / inspector edits sync back to editable rows + raw text
+  const handleExportCSV = useCallback(() => {
+    if (tasks.length === 0) return
+    const csv = tasksToCSV(tasks)
+    const stamp = todayRef().replace(/-/g, '')
+    downloadCSV(`taskflowy-tasks-${stamp}.csv`, csv)
+  }, [tasks])
+
+  // Single bridge: any task mutation (Gantt drag, inspector save/delete)
+  // syncs the editable rows + raw text, so a later Generate never reverts it.
+  const syncRowsFromTasks = useCallback((updated: TimelineTask[]) => {
     const nextRows: ParseRowState[] = updated.map(t => ({
       id: t.id,
       name: t.name,
@@ -282,10 +315,24 @@ export default function Home() {
       duration: `${t.durationDays} hari`,
       end: t.end.slice(0, 10),
       dependsOn: t.dependsOn || '',
+      progress: String(t.progress ?? 0),
     }))
     setInputRows(nextRows)
-    setRawText(tasksToRawText(updated))
+    setRawText(rowsToRawText(nextRows))
   }, [])
+
+  const handleTasksChange = useCallback((updated: TimelineTask[]) => {
+    // Keep chronological order live: a dragged date re-slots its bar at once.
+    const sorted = [...updated].sort(compareTasksByDate)
+    setTasks(sorted)
+    // Two-way bridge: Gantt drag / inspector edits sync back to editable rows + raw text.
+    // IMPORTANT: raw text must stay in the parseable pipe order
+    // (name | assignee | start | duration | end). A display-order serialiser
+    // (start | end | durasi | status) would map to the wrong columns on
+    // re-parse — every later Generate then fails on all rows and the button
+    // looks dead. So always serialise via rowsToRawText().
+    syncRowsFromTasks(sorted)
+  }, [syncRowsFromTasks])
 
   const handleSelectTask = useCallback((taskId: string) => {
     setSelectedTaskId(taskId)
@@ -296,13 +343,17 @@ export default function Home() {
   }, [])
 
   const handleDeleteTask = useCallback((taskId: string) => {
-    setTasks(prev => prev.filter(t => t.id !== taskId))
+    const next = tasks.filter(t => t.id !== taskId)
+    setTasks(next)
+    syncRowsFromTasks(next)
     if (selectedTaskId === taskId) setSelectedTaskId(null)
-  }, [selectedTaskId])
+  }, [selectedTaskId, tasks, syncRowsFromTasks])
 
   const handleUpdateTaskFromInspector = useCallback((updated: TimelineTask) => {
-    setTasks(prev => prev.map(t => t.id === updated.id ? updated : t))
-  }, [])
+    const next = tasks.map(t => t.id === updated.id ? updated : t).sort(compareTasksByDate)
+    setTasks(next)
+    syncRowsFromTasks(next)
+  }, [tasks, syncRowsFromTasks])
 
   const canGenerate = inputMode === 'raw' ? rawText.trim().length > 0 : inputRows.some(r => r.name.trim().length > 0)
   const selectedTask = useMemo(() => tasks.find(t => t.id === selectedTaskId) || null, [tasks, selectedTaskId])
@@ -364,6 +415,11 @@ export default function Home() {
             </>
           )}
           {hasGenerated && (
+            <button className="btn-secondary text-[11px]" onClick={handleExportCSV} title="Export CSV (Excel / Google Sheets)">
+              <FileSpreadsheet size={13} /> CSV
+            </button>
+          )}
+          {hasGenerated && (
             <BulkShiftPopover onShift={handleShiftDates} />
           )}
           {hasGenerated && (
@@ -397,6 +453,14 @@ export default function Home() {
           >
             {isParsing ? <Loader2 size={14} className="animate-spin" /> : generateSuccess ? <Check size={14} /> : <Play size={14} />}
             <span>{isParsing ? 'Generating…' : generateSuccess ? 'Timeline Generated!' : 'Generate Timeline'}</span>
+          </button>
+          <button
+            onClick={() => setIsProfileOpen(true)}
+            className="btn-secondary text-[11px] h-7 gap-1.5 px-2"
+            title="Buka Workspace & Profil Saya"
+          >
+            <span>{headerProfile.avatarEmoji}</span>
+            <span className="hidden sm:inline font-medium">{headerProfile.name}</span>
           </button>
           <ThemeToggle />
         </div>
@@ -468,7 +532,11 @@ export default function Home() {
             <AmbiguityAlert warnings={warnings} />
           )}
 
-          {/* --- Timeline controls toolbar --- */}
+          {/* --- Timeline controls toolbar (Gantt-only: every control here
+              drives the chart — view mode, scroll, assignee filter, critical
+              highlight, zoom. Hidden in Table/Dependency views where they
+              would look broken doing nothing.) --- */}
+          {view === 'gantt' && (
           <div className="h-10 bg-surface border-b border-border flex items-center justify-between px-3 shrink-0 no-print">
             <div className="flex items-center gap-2">
               <div className="hidden md:flex items-center bg-surface-hi/30 rounded overflow-hidden">
@@ -494,16 +562,20 @@ export default function Home() {
                   checked={showCritical} onChange={e => setShowCritical(e.target.checked)} />
                 Critical Path
               </label>
-              <div className="hidden md:flex items-center gap-1">
+              <div className="hidden md:flex items-center gap-1" title="Zoom timeline: rapatkan / regangkan skala waktu">
                 <button className="p-0.5 rounded text-muted hover:text-text-primary transition-colors"
+                  title="Perkecil skala waktu (lihat rentang lebih panjang)"
                   onClick={() => setZoom(z => Math.max(1, z - 1))}><ZoomOut size={14} /></button>
                 <input type="range" className="w-16 h-1 accent-primary bg-surface-hi/40 rounded cursor-pointer"
+                  title="Zoom skala waktu"
                   min={1} max={5} value={zoom} onChange={e => setZoom(Number(e.target.value))} />
                 <button className="p-0.5 rounded text-muted hover:text-text-primary transition-colors"
+                  title="Perbesar skala waktu (bar lebih panjang)"
                   onClick={() => setZoom(z => Math.min(5, z + 1))}><ZoomIn size={14} /></button>
               </div>
             </div>
           </div>
+          )}
 
           {/* --- Project health strip (above Gantt, market-facing summary) --- */}
           {hasGenerated && view === 'gantt' && <ProjectMetricsStrip tasks={tasks} />}
@@ -513,7 +585,7 @@ export default function Home() {
           <div className="flex-1 flex min-h-0">
             {hasGenerated && (
               <div className="w-[390px] xl:w-[420px] shrink-0 border-r border-border bg-surface/30 flex flex-col no-print">
-                <ReviewTable tasks={tasks} warnings={[]} onSelectTask={handleSelectTask} selectedTaskId={selectedTaskId} />
+                <ReviewTable tasks={tasks} onSelectTask={handleSelectTask} selectedTaskId={selectedTaskId} />
               </div>
             )}
             <div className="flex-1 flex flex-col min-w-0">
@@ -544,6 +616,7 @@ export default function Home() {
                       showCritical={showCritical}
                       zoom={zoom}
                       generationTick={generationTick}
+                      focusTaskName={focusTaskName}
                     />
                     <LegendBar tasks={tasks} warnings={warnings} />
                   </div>
@@ -576,11 +649,32 @@ export default function Home() {
 
       {/* === FLOATING TOAST === */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-surface-elevated/95 border border-border shadow-xl backdrop-blur text-xs font-medium text-foreground animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-surface/95 border border-border shadow-xl backdrop-blur text-xs font-medium">
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span>{toastMessage}</span>
         </div>
       )}
+
+      {/* === WORKSPACE & PROFILE DASHBOARD MODAL === */}
+      <ProfileDashboardModal
+        isOpen={isProfileOpen}
+        currentDraftId={currentDraftId}
+        onClose={() => {
+          setIsProfileOpen(false)
+          setHeaderProfile(loadUserProfile())
+        }}
+        onOpenProject={(id) => {
+          restoreDraft(id)
+        }}
+        onSelectTask={(projectId, taskName) => {
+          restoreDraft(projectId)
+          setFocusTaskName(taskName)
+        }}
+        onDeleteProject={(id) => {
+          deleteDraft(id)
+          refreshDrafts()
+        }}
+      />
     </div>
   )
 }

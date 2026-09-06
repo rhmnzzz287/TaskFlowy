@@ -256,8 +256,6 @@ export function getDefaultTemplate(referenceDate?: string): Template {
   return generateTemplates(referenceDate)[0]
 }
 
-export const templates: Template[] = generateTemplates()
-
 interface Props {
   onSelect: (rows: ParseRowState[], templateName?: string) => void
   activeTemplate?: string | null

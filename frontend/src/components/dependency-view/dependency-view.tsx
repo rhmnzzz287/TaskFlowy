@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { TimelineTask, TimelineDependency, detectCycles } from '@/lib/schema'
+import { formatDateDisplay } from '@/lib/parser/date-grammar'
+import { taskStatus } from '@/lib/task-status'
 import { GitBranch, AlertTriangle } from 'lucide-react'
 
 interface DependencyViewProps {
@@ -12,25 +14,58 @@ interface DependencyViewProps {
 }
 
 const LAYOUT = {
-  levelGap: 120,   // px horizontally between levels
-  rowGap: 28,      // px vertically between nodes in the same level
+  levelGap: 300,  // must exceed nodeW + edge run, else levels overlap horizontally
+  rowGap: 60,    // must exceed nodeH, else stacked nodes overlap vertically
   nodeW: 220,
   nodeH: 44,
+  pad: 40,       // canvas margin around the laid-out graph
+}
+
+// An edge u→v lies on a cycle iff v can reach u (DFS). Graphs here are tiny,
+// so per-edge reachability O(E·(V+E)) is more than fast enough — and exact,
+// unlike "any cycle exists → dash everything".
+function findCyclicEdgeIds(tasks: TimelineTask[], deps: TimelineDependency[]): Set<string> {
+  const adj = new Map<string, string[]>()
+  tasks.forEach(t => adj.set(t.id, []))
+  deps.forEach(d => {
+    if (adj.has(d.sourceId) && adj.has(d.targetId)) adj.get(d.sourceId)!.push(d.targetId)
+  })
+  const reaches = (from: string, to: string): boolean => {
+    const seen = new Set<string>([from])
+    const stack = [from]
+    while (stack.length > 0) {
+      const cur = stack.pop()!
+      for (const nxt of adj.get(cur) ?? []) {
+        if (nxt === to) return true
+        if (!seen.has(nxt)) { seen.add(nxt); stack.push(nxt) }
+      }
+    }
+    return false
+  }
+  const out = new Set<string>()
+  deps.forEach(d => { if (reaches(d.targetId, d.sourceId)) out.add(d.id) })
+  return out
+}
+
+function assigneeInitials(name: string | null): string {
+  if (!name) return ''
+  return name.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()
 }
 
 interface LayoutNode {
   task: TimelineTask
   x: number
   y: number
-  level: number
-  maxInLevel: number
 }
 
 export function DependencyView({ tasks, dependencies, onSelectTask, selectedTaskId }: DependencyViewProps) {
   const [highlightDep, setHighlightDep] = useState<string | null>(null)
+  const [pinnedDep, setPinnedDep] = useState<string | null>(null)
+  const scrollBoxRef = useRef<HTMLDivElement>(null)
+  const lastTaskSigRef = useRef('')
 
   // Level assignment: node level = longest path from any source (Kahn-like longest chain)
-  const { levels, edges, cycles, nodes } = useMemo(() => {
+  const { levels, edges, cycles, nodes, contentW, contentH } = useMemo(() => {
     const cycles = detectCycles(tasks, dependencies)
 
     const idToTask = new Map(tasks.map(t => [t.id, t]))
@@ -73,26 +108,63 @@ export function DependencyView({ tasks, dependencies, onSelectTask, selectedTask
       const l = level.get(t.id)!
       const group = byLevel.get(l)!
       const idx = group.indexOf(t)
-      const x = 40 + l * LAYOUT.levelGap
-      const y = 40 + idx * LAYOUT.rowGap
-      return { task: t, x, y, level: l, maxInLevel: group.length }
+      const x = LAYOUT.pad + l * LAYOUT.levelGap
+      const y = LAYOUT.pad + idx * LAYOUT.rowGap
+      return { task: t, x, y }
     })
+
+    const cyclicIds = findCyclicEdgeIds(tasks, dependencies)
 
     const edges = dependencies
       .filter(d => idToTask.has(d.sourceId) && idToTask.has(d.targetId))
       .map(d => {
         const s = nodes.find(n => n.task.id === d.sourceId)!
         const t = nodes.find(n => n.task.id === d.targetId)!
-        return { dep: d, x1: s.x + LAYOUT.nodeW, y1: s.y + LAYOUT.nodeH / 2, x2: t.x, y2: t.y + LAYOUT.nodeH / 2 }
+        const x1 = s.x + LAYOUT.nodeW
+        const y1 = s.y + LAYOUT.nodeH / 2
+        const x2 = t.x
+        const y2 = t.y + LAYOUT.nodeH / 2
+        const cyclic = cyclicIds.has(d.id)
+        if (x2 >= x1) {
+          // forward edge: horizontal → vertical → horizontal elbow keeps the
+          // run clear of the nodes stacked between the two levels.
+          const mx = x1 + (x2 - x1) / 2
+          return {
+            dep: d, isCyclic: cyclic,
+            dAttr: `M ${x1} ${y1} H ${mx} V ${y2} H ${x2}`,
+            lx: (x1 + x2) / 2, ly: (y1 + y2) / 2 - 5,
+          }
+        }
+        // backward (cycle) edge: loop below both nodes, enter target bottom.
+        const cx = t.x + LAYOUT.nodeW / 2
+        const bottom = t.y + LAYOUT.nodeH
+        const loopY = Math.max(s.y + LAYOUT.nodeH, bottom) + 16
+        return {
+          dep: d, isCyclic: true,
+          dAttr: `M ${x1} ${y1} V ${loopY} H ${cx} V ${bottom}`,
+          lx: (x1 + cx) / 2, ly: loopY - 5,
+        }
       })
 
-    return { levels: maxLevel + 1, nodes, edges, cycles }
+    // Canvas size follows the laid-out content (a fixed viewBox clips deep/
+    // wide graphs and letterboxes small ones under preserveAspectRatio).
+    const maxX = nodes.length ? Math.max(...nodes.map(n => n.x)) : 0
+    const maxY = nodes.length ? Math.max(...nodes.map(n => n.y)) : 0
+    const contentW = maxX + LAYOUT.nodeW + LAYOUT.pad
+    const contentH = maxY + LAYOUT.nodeH + LAYOUT.pad
+
+    return { levels: maxLevel + 1, nodes, edges, cycles, contentW, contentH }
   }, [tasks, dependencies])
 
-  const scale = useMemo(() => {
-    // fit viewport via CSS transform; keep reasonable zoom for small graphs
-    return { width: 900, height: 500 }
-  }, [])
+  // Reset pinned edge + canvas scroll whenever the underlying data changes.
+  useEffect(() => {
+    setPinnedDep(null)
+    const sig = JSON.stringify(tasks.map(t => t.id))
+    if (sig !== lastTaskSigRef.current) {
+      lastTaskSigRef.current = sig
+      scrollBoxRef.current?.scrollTo({ left: 0, top: 0 })
+    }
+  }, [tasks, dependencies])
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
@@ -115,32 +187,67 @@ export function DependencyView({ tasks, dependencies, onSelectTask, selectedTask
       </div>
 
       {/* Graph canvas */}
-      <div className="flex-1 overflow-auto bg-surface-dim/50 relative">
+      <div ref={scrollBoxRef} className="flex-1 overflow-auto bg-surface-dim/50 relative">
+        {tasks.length === 0 ? (
+          <div className="h-full flex items-center justify-center text-muted text-[13px]">
+            No tasks yet. Generate a timeline first.
+          </div>
+        ) : (
         <svg
-          viewBox={`0 0 ${scale.width} ${scale.height}`}
-          className="w-full h-full min-w-[400px]"
-          preserveAspectRatio="xMidYMid meet"
+          viewBox={`0 0 ${contentW} ${contentH}`}
+          width={contentW}
+          height={contentH}
+          className="block shrink-0"
+          role="img"
+          aria-label="Dependency graph"
         >
-          {/* Edges */}
-          {edges.map((e, i) => {
-            const active = highlightDep === e.dep.id
-            const isCyclic = cycles.length > 0
+          <defs>
+            <marker id="dep-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" className="dep-arrow" />
+            </marker>
+            <marker id="dep-arrow-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" className="dep-arrow dep-arrow-active" />
+            </marker>
+            <marker id="dep-arrow-cyclic" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" className="dep-arrow dep-cyclic" />
+            </marker>
+          </defs>
+          {/* Level bands */}
+          {Array.from({ length: levels }, (_, l) => {
+            if (l % 2 === 1) return null
+            const start = l === 0 ? 0 : LAYOUT.pad + l * LAYOUT.levelGap - LAYOUT.levelGap / 2
+            const end = l + 1 < levels
+              ? LAYOUT.pad + (l + 1) * LAYOUT.levelGap - LAYOUT.levelGap / 2
+              : contentW
             return (
-              <g key={e.dep.id || i} onMouseEnter={() => setHighlightDep(e.dep.id)} onMouseLeave={() => setHighlightDep(null)}>
-                <line
-                  x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
-                  className={`dep-edge${active ? ' dep-edge-active' : ''}${isCyclic ? ' dep-cyclic' : ''}`}
+              <rect key={`band-${l}`} x={start} y={0} width={end - start} height={contentH}
+                style={{ fill: 'rgb(var(--bg-surface-hi))', fillOpacity: 0.25 }} />
+            )
+          })}
+          {/* Edges */}
+          {edges.map((e) => {
+            const active = highlightDep === e.dep.id || pinnedDep === e.dep.id
+            const marker = e.isCyclic ? 'url(#dep-arrow-cyclic)' : active ? 'url(#dep-arrow-active)' : 'url(#dep-arrow)'
+            return (
+              <g
+                key={e.dep.id}
+                onMouseEnter={() => setHighlightDep(e.dep.id)}
+                onMouseLeave={() => setHighlightDep(null)}
+                onClick={() => setPinnedDep(p => (p === e.dep.id ? null : e.dep.id))}
+                className="cursor-pointer"
+              >
+                <path
+                  d={e.dAttr}
+                  className={`dep-edge${active ? ' dep-edge-active' : ''}${e.isCyclic ? ' dep-cyclic' : ''}`}
                   strokeWidth={active ? 2.5 : 1.5}
                   strokeOpacity={active ? 1 : 0.7}
-                  strokeDasharray={isCyclic ? '6 3' : undefined}
+                  strokeDasharray={e.isCyclic ? '6 3' : undefined}
+                  markerEnd={marker}
                 />
-                {/* arrowhead */}
-                <path
-                  d={`M${e.x2} ${e.y2} l-8 -4 v8 z`}
-                  className={`dep-arrow${active ? ' dep-arrow-active' : ''}${isCyclic ? ' dep-cyclic' : ''}`}
-                />
+                {/* wide invisible hit-area so thin edges are easy to hover */}
+                <path d={e.dAttr} fill="none" stroke="transparent" strokeWidth={14} style={{ pointerEvents: 'stroke' }} />
                 {/* dependency type label */}
-                <text x={(e.x1 + e.x2) / 2} y={(e.y1 + e.y2) / 2 - 4}
+                <text x={e.lx} y={e.ly}
                   textAnchor="middle" fontSize={9} className="dep-edge-label" fontFamily="monospace">
                   {e.dep.type}
                 </text>
@@ -152,6 +259,19 @@ export function DependencyView({ tasks, dependencies, onSelectTask, selectedTask
           {nodes.map(n => {
             const isSel = selectedTaskId === n.task.id
             const t = n.task
+            const prog = t.progress ?? 0
+            // Status is a color dot (legend palette) + tooltip — status *text*
+            // can't fit next to the dates, and the table views own the badges.
+            const st = taskStatus(t)
+            const dot = st.status === 'done'
+              ? { label: 'Done', fill: 'fill-completed' }
+              : st.status === 'milestone'
+                ? { label: 'Milestone', fill: 'fill-milestone' }
+                : st.status === 'critical'
+                  ? { label: 'Critical', fill: 'fill-critical' }
+                  : st.status === 'in-progress'
+                    ? { label: `${prog}%`, fill: 'fill-secondary' }
+                    : { label: 'Planned', fill: 'fill-muted' }
             return (
               <g
                 key={t.id}
@@ -165,6 +285,7 @@ export function DependencyView({ tasks, dependencies, onSelectTask, selectedTask
                 className="cursor-pointer outline-none focus:outline-2 focus:outline-primary focus:outline-offset-2 focus:rounded"
               >
                 {/* node body */}
+                <title>{t.name}</title>
                 <rect
                   width={LAYOUT.nodeW} height={LAYOUT.nodeH} rx={6}
                   className={`dep-node${t.isCritical ? ' dep-critical' : ''}${isSel ? ' dep-selected' : ''}`}
@@ -173,19 +294,26 @@ export function DependencyView({ tasks, dependencies, onSelectTask, selectedTask
                 <rect x={4} y={4} width={44} height={LAYOUT.nodeH - 8} rx={4}
                   className={`dep-node-tint${t.isCritical ? ' dep-critical' : ''}`} />
                 <text x={26} y={LAYOUT.nodeH - 16} textAnchor="middle" fontSize={15} className={`dep-node-glyph${t.isCritical ? ' dep-critical' : ''}`}>
-                  {t.isMilestone ? '◆' : ''}
+                  {t.isMilestone ? '◆' : assigneeInitials(t.assignee)}
                 </text>
-                <text x={58} y={18} fontSize={11} fontWeight={600} className={`dep-node-title${isSel ? ' dep-selected' : ''}`}>
-                  {t.name.length > 18 ? t.name.slice(0, 18) + '…' : t.name}
-                </text>
+                <foreignObject x={58} y={5} width={154} height={16}>
+                  {/* CSS ellipsis guarantees the title never spills past the
+                      node rect (SVG has no text wrapping; nodeW - x - pad). */}
+                  <div className={`truncate text-[11px] font-semibold leading-4 ${isSel ? 'text-white' : 'text-text-primary'}`}>
+                    {t.name}
+                  </div>
+                </foreignObject>
                 <text x={58} y={34} fontSize={10} className={`dep-node-sub${isSel ? ' dep-selected' : ''}`}>
-                  {t.start} → {t.end}
-                  {t.status ? ' · ' + t.status : ''}
+                  {formatDateDisplay(t.start)} → {formatDateDisplay(t.end)}
                 </text>
+                <circle cx={172} cy={30.5} r={3.5} className={dot.fill}>
+                  <title>{dot.label}</title>
+                </circle>
               </g>
             )
           })}
         </svg>
+        )}
       </div>
 
       {/* Footer */}

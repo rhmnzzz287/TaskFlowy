@@ -5,10 +5,9 @@ import { CalendarClock, ChevronDown } from 'lucide-react'
 
 interface BulkShiftPopoverProps {
   onShift: (deltaDays: number) => void
-  disabled?: boolean
 }
 
-export function BulkShiftPopover({ onShift, disabled = false }: BulkShiftPopoverProps) {
+export function BulkShiftPopover({ onShift }: BulkShiftPopoverProps) {
   const [open, setOpen] = useState(false)
 
   const handleShift = (days: number) => {
@@ -19,7 +18,6 @@ export function BulkShiftPopover({ onShift, disabled = false }: BulkShiftPopover
   return (
     <div className="relative">
       <button
-        disabled={disabled}
         onClick={() => setOpen(!open)}
         className="btn-secondary text-[12px] h-7 gap-1"
         title="Geser seluruh tanggal jadwal proyek"

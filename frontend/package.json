@@ -9,14 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "frappe-gantt": "^1.2.2",
+    "frappe-gantt": "1.2.2",
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.440.0",
     "lz-string": "^1.5.0",
     "next": "^14.2.0",
     "react": "^18.3.0",
-    "react-dom": "^18.3.0",
-    "zod": "^3.25.76"
+    "react-dom": "^18.3.0"
   },
   "devDependencies": {
     "@types/node": "20.19.43",

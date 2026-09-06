@@ -1,5 +1,9 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+// Upstream frappe-gantt structural stylesheet (vendored — see header in
+// frappe-gantt.vendor.css). MUST load before globals.css so the app's
+// theme overrides win on equal specificity (!important on colors anyway).
+import './frappe-gantt.vendor.css'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })

@@ -1,5 +1,4 @@
-import type { ParseRowState, TimelineTask } from '@/lib/schema'
-import { formatDateDisplay } from '@/lib/parser/date-grammar'
+import type { ParseRowState } from '@/lib/schema'
 
 /**
  * Parse a block of raw text into ParseRowState[].
@@ -35,7 +34,12 @@ function isHeaderRow(cells: string[]): boolean {
 }
 
 function generateId(): string {
-  return `row-${crypto.randomUUID().slice(0, 8)}`
+  try {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return `row-${crypto.randomUUID().slice(0, 8)}`
+    }
+  } catch { /* fall through */ }
+  return `row-${Date.now().toString(36)}-${Math.floor(Math.random() * 0xffffff).toString(36)}`
 }
 
 /**
@@ -129,7 +133,9 @@ export function parseRawText(text: string): ParseRowState[] {
     const lineSep = lineHasDelimiter(raw)
 
     if (lineSep) {
-      // Structured row: split by detected delimiter
+      // Structured row: split by detected delimiter.
+      // Column order: name | assignee | start | duration | end
+      //   [dependsOn] [progress] — trailing optional columns, in this order.
       const cells = raw.split(lineSep).map(s => s.trim())
       const name     = cells[0] || ''
       const assignee = cells[1] || ''
@@ -137,6 +143,7 @@ export function parseRawText(text: string): ParseRowState[] {
       const duration = cells[3] || ''
       const end      = cells[4] || ''
       const depends  = cells[5] || ''
+      const progress = parseProgressCell(cells[6] || '')
 
       rows.push({
         id: generateId(),
@@ -146,7 +153,7 @@ export function parseRawText(text: string): ParseRowState[] {
         duration,
         end,
         dependsOn: depends,
-        progress: '',
+        progress,
       })
     } else {
       // Freeform natural-language line
@@ -169,33 +176,33 @@ export function parseRawText(text: string): ParseRowState[] {
 
 /**
  * Serialize editable rows back to the pipe format the raw-text editor shows.
- * Column order matches parseRawText: name | assignee | start | duration | end.
+ * Column order matches parseRawText: name | assignee | start | duration | end
+ *   [dependsOn] [progress]. Trailing columns are only emitted when needed so
+ * plain schedules stay clean — but progress is round-tripped, otherwise the
+ * debounced auto-parse would silently reset slider/inspector edits to 0.
  */
 export function rowsToRawText(rows: ParseRowState[]): string {
   const hasDepends = rows.some(r => r.dependsOn && r.dependsOn.trim().length > 0)
+  const hasProgress = rows.some(r => (parseInt(r.progress || '0', 10) || 0) > 0)
   return rows
     .filter(r => r.name.trim() || r.start.trim() || r.end.trim())
     .map(r => {
       const cols = [r.name || '-', r.assignee || '', r.start || '', r.duration || '', r.end || '']
-      if (hasDepends) {
+      if (hasDepends || hasProgress) {
         cols.push(r.dependsOn || '')
+      }
+      if (hasProgress) {
+        const n = Math.max(0, Math.min(100, parseInt(r.progress || '0', 10) || 0))
+        cols.push(`${n}%`)
       }
       return cols.join(' | ')
     })
     .join('\n')
 }
 
-/**
- * Serialise timeline tasks back to a pipe-aligned text representation.
- */
-export function tasksToRawText(tasks: TimelineTask[]): string {
-  const header = 'Task | Lead | Start | End | Durasi | Status'
-  const lines = tasks.map(t => {
-    const name = t.isMilestone ? `◆ ${t.name}` : t.name
-    const lead = t.assignee || '-'
-    const dur  = t.isMilestone ? '0' : `${t.durationDays} hr`
-    const st   = t.status || 'planned'
-    return `${name} | ${lead} | ${formatDateDisplay(t.start)} | ${formatDateDisplay(t.end)} | ${dur} | ${st}`
-  })
-  return [header, ...lines].join('\n')
+/** Accept "70" / "70%" (writer emits the latter); anything else → ''. */
+function parseProgressCell(cell: string): string {
+  const m = /^\s*(\d{1,3})\s*%?\s*$/.exec(cell || '')
+  if (!m) return ''
+  return `${Math.max(0, Math.min(100, parseInt(m[1], 10)))}`
 }

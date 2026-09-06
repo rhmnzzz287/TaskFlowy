@@ -10,7 +10,6 @@
     --bg-surface-hi: 241 245 249;
     --bg-surface-dim: 226 232 240;
     --border: 203 213 225;
-    --border-lt: 226 232 240;
     --text-primary: 15 23 42;
     --text-dim: 51 65 85;
     --text-muted: 100 116 139;
@@ -24,7 +23,6 @@
     --bg-surface-hi: 40 48 68;
     --bg-surface-dim: 11 19 38;
     --border: 51 65 85;
-    --border-lt: 226 232 240;
     --text-primary: 226 232 240;
     --text-dim: 203 213 225;
     --text-muted: 168 181 200;
@@ -45,9 +43,6 @@
 }
 
 @layer components {
-  .panel {
-    @apply bg-surface border border-border rounded;
-  }
   .btn-primary {
     @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-primary text-white text-[13px] font-semibold hover:bg-primary-hover transition-colors active:scale-95;
   }
@@ -61,6 +56,9 @@
     @apply w-full bg-transparent outline-none rounded px-2 py-1 text-[13px] text-text-primary placeholder:text-muted focus:ring-1 focus:ring-primary;
   }
 }
+
+/* Upstream frappe-gantt.css is imported via layout.tsx and owns all
+   structural layout. Do NOT redeclare positioning/display here. */
 
 /* ============================================================
    Enhanced Today Marker on Gantt Chart
@@ -140,14 +138,12 @@
   --font-family: 'Inter', sans-serif;
   border: none !important;
 }
-.gantt .grid-background { fill: rgb(var(--bg-background)) !important; }
-/* Interaction-critical: upstream ships grid-background fill:none (unpainted →
-   no SVG hit-testing). We paint it for the theme, but frappe APPENDS this rect
-   after the bar layer, so without this rule it intercepts EVERY click/drag on
-   bars (inspector never opens, drags do nothing). Same reason .hide exists. */
-.gantt .grid-background { pointer-events: none; }
+/* Layering-critical: frappe appends .grid-background AFTER the bar layer,
+   so it must stay unpainted — any opaque fill here covers every bar, grid
+   line and label beneath it (the chart looks "not rendered"). Upstream
+   ships fill:none; only force non-interactive so drags/clicks reach bars. */
+.gantt .grid-background { fill: none !important; pointer-events: none; }
 .gantt-container .hide { display: none !important; }
-.gantt .grid-header { fill: rgb(var(--bg-surface-hi)) !important; stroke: rgb(var(--border)) !important; }
 .gantt .grid-row { fill: rgb(var(--bg-background)) !important; }
 .gantt .grid-row:nth-child(even) { fill: rgb(var(--bg-surface-hi)) !important; }
 .gantt .row-line { stroke: rgb(var(--border)) !important; }
@@ -155,12 +151,36 @@
 /* Today marker styling lives below (.gantt-container .current-highlight) */
 .gantt .arrow { stroke: rgb(var(--text-muted)) !important; fill: none !important; }
 .gantt .bar-label, .gantt .bar-label.big { fill: #F8FAFC !important; font-size: 11px !important; font-weight: 500; }
-.gantt .lower-text, .gantt .upper-text { fill: rgb(var(--text-muted)) !important; font-size: 10px !important; font-weight: 600; letter-spacing: 0.05em; }
+/* Off-bar labels (.big) sit on the bare grid: near-white is unreadable in
+   light mode, so fall back to dark ink there (in-bar labels stay white). */
+html:not(.dark) .gantt .bar-label.big { fill: #0f172a !important; }
+/* Same for critical-path peach labels — unreadable on a light grid. */
+html:not(.dark) .show-critical .gantt .bar-wrapper.bar-critical .bar-label { fill: #9a3412 !important; }
+.gantt .lower-text, .gantt .upper-text, .gantt-container .lower-text, .gantt-container .upper-text { fill: rgb(var(--text-muted)) !important; color: rgb(var(--text-muted)) !important; font-size: 10px !important; font-weight: 600; letter-spacing: 0.05em; }
+/* Frappe v1.2 renders its own Today button + view-mode select inside the
+   chart (.side-header). The app toolbar already owns those controls, and the
+   upstream light styling clashes with the dark theme — hide it. */
+.gantt-container .side-header { display: none !important; }
+/* Upstream theme vars default to light; remap the ones we don't override
+   directly so chrome (headers, weekend wash, arrows) follows .dark.
+   (Upstream's own dark selector keys off html[data-theme], which we don't use.) */
+.dark {
+  --g-header-background: rgb(var(--bg-surface-hi));
+  --g-text-dark: rgb(var(--text-primary));
+  --g-text-muted: rgb(var(--text-muted));
+  --g-border-color: rgb(var(--border));
+  --g-row-border-color: rgb(var(--border));
+  --g-arrow-color: rgb(var(--text-muted));
+  --g-weekend-highlight-color: rgb(var(--bg-surface-hi));
+  --g-row-color: rgb(var(--bg-background));
+}
 .gantt .bar-wrapper .bar { fill: #0D9488 !important; stroke: #14B8A6 !important; }
 .gantt .bar-wrapper .bar-progress { fill: #14B8A6 !important; }
-.gantt .bar-wrapper.active .bar { fill: #4F46E5 !important; stroke: #6366F1 !important; }
-.gantt .bar-wrapper.active .bar-progress { fill: #6366F1 !important; }
 .gantt .handle { fill: #fff !important; opacity: 0.6; }
+/* Completed bars (progress = 100%): green — beats critical/milestone classes. */
+.gantt .bar-wrapper.bar-completed .bar { fill: #059669 !important; stroke: #10B981 !important; }
+.gantt .bar-wrapper.bar-completed .bar-progress { fill: #10B981 !important; }
+.gantt .bar-wrapper.bar-completed .bar-label { fill: #D1FAE5 !important; }
 /* Critical bars: orange when the show-critical toggle is on, default teal off.
    Class lives on .gantt-wrapper (ancestor of the svg). */
 .gantt .bar-wrapper.bar-critical .bar { fill: #0D9488 !important; stroke: #14B8A6 !important; }
@@ -172,20 +192,21 @@
    Dependency graph — theme-aware node/edge colors
    (SVG presentation attributes lose to these !important rules.)
    ============================================================ */
-.dep-edge { stroke: rgb(var(--border)) !important; }
+.dep-edge { stroke: rgb(var(--border)) !important; fill: none !important; }
 .dep-arrow { fill: rgb(var(--border)) !important; }
-.dep-edge-label { fill: rgb(var(--text-muted)) !important; }
+.dep-edge-label { fill: rgb(var(--text-muted)) !important; paint-order: stroke; stroke: rgb(var(--bg-background)) !important; stroke-width: 3px; }
 .dep-node { fill: rgb(var(--bg-surface)) !important; stroke: rgb(var(--border)) !important; }
 .dep-node-tint { fill: rgb(var(--bg-surface-hi)) !important; }
 .dep-node-glyph { fill: rgb(var(--text-dim)) !important; }
-.dep-node-title { fill: rgb(var(--text-primary)) !important; }
 .dep-node-sub { fill: rgb(var(--text-muted)) !important; }
 .dark .dep-edge, .dark .dep-arrow { stroke: #A8B5C8 !important; fill: #A8B5C8 !important; }
 .dark .dep-edge-active, .dark .dep-arrow-active { stroke: #6366F1 !important; fill: #6366F1 !important; }
+.dark .dep-edge { fill: none !important; }
+.dark .dep-edge.dep-cyclic { stroke: #F59E0B !important; }
+.dark .dep-arrow.dep-cyclic { fill: #F59E0B !important; }
 .dark .dep-node { fill: #1E293B !important; stroke: #334155 !important; }
 .dark .dep-node-tint { fill: #4F46E5 !important; fill-opacity: 0.13 !important; }
 .dark .dep-node-glyph { fill: #14B8A6 !important; }
-.dark .dep-node-title { fill: #E2E8F0 !important; }
 .dark .dep-node-sub { fill: #A8B5C8 !important; }
 /* Semantic states (same in both themes) */
 .dep-critical { stroke: #EA580C !important; fill: #EA580C !important; }
@@ -194,7 +215,7 @@
 .dep-node-glyph.dep-critical { fill: #EA580C !important; }
 .dep-cyclic { stroke: #F59E0B !important; fill: #F59E0B !important; }
 .dep-selected { fill: #4F46E5 !important; stroke: #6366F1 !important; }
-.dep-node-title.dep-selected, .dep-node-sub.dep-selected { fill: #fff !important; }
+.dep-node-sub.dep-selected { fill: #fff !important; }
 /* Hover-highlight edge — placed last so it beats base/cyclic rules in both themes */
 .dep-edge-active { stroke: #4F46E5 !important; }
 .dep-arrow-active { fill: #4F46E5 !important; }
@@ -234,9 +255,7 @@
   header,
   nav,
   .no-print,
-  button,
-  .panel:has(textarea),
-  .panel:has(.cell-input) {
+  button {
     display: none !important;
   }
   /* App shell is a clipped h-screen flex app — unclip for pagination */
@@ -249,18 +268,14 @@
     height: auto !important;
     min-height: 0 !important;
   }
-  /* Neutralize zoom scaling so the chart prints at natural size */
-  [style*="transform: scale"] {
-    transform: none !important;
-  }
   .gantt-container,
   .gantt {
     overflow: visible !important;
     width: 100% !important;
   }
   /* Force light palette regardless of active theme */
-  .gantt-container .gantt .grid-background { fill: #ffffff !important; }
-  .gantt-container .gantt .grid-header { fill: #f8fafc !important; stroke: #cbd5e1 !important; }
+  .gantt-container .gantt .grid-background { fill: none !important; }
+  .gantt-container .gantt .grid-header { background: #f8fafc !important; border-color: #cbd5e1 !important; }
   .gantt-container .gantt .grid-row,
   .gantt-container .gantt .grid-row:nth-child(even) { fill: #ffffff !important; }
   .gantt-container .gantt .row-line,

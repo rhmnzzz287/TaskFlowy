@@ -7,7 +7,6 @@ interface Props {
   value: string
   onChange: (text: string) => void
   onParse: () => void
-  suppressParse?: boolean
 }
 
 const PLACEHOLDER = `Task | PIC | Start | Duration | End
@@ -16,7 +15,7 @@ Implementasi | Budi | 10 Sep 2026 | | 15 Sep 2026
 Testing | Cici | | 2 hari |
 Launch | | 20 Sep 2026 | |`
 
-export function RawTextEditor({ value, onChange, onParse, suppressParse }: Props) {
+export function RawTextEditor({ value, onChange, onParse }: Props) {
   const [local, setLocal] = useState(value)
 
   // Keep local editor state in sync when value changes externally
@@ -30,7 +29,7 @@ export function RawTextEditor({ value, onChange, onParse, suppressParse }: Props
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && !suppressParse) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
       e.preventDefault()
       onParse()
     }
