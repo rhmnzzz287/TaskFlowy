@@ -51,12 +51,16 @@ export function ReviewTable({ tasks, warnings, compact, onSelectTask, selectedTa
           return (
             <div
               key={t.id}
-              className={`h-10 flex items-center px-2 transition-colors cursor-pointer border-l-2 ${
+              className={`h-10 flex items-center px-2 transition-colors cursor-pointer border-l-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${
                 selectedTaskId === t.id
                   ? 'bg-primary/10 border-l-primary'
                   : 'border-l-transparent hover:bg-surface-hi/30'
               }`}
               onClick={() => onSelectTask?.(t.id)}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectTask?.(t.id) } }}
+              tabIndex={0}
+              role="button"
+              aria-label={`Select task ${t.name}`}
             >
               {/* # */}
               <div className="w-6 text-center shrink-0">
@@ -78,7 +82,7 @@ export function ReviewTable({ tasks, warnings, compact, onSelectTask, selectedTa
               {/* Lead */}
               <div className="w-14 flex justify-center shrink-0">
                 <span className="px-1.5 py-0.5 rounded bg-surface-hi text-text-dim text-[11px] font-mono truncate max-w-[50px]">
-                  {t.assignee ? t.assignee.slice(0, 4) : '—'}
+                  {t.assignee ? t.assignee.slice(0, 4) : '-'}
                 </span>
               </div>
               {/* Days */}

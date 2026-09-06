@@ -5,8 +5,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Text-to-Gantt',
-  description: 'Structured schedule builder that renders an editable Gantt timeline',
+  title: 'TaskFlowy Gantt',
+  description: 'Turn plain-text schedules into interactive Gantt charts. Zero login, zero cost, instant sharing.',
 }
 
 export default function RootLayout({
@@ -14,7 +14,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} h-screen`}>{children}</body>
+      <body className={`${inter.className} h-screen`}>
+        {children}
+      </body>
     </html>
   )
 }

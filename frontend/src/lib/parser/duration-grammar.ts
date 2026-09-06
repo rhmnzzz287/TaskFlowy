@@ -18,8 +18,8 @@ export function parseDuration(raw: string | null | undefined): DurationResult {
   }
   const s = raw.trim().toLowerCase()
 
-  // "3 hari" or "3 day" or "3 days"
-  const days = /^(\d+)\s*(hari|day|days?)$/.exec(s)
+  // "3 hari" or "3 day" or "3 days" or "3 hr" or "3 hour" or "3 hours"
+  const days = /^(\d+)\s*(hari|hrs?|hours?|days?)$/.exec(s)
   if (days) {
     const n = parseInt(days[1], 10)
     if (n >= 1) return { ok: true, days: n }

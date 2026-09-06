@@ -10,9 +10,10 @@ interface InspectorDrawerProps {
   task: TimelineTask
   onClose: () => void
   onUpdate: (task: TimelineTask) => void
+  onDelete?: (taskId: string) => void
 }
 
-export function InspectorDrawer({ task, onClose, onUpdate }: InspectorDrawerProps) {
+export function InspectorDrawer({ task, onClose, onUpdate, onDelete }: InspectorDrawerProps) {
   const [name, setName] = useState(task.name)
   const [assignee, setAssignee] = useState(task.assignee ?? '')
   const [start, setStart] = useState(task.start)
@@ -145,9 +146,10 @@ export function InspectorDrawer({ task, onClose, onUpdate }: InspectorDrawerProp
       {/* Drawer footer actions */}
       <div className="border-t border-border p-3 flex items-center gap-2 shrink-0">
         <button className="flex-1 py-1.5 rounded bg-primary hover:bg-primary-hover text-white text-[13px] font-semibold transition-colors" onClick={handleApply}>
-          Apply Changes
+          Save Task Details
         </button>
-        <button className="p-1.5 rounded bg-surface-hi hover:bg-error/20 text-muted hover:text-error transition-colors" title="Delete Task">
+        <button className="p-1.5 rounded bg-surface-hi hover:bg-error/20 text-muted hover:text-error transition-colors" title="Delete Task"
+          onClick={() => { onDelete?.(task.id); onClose() }}>
           <Trash2 size={15} />
         </button>
       </div>

@@ -20,18 +20,19 @@ export interface GanttOptions {
   tasks: GanttTask[]
   onDateChange: (id: string, newStart: Date, newEnd: Date) => void
   onClick: (id: string) => void
+  viewMode?: 'Day' | 'Week' | 'Month'
 }
 
 import FrappeGantt from 'frappe-gantt'
 
 export async function initGantt(opts: GanttOptions): Promise<any | null> {
-  const { element, tasks, onDateChange, onClick } = opts
+  const { element, tasks, onDateChange, onClick, viewMode } = opts
 
   try {
     const ganttTasks = tasks.map(t => ({ ...t, dependencies: '' }))
 
     const gantt = new FrappeGantt(element, ganttTasks, {
-      view_mode: 'Day',
+      view_mode: viewMode || 'Week',
       date_format: 'YYYY-MM-DD',
       bar_height: 28,
       bar_corner_radius: 4,

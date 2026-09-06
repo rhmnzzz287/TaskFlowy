@@ -3,16 +3,43 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Light theme tokens */
+    --bg-background: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --bg-surface-hi: #F1F5F9;
+    --bg-surface-dim: #E2E8F0;
+    --border: #CBD5E1;
+    --border-lt: #E2E8F0;
+    --text-primary: #0F172A;
+    --text-dim: #334155;
+    --text-muted: #64748B;
+  }
+
+  .dark {
+    /* Dark theme tokens */
+    --bg-background: #0F172A;
+    --bg-surface: #1E293B;
+    --bg-surface-hi: #283044;
+    --bg-surface-dim: #0B1326;
+    --border: #334155;
+    --border-lt: #E2E8F0;
+    --text-primary: #E2E8F0;
+    --text-dim: #CBD5E1;
+    --text-muted: #A8B5C8;
+  }
+
   html {
     font-feature-settings: 'tnum' 1;
   }
   body {
     @apply bg-background text-text-primary antialiased;
     overscroll-behavior: none;
+    scrollbar-color: var(--border) transparent;
   }
   * {
     scrollbar-width: thin;
-    scrollbar-color: #334155 transparent;
+    scrollbar-color: var(--border) transparent;
   }
 }
 
