@@ -20,10 +20,11 @@ interface GanttBoardProps {
   viewMode?: 'Day' | 'Week' | 'Month'
   showCritical?: boolean
   zoom?: number  // 1-5, mapped to CSS scale
+  generationTick?: number
 }
 
 export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
-  function GanttBoard({ tasks, selectedAssignees, onTasksChange, onSelectTask, viewMode = 'Week', showCritical = true, zoom = 3 }, ref) {
+  function GanttBoard({ tasks, selectedAssignees, onTasksChange, onSelectTask, viewMode = 'Week', showCritical = true, zoom = 3, generationTick = 0 }, ref) {
   const containerRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const [loading, setLoading] = useState(true)
@@ -109,7 +110,7 @@ export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
     if (draggingRef.current) return // hold off until mouseup tick re-runs this
 
     const ganttTasks = toGanttTasks(tasks, selectedAssignees)
-    const renderKey = JSON.stringify([ganttTasks.map(t => [t.id, t.start, t.end, t.dependencies || '']), viewMode])
+    const renderKey = JSON.stringify([ganttTasks.map(t => [t.id, t.start, t.end, t.dependencies || '']), viewMode, generationTick])
 
     if (renderKey === lastRenderRef.current) {
       setLoading(false)
@@ -173,7 +174,7 @@ export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
       cancelled = true
     }
     // showCritical no longer re-renders the chart — it only toggles a CSS class now
-  }, [tasks, selectedAssignees, handleDateChange, handleClick, viewMode, commitTick])
+  }, [tasks, selectedAssignees, handleDateChange, handleClick, viewMode, commitTick, generationTick])
 
   // Zoom via CSS transform
   const zoomScale = 0.6 + (zoom - 1) * 0.2 // 1→0.6, 3→1.0, 5→1.4

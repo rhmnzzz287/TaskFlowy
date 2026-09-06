@@ -50,6 +50,10 @@ export default function Home() {
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([])
   const [hasGenerated, setHasGenerated] = useState(false)
   const [isParsing, setIsParsing] = useState(false)
+  const [generationTick, setGenerationTick] = useState(0)
+  const [generateSuccess, setGenerateSuccess] = useState(false)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const successTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
   const [view, setView] = useState<'gantt' | 'table' | 'dependency'>('gantt')
   const [viewMode, setViewMode] = useState<'Day' | 'Week' | 'Month'>('Week')
@@ -165,12 +169,30 @@ export default function Home() {
   // --- Explicit user actions show validation feedback + loading ---
   const handleParse = useCallback(() => {
     setIsParsing(true)
+    if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current)
+    setGenerateSuccess(false)
+
+    // 280ms gives a smooth, tactile feel confirming that calculation is happening
     window.setTimeout(() => {
       const rows = inputMode === 'raw' && rawText.trim() ? parseRawText(rawText) : inputRows
       if (inputMode === 'raw' && rawText.trim()) setInputRows(rows)
-      runParse(rows, false)
+      const ok = runParse(rows, false)
       setIsParsing(false)
-    }, 30)
+      if (ok) {
+        setGenerationTick(t => t + 1)
+        setGenerateSuccess(true)
+        setToastMessage(`Timeline updated! (${rows.length} task${rows.length > 1 ? 's' : ''})`)
+        successTimeoutRef.current = setTimeout(() => {
+          setGenerateSuccess(false)
+          setToastMessage(null)
+        }, 1800)
+        // On mobile, scroll to Gantt chart area
+        if (typeof window !== 'undefined' && window.innerWidth < 768) {
+          const ganttContainer = ganttRef.current?.getContainer()
+          ganttContainer?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }
+    }, 280)
   }, [inputRows, rawText, inputMode, runParse])
 
   const handleTemplateSelect = useCallback((rows: ParseRowState[], templateName?: string) => {
@@ -368,9 +390,13 @@ export default function Home() {
             {copiedLink ? <Check size={13} className="text-completed" /> : <Copy size={13} />}
             <span className="hidden sm:inline">{copiedLink ? 'Tersalin' : 'Share'}</span>
           </button>
-          <button className="btn-primary" onClick={handleParse} disabled={!canGenerate || isParsing}>
-            {isParsing ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
-            <span>{isParsing ? 'Parsing…' : 'Generate Timeline'}</span>
+          <button
+            className={`btn-primary transition-all duration-200 ${generateSuccess ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : ''}`}
+            onClick={handleParse}
+            disabled={!canGenerate || isParsing}
+          >
+            {isParsing ? <Loader2 size={14} className="animate-spin" /> : generateSuccess ? <Check size={14} /> : <Play size={14} />}
+            <span>{isParsing ? 'Generating…' : generateSuccess ? 'Timeline Generated!' : 'Generate Timeline'}</span>
           </button>
           <ThemeToggle />
         </div>
@@ -517,6 +543,7 @@ export default function Home() {
                       viewMode={viewMode}
                       showCritical={showCritical}
                       zoom={zoom}
+                      generationTick={generationTick}
                     />
                     <LegendBar tasks={tasks} warnings={warnings} />
                   </div>
