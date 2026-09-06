@@ -533,7 +533,7 @@ export default function Home() {
               ) : (
                 <>
                   {tasks.length > 0 && <ParseTelemetryBar tasks={tasks} timezone={DEFAULT_TIMEZONE} />}
-                  <div className="flex-1 flex flex-col min-h-0">
+                  <div className={`flex-1 flex flex-col min-h-0 rounded-lg transition-shadow ${generateSuccess ? 'animate-canvas-pulse ring-1 ring-emerald-500/40' : ''}`}>
                     <GanttBoard
                       ref={ganttRef}
                       tasks={tasks}
@@ -573,6 +573,14 @@ export default function Home() {
           />
         )}
       </div>
+
+      {/* === FLOATING TOAST === */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-surface-elevated/95 border border-border shadow-xl backdrop-blur text-xs font-medium text-foreground animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   )
 }

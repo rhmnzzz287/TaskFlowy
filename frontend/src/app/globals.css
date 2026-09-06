@@ -205,6 +205,23 @@
    Rules below come after the theme palette in source order with
    matching specificity, so they win in both themes.
    ============================================================ */
+/* Canvas pulse animation on timeline generation */
+@keyframes canvasPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.15);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.animate-canvas-pulse {
+  animation: canvasPulse 1.2s ease-out;
+}
+
 @media print {
   @page {
     size: landscape;
