@@ -13,6 +13,7 @@ export interface ParseRowInput {
   start: string
   duration?: string | null
   end?: string | null
+  dependsOn?: string | null
 }
 
 export interface TimelineTask {

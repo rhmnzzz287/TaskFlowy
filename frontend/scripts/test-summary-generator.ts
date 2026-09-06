@@ -15,7 +15,7 @@ if (!summary.includes('UI Design') || !summary.includes('API Development')) {
   console.error('Summary test failed: missing tasks!')
   process.exit(1)
 }
-if (!summary.includes('🚩 *[Milestone]*')) {
+if (!summary.includes('[Milestone]')) {
   console.error('Summary test failed: milestone badge missing!')
   process.exit(1)
 }

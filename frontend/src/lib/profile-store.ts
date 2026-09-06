@@ -1,7 +1,7 @@
 export interface UserProfile {
   name: string
   role: string
-  avatarEmoji: string
+  avatarIcon: AvatarIconKey
   defaultAssignee: string
   createdAt: string
   updatedAt: string
@@ -17,13 +17,16 @@ export interface TaskFlowyBackupData {
 const PROFILE_STORAGE_KEY = 'taskflowy_user_profile'
 const DRAFTS_STORAGE_KEY = 'taskflowy_drafts'
 
-export const AVATAR_PRESETS = ['👤', '👨‍💻', '👩‍💻', '🚀', '⚡', '🎯', '🛠️', '📊']
+export const AVATAR_ICON_KEYS = ['user', 'code', 'terminal', 'rocket', 'zap', 'target', 'wrench', 'chart'] as const
+export type AvatarIconKey = (typeof AVATAR_ICON_KEYS)[number]
+/** Legacy emoji values stored before the icon migration fall back to 'user' at render. */
+export const AVATAR_PRESETS = AVATAR_ICON_KEYS
 
 export function getDefaultProfile(): UserProfile {
   return {
     name: 'Pengguna TaskFlowy',
     role: 'Project Manager',
-    avatarEmoji: '👤',
+    avatarIcon: 'user',
     defaultAssignee: 'Saya',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

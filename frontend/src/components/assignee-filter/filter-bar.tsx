@@ -38,7 +38,7 @@ export function AssigneeFilter({ tasks, selected, onChange }: AssigneeFilterProp
       <button
         className={`px-2 py-1 rounded text-[13px] transition-colors inline-flex items-center gap-1 ${
           selected.length === 0
-            ? 'bg-primary text-white font-medium'
+            ? 'bg-primary text-white dark:text-[#0F172A] font-medium'
             : 'bg-surface-hi/30 text-text-dim hover:text-text-primary'
         }`}
         onClick={selectAll}
@@ -57,7 +57,7 @@ export function AssigneeFilter({ tasks, selected, onChange }: AssigneeFilterProp
             key={a}
             className={`px-2 py-1 rounded text-[13px] transition-colors ${
               selected.includes(a)
-                ? 'bg-primary text-white font-medium'
+                ? 'bg-primary text-white dark:text-[#0F172A] font-medium'
                 : 'bg-surface-hi/20 text-text-dim hover:text-text-primary hover:bg-surface-hi/40'
             }`}
             onClick={() => toggle(a)}

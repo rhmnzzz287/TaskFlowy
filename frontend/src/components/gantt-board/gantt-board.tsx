@@ -266,7 +266,7 @@ export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
   }, [tasks, selectedAssignees, handleDateChange, handleClick, handleProgressChange, viewMode, zoom, commitTick, generationTick, focusTaskName])
 
   return (
-    <div className="flex-1 bg-surface-dim rounded-none border-none overflow-hidden flex flex-col min-h-0">
+    <div className="flex-1 bg-surface-dim dark:bg-[#0B0F19] rounded-none border-none overflow-hidden flex flex-col min-h-0">
       <div
         ref={scrollRef}
         className={`gantt-wrapper flex-1 overflow-hidden relative${showCritical ? ' show-critical' : ''}`}

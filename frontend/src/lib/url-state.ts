@@ -10,13 +10,14 @@ export function encodeRowsToHash(rows: ParseRowState[]): string {
   return `#${KEY}=${compressed}`
 }
 
-/** Read URL hash and decompress to rows. Returns null when no data present. */
-export function decodeHashToRows(): Partial<ParseRowState>[] | null {
-  if (typeof window === 'undefined') return null
-  const hash = window.location.hash
-  if (!hash.startsWith(`#${KEY}=`)) return null
+/** Read URL hash and decompress to rows. Returns null when no data present.
+ * Accepts an explicit hash string (for tests / non-browser contexts);
+ * defaults to window.location.hash in the browser. */
+export function decodeHashToRows(hash?: string): Partial<ParseRowState>[] | null {
+  const fragment = hash ?? (typeof window === 'undefined' ? '' : window.location.hash)
+  if (!fragment.startsWith(`#${KEY}=`)) return null
   try {
-    const raw = hash.slice(`#${KEY}=`.length)
+    const raw = fragment.slice(`#${KEY}=`.length)
     const json = LZString.decompressFromEncodedURIComponent(raw)
     if (!json) return null
     return JSON.parse(json) as Partial<ParseRowState>[]

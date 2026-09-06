@@ -7,11 +7,11 @@ import {
 
 console.log('--- TEST 1: Default Profile Initialization ---')
 const defaultProfile = getDefaultProfile()
-if (!defaultProfile.name || !defaultProfile.avatarEmoji || !defaultProfile.defaultAssignee) {
+if (!defaultProfile.name || !defaultProfile.avatarIcon || !defaultProfile.defaultAssignee) {
   console.error('FAIL: Default profile properties missing:', defaultProfile)
   process.exit(1)
 }
-console.log('✓ Default profile verified:', defaultProfile.name, defaultProfile.avatarEmoji)
+console.log('✓ Default profile verified:', defaultProfile.name, defaultProfile.avatarIcon)
 
 console.log('--- TEST 2: Validate Malformed Backup JSON ---')
 const malformedRes = validateAndRestoreBackup('{"invalid": true}')
@@ -28,7 +28,7 @@ const sampleValidBackup: TaskFlowyBackupData = {
   profile: {
     name: 'Budi Santoso',
     role: 'Lead Architect',
-    avatarEmoji: '⚡',
+    avatarIcon: 'zap',
     defaultAssignee: 'Budi',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

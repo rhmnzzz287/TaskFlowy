@@ -13,19 +13,23 @@
     --text-primary: 15 23 42;
     --text-dim: 51 65 85;
     --text-muted: 100 116 139;
+    --color-primary: 79 70 229;        /* #4F46E5 Indigo-600 */
+    --color-primary-hover: 99 102 241;  /* #6366F1 Indigo-500 */
     color-scheme: light;
   }
 
   .dark {
-    /* Dark theme */
-    --bg-background: 15 23 42;
-    --bg-surface: 30 41 59;
-    --bg-surface-hi: 40 48 68;
-    --bg-surface-dim: 11 19 38;
-    --border: 51 65 85;
-    --text-primary: 226 232 240;
-    --text-dim: 203 213 225;
-    --text-muted: 168 181 200;
+    /* Dark theme — tuned for high contrast & zero eye-strain */
+    --bg-background: 11 15 25;         /* #0B0F19 Deep Obsidian */
+    --bg-surface: 20 27 45;            /* #141B2D Dark Slate */
+    --bg-surface-hi: 30 41 59;          /* #1E293B Slate-800 */
+    --bg-surface-dim: 15 23 42;         /* #0F172A Slate-900 */
+    --border: 45 58 80;                /* #2D3A50 Clean Border */
+    --text-primary: 241 245 249;       /* #F1F5F9 Slate-100 (Crisp & White) */
+    --text-dim: 226 232 240;           /* #E2E8F0 Slate-200 */
+    --text-muted: 180 195 215;         /* #B4C3D7 High-contrast muted */
+    --color-primary: 129 140 248;      /* #818CF8 Indigo-400 (6.42:1 on obsidian) */
+    --color-primary-hover: 165 180 252;/* #A5B4FC Indigo-300 */
     color-scheme: dark;
   }
 
@@ -44,7 +48,9 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-primary text-white text-[13px] font-semibold hover:bg-primary-hover transition-colors active:scale-95;
+    /* Dark ink on dark-mode Indigo-400: white-on-#818CF8 is ~3:1 (fails AA),
+       slate-900-on-#818CF8 is 5.98:1 (see test-contrast-ratios.ts TEST 3). */
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-primary text-white dark:text-[#0F172A] text-[13px] font-semibold hover:bg-primary-hover transition-colors active:scale-95;
   }
   .btn-secondary {
     @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-border text-text-dim text-[13px] hover:bg-surface hover:text-text-primary transition-colors;
@@ -144,10 +150,17 @@
    ships fill:none; only force non-interactive so drags/clicks reach bars. */
 .gantt .grid-background { fill: none !important; pointer-events: none; }
 .gantt-container .hide { display: none !important; }
-.gantt .grid-row { fill: rgb(var(--bg-background)) !important; }
-.gantt .grid-row:nth-child(even) { fill: rgb(var(--bg-surface-hi)) !important; }
-.gantt .row-line { stroke: rgb(var(--border)) !important; }
-.gantt .tick { stroke: rgb(var(--border)) !important; }
+/* Light mode keeps subtle zebra striping */
+html:not(.dark) .gantt .grid-row { fill: rgb(var(--bg-background)) !important; }
+html:not(.dark) .gantt .grid-row:nth-child(even) { fill: rgb(var(--bg-surface-hi)) !important; }
+html:not(.dark) .gantt .row-line { stroke: rgb(var(--border)) !important; }
+html:not(.dark) .gantt .tick { stroke: rgb(var(--border)) !important; }
+
+/* Dark mode uses unified obsidian canvas — NO zebra stripes, NO checkerboards */
+.dark .gantt .grid-row { fill: #0B0F19 !important; }
+.dark .gantt .grid-row:nth-child(even) { fill: #0B0F19 !important; }
+.dark .gantt .row-line { stroke: rgba(148, 163, 184, 0.08) !important; }
+.dark .gantt .tick { stroke: rgba(148, 163, 184, 0.08) !important; }
 /* Today marker styling lives below (.gantt-container .current-highlight) */
 .gantt .arrow { stroke: rgb(var(--text-muted)) !important; fill: none !important; }
 .gantt .bar-label, .gantt .bar-label.big { fill: #F8FAFC !important; font-size: 11px !important; font-weight: 500; }
@@ -165,14 +178,14 @@ html:not(.dark) .show-critical .gantt .bar-wrapper.bar-critical .bar-label { fil
    directly so chrome (headers, weekend wash, arrows) follows .dark.
    (Upstream's own dark selector keys off html[data-theme], which we don't use.) */
 .dark {
-  --g-header-background: rgb(var(--bg-surface-hi));
-  --g-text-dark: rgb(var(--text-primary));
-  --g-text-muted: rgb(var(--text-muted));
-  --g-border-color: rgb(var(--border));
-  --g-row-border-color: rgb(var(--border));
-  --g-arrow-color: rgb(var(--text-muted));
-  --g-weekend-highlight-color: rgb(var(--bg-surface-hi));
-  --g-row-color: rgb(var(--bg-background));
+  --g-header-background: #141B2D;
+  --g-text-dark: #F1F5F9;
+  --g-text-muted: #94A3B8;
+  --g-border-color: rgba(148, 163, 184, 0.12);
+  --g-row-border-color: rgba(148, 163, 184, 0.08);
+  --g-arrow-color: #94A3B8;
+  --g-weekend-highlight-color: rgba(255, 255, 255, 0.02); /* Soft transparent wash */
+  --g-row-color: #0B0F19;
 }
 .gantt .bar-wrapper .bar { fill: #0D9488 !important; stroke: #14B8A6 !important; }
 .gantt .bar-wrapper .bar-progress { fill: #14B8A6 !important; }

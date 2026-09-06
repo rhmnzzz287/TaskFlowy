@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react'
 import { UserProfile, AVATAR_PRESETS, generateBackupData, validateAndRestoreBackup } from '@/lib/profile-store'
+import { AvatarIcon } from './avatar-icon'
 import type { WorkspaceMetrics } from '@/lib/workspace-aggregator'
 import { Download, Upload, Check, AlertCircle, Edit2, ShieldCheck, FolderKanban, CheckSquare, Clock } from 'lucide-react'
 
@@ -17,7 +18,7 @@ export function ProfileCard({ profile, metrics, onProfileChange, onDataRestored 
   const [name, setName] = useState(profile.name)
   const [role, setRole] = useState(profile.role)
   const [defaultAssignee, setDefaultAssignee] = useState(profile.defaultAssignee)
-  const [selectedEmoji, setSelectedEmoji] = useState(profile.avatarEmoji)
+  const [selectedIcon, setSelectedIcon] = useState(profile.avatarIcon)
   const [feedbackMsg, setFeedbackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -28,7 +29,7 @@ export function ProfileCard({ profile, metrics, onProfileChange, onDataRestored 
       name: name.trim() || 'Pengguna TaskFlowy',
       role: role.trim() || 'Project Manager',
       defaultAssignee: defaultAssignee.trim() || name.trim(),
-      avatarEmoji: selectedEmoji,
+      avatarIcon: selectedIcon,
     })
     setIsEditing(false)
     setFeedbackMsg({ type: 'success', text: 'Profil berhasil diperbarui!' })
@@ -74,15 +75,15 @@ export function ProfileCard({ profile, metrics, onProfileChange, onDataRestored 
       {/* Header Info */}
       <div className="flex items-start gap-4">
         <div className="relative">
-          <div className="w-14 h-14 rounded-full bg-surface-hi border-2 border-primary/40 flex items-center justify-center text-2xl shadow-inner select-none">
-            {profile.avatarEmoji}
+          <div className="w-14 h-14 rounded-full bg-surface-hi border-2 border-primary/40 flex items-center justify-center text-text-primary shadow-inner select-none">
+            <AvatarIcon iconKey={profile.avatarIcon} size={28} />
           </div>
         </div>
         <div className="flex-1 min-w-0">
           <h2 className="text-base font-semibold truncate leading-tight">{profile.name}</h2>
           <p className="text-xs text-muted truncate mt-0.5">{profile.role}</p>
           <div className="flex items-center gap-1.5 mt-2">
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-medium">
+            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-primary/15 text-primary font-semibold border border-primary/20">
               PIC: {profile.defaultAssignee}
             </span>
           </div>
@@ -100,18 +101,19 @@ export function ProfileCard({ profile, metrics, onProfileChange, onDataRestored 
       {isEditing && (
         <form onSubmit={handleSaveProfile} className="flex flex-col gap-3 p-3.5 bg-surface-hi/50 rounded-lg border border-border/80 text-xs">
           <div>
-            <label className="block text-[11px] font-medium text-muted mb-1">Avatar Preset</label>
+            <label className="block text-[11px] font-medium text-muted mb-1">Ikon Avatar</label>
             <div className="flex gap-1.5 flex-wrap">
-              {AVATAR_PRESETS.map(emoji => (
+              {AVATAR_PRESETS.map(iconKey => (
                 <button
                   type="button"
-                  key={emoji}
-                  onClick={() => setSelectedEmoji(emoji)}
-                  className={`w-7 h-7 rounded-md flex items-center justify-center text-sm transition-transform ${
-                    selectedEmoji === emoji ? 'bg-primary/20 border border-primary scale-110' : 'hover:bg-surface-hi'
+                  key={iconKey}
+                  onClick={() => setSelectedIcon(iconKey)}
+                  aria-label={`Pilih ikon ${iconKey}`}
+                  className={`w-7 h-7 rounded-md flex items-center justify-center text-text-primary transition-transform ${
+                    selectedIcon === iconKey ? 'bg-primary/20 border border-primary scale-110' : 'hover:bg-surface-hi'
                   }`}
                 >
-                  {emoji}
+                  <AvatarIcon iconKey={iconKey} size={15} />
                 </button>
               ))}
             </div>
@@ -176,13 +178,13 @@ export function ProfileCard({ profile, metrics, onProfileChange, onDataRestored 
         <div className="p-3 bg-surface-hi/40 rounded-lg border border-border flex flex-col items-center justify-center text-center">
           <FolderKanban size={15} className="text-primary mb-1" />
           <span className="text-lg font-bold leading-tight">{metrics.totalProjects}</span>
-          <span className="text-[10px] text-muted leading-tight mt-0.5">Proyek</span>
+          <span className="text-xs font-medium text-text-dim leading-tight mt-0.5">Proyek</span>
         </div>
 
         <div className="p-3 bg-surface-hi/40 rounded-lg border border-border flex flex-col items-center justify-center text-center">
           <CheckSquare size={15} className="text-emerald-500 mb-1" />
           <span className="text-lg font-bold leading-tight">{metrics.myActiveTasksCount}</span>
-          <span className="text-[10px] text-muted leading-tight mt-0.5">Tugas Saya</span>
+          <span className="text-xs font-medium text-text-dim leading-tight mt-0.5">Tugas Saya</span>
         </div>
 
         <div className="p-3 bg-surface-hi/40 rounded-lg border border-border flex flex-col items-center justify-center text-center">
@@ -190,7 +192,7 @@ export function ProfileCard({ profile, metrics, onProfileChange, onDataRestored 
           <span className={`text-lg font-bold leading-tight ${metrics.urgentTasksCount > 0 ? 'text-amber-500' : ''}`}>
             {metrics.urgentTasksCount}
           </span>
-          <span className="text-[10px] text-muted leading-tight mt-0.5">Mendesak (&le;3h)</span>
+          <span className="text-xs font-medium text-text-dim leading-tight mt-0.5">Mendesak (&le;3h)</span>
         </div>
       </div>
 
@@ -236,7 +238,7 @@ export function ProfileCard({ profile, metrics, onProfileChange, onDataRestored 
           className={`flex items-center gap-2 p-2.5 rounded-lg text-xs transition-opacity ${
             feedbackMsg.type === 'success'
               ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-              : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
+              : 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20'
           }`}
         >
           {feedbackMsg.type === 'success' ? <Check size={13} /> : <AlertCircle size={13} />}

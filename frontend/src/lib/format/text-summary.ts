@@ -11,7 +11,7 @@ export function generateChatSummary(tasks: TimelineTask[], title = 'Jadwal Proye
   const totalDays = tasks.reduce((sum, t) => sum + (t.durationDays || 0), 0)
 
   const lines: string[] = [
-    `📅 *${title}* (${earliest} - ${latest})`,
+    `*${title}* (${earliest} - ${latest})`,
     `Total: ${tasks.length} task | Estimasi: ${totalDays} hari kerja`,
     '',
   ]
@@ -19,10 +19,10 @@ export function generateChatSummary(tasks: TimelineTask[], title = 'Jadwal Proye
   tasks.forEach(t => {
     const startStr = formatDateDisplay(t.start)
     const endStr = formatDateDisplay(t.end)
-    const pic = t.assignee ? ` — @${t.assignee}` : ''
-    const crit = t.isCritical ? ' 🔥 *[Critical Path]*' : ''
-    const badge = t.isMilestone ? ' 🚩 *[Milestone]*' : ` (${t.durationDays} hari)`
-    const prog = (t.progress ?? 0) >= 100 ? ' ✅' : ''
+    const pic = t.assignee ? ` (@${t.assignee})` : ''
+    const crit = t.isCritical ? ' [Critical Path]' : ''
+    const badge = t.isMilestone ? ' [Milestone]' : ` (${t.durationDays} hari)`
+    const prog = (t.progress ?? 0) >= 100 ? ' [Selesai]' : ''
 
     lines.push(`• [${startStr} - ${endStr}] ${t.name}${pic}${badge}${crit}${prog}`)
   })

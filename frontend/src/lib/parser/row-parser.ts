@@ -63,7 +63,7 @@ export function parseRow(
   if (!row.start || row.start.trim() === '') {
     if (!hasEnd && !hasDuration) {
       // nothing to go on: fall through to the "single-day task today" default
-      warnings.push('Tanggal mulai kosong — dijadwalkan hari ini')
+      warnings.push('Tanggal mulai kosong: dijadwalkan hari ini')
     }
   } else {
     const parsed = parseDate(row.start, referenceDate)
@@ -139,6 +139,7 @@ export function parseRow(
     start: startDate ? formatDateISO(startDate) : referenceDate,
     end: endDate ? formatDateISO(endDate) : referenceDate,
     durationDays: durationDays ?? 1,
+    dependsOn: row.dependsOn?.trim() || null,
     ambiguities: [],
   }
 

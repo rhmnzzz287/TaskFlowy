@@ -1,0 +1,123 @@
+export interface TranslationDictionary {
+  navbar: {
+    freeBadge: string
+    tryLive: string
+    solutions: string
+    freedom: string
+    about: string
+    openWorkbench: string
+    backToHome: string
+  }
+  hero: {
+    pillBadge: string
+    titlePart1: string
+    titlePart2: string
+    description: string
+    tryExample: string
+    presetUmkm: string
+    presetPm: string
+    presetMarketing: string
+    presetEvent: string
+    addTask: string
+    shiftDays: string
+    reset: string
+    textTab: string
+    tableTab: string
+    tableTitle: string
+    tableSubtitle: string
+    importSpreadsheet: string
+    noPredecessor: string
+    inputHint: string
+    liveParser: string
+    tips: string
+    timelinePreview: string
+
+    tasksDetected: string
+    noTasks: string
+    handoffDesc: string
+    handoffCta: string
+    presetUmkmText: string
+    presetPmText: string
+  }
+  solutions: {
+    title: string
+    subtitle: string
+    tabUmkm: string
+    tabPm: string
+    umkmBadge: string
+    umkmTitle: string
+    umkmProblem1: string
+    umkmProblem2: string
+    umkmQuote: string
+    umkmFeature1Title: string
+    umkmFeature1Desc: string
+    umkmFeature2Title: string
+    umkmFeature2Desc: string
+    umkmFeature3Title: string
+    umkmFeature3Desc: string
+    umkmFeature4Title: string
+    umkmFeature4Desc: string
+    pmBadge: string
+    pmTitle: string
+    pmProblem1: string
+    pmProblem2: string
+    pmQuote: string
+    pmFeature1Title: string
+    pmFeature1Desc: string
+    pmFeature2Title: string
+    pmFeature2Desc: string
+    pmFeature3Title: string
+    pmFeature3Desc: string
+    pmFeature4Title: string
+    pmFeature4Desc: string
+  }
+  matrix: {
+    badge: string
+    title: string
+    subtitle: string
+    colCriteria: string
+    colExcel: string
+    colJira: string
+    rows: Array<{
+      criteria: string
+      taskflowy: string
+      excel: string
+      jira: string
+      highlight?: boolean
+    }>
+  }
+  about: {
+    title: string
+    p1: string
+    p2: string
+    p3: string
+  }
+  footer: {
+    ctaTitle: string
+    ctaSubtitle: string
+    ctaButton: string
+    tagline: string
+    copyright: string
+  }
+  workbench: {
+    tasksCount: string
+    generateTimeline: string
+    generating: string
+    generatedSuccess: string
+    exportPng: string
+    exportSvg: string
+    exportCsv: string
+    printPdf: string
+    copySummary: string
+    copied: string
+    shareLink: string
+    sharedSuccess: string
+    bulkShift: string
+    myWorkspace: string
+    viewGantt: string
+    viewTable: string
+    viewDependency: string
+    zoomIn: string
+    zoomOut: string
+  }
+}

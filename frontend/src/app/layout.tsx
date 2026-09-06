@@ -13,13 +13,17 @@ export const metadata: Metadata = {
   description: 'Turn plain-text schedules into interactive Gantt charts. Zero login, zero cost, instant sharing.',
 }
 
+import { LocaleProvider } from '@/lib/i18n/context'
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className="dark">
       <body className={`${inter.className} h-screen`}>
-        {children}
+        <LocaleProvider>
+          {children}
+        </LocaleProvider>
       </body>
     </html>
   )
