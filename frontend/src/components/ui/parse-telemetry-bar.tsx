@@ -12,7 +12,7 @@ export function ParseTelemetryBar({ tasks, timezone }: ParseTelemetryBarProps) {
   const totalDays = tasks.reduce((sum, t) => sum + (t.isMilestone ? 0 : t.durationDays), 0)
 
   return (
-    <div className="h-8 shrink-0 bg-surface-dim border-b border-border px-3 flex items-center gap-4 text-[12px] overflow-x-auto whitespace-nowrap">
+    <div className="h-8 shrink-0 bg-surface-dim border-b border-border px-3 flex items-center justify-center gap-6 text-[12px] overflow-x-auto whitespace-nowrap">
       <span className="flex items-center gap-1.5">
         <span className="label">Tasks</span>
         <span className="font-semibold text-text-primary">{nodeCount}</span>

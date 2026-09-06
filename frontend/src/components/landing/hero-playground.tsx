@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Zap, CheckCircle2, RotateCcw, Store, Briefcase, Lightbulb, FileText, Table2, GitBranch, ChevronLeft, ChevronRight, Plus, Clock, Trash2, Megaphone, Calendar, Upload } from 'lucide-react'
+import { ArrowRight, Zap, CheckCircle2, RotateCcw, Store, Briefcase, Lightbulb, FileText, Table2, GitBranch, ChevronLeft, ChevronRight, Clock, Megaphone, Calendar, Lock } from 'lucide-react'
 import { parseRawText, rowsToRawText } from '@/lib/format/raw-text'
 import { parseRows } from '@/lib/parser/row-parser'
 import { encodeRowsToHash } from '@/lib/url-state'
@@ -108,105 +108,6 @@ function parseISODateLocal(iso: string): number {
   return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 0, 0, 0, 0).getTime()
 }
 
-/**
- * Parse text from imported CSV, TSV, or spreadsheet export into table rows.
- */
-function parseSpreadsheetText(content: string, refDate: string): ParseRowState[] {
-  const clean = content.replace(/^\uFEFF/, '').trim()
-  if (!clean) return []
-
-  const lines = clean.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
-  if (lines.length === 0) return []
-
-  const firstLine = lines[0]
-  const tabCount = (firstLine.match(/\t/g) || []).length
-  const pipeCount = (firstLine.match(/\|/g) || []).length
-  const semiCount = (firstLine.match(/;/g) || []).length
-  const commaCount = (firstLine.match(/,/g) || []).length
-
-  let delimiter = ','
-  if (tabCount > commaCount && tabCount > semiCount && tabCount > pipeCount) delimiter = '\t'
-  else if (pipeCount > commaCount && pipeCount > semiCount) delimiter = '|'
-  else if (semiCount > commaCount) delimiter = ';'
-
-  const parseCells = (line: string): string[] => {
-    if (delimiter === '\t' || delimiter === '|') {
-      return line.split(delimiter).map(c => c.trim())
-    }
-    const res: string[] = []
-    let cur = ''
-    let inQuotes = false
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i]
-      if (ch === '"') {
-        if (inQuotes && line[i + 1] === '"') {
-          cur += '"'
-          i++
-        } else {
-          inQuotes = !inQuotes
-        }
-      } else if (ch === delimiter && !inQuotes) {
-        res.push(cur.trim())
-        cur = ''
-      } else {
-        cur += ch
-      }
-    }
-    res.push(cur.trim())
-    return res
-  }
-
-  const rawHeader = parseCells(lines[0]).map(h => h.toLowerCase())
-  const hasHeader = rawHeader.some(h =>
-    h.includes('task') || h.includes('tugas') || h.includes('nama') ||
-    h.includes('name') || h.includes('start') || h.includes('mulai') || h.includes('dur')
-  )
-
-  const dataLines = hasHeader ? lines.slice(1) : lines
-  const rows: ParseRowState[] = []
-
-  dataLines.forEach((line, idx) => {
-    const cells = parseCells(line)
-    if (cells.length === 0 || !cells[0]) return
-
-    let name = cells[0]
-    let assignee = cells[1] || ''
-    let start = cells[2] || addDays(refDate, idx)
-    let duration = cells[3] || '2 hari'
-    let dependsOn = cells[4] || ''
-
-    if (hasHeader) {
-      const findIdx = (keywords: string[]) => rawHeader.findIndex(h => keywords.some(k => h.includes(k)))
-      const nameIdx = findIdx(['task', 'tugas', 'nama', 'name', 'title'])
-      const picIdx = findIdx(['pic', 'assignee', 'owner', 'anggota', 'person', 'who'])
-      const startIdx = findIdx(['start', 'mulai', 'tanggal', 'date', 'begin'])
-      const durIdx = findIdx(['duration', 'durasi', 'lama', 'days', 'hari'])
-      const depIdx = findIdx(['depend', 'relasi', 'predecessor', 'after', 'setelah'])
-
-      if (nameIdx !== -1 && cells[nameIdx]) name = cells[nameIdx]
-      if (picIdx !== -1 && cells[picIdx]) assignee = cells[picIdx]
-      if (startIdx !== -1 && cells[startIdx]) start = cells[startIdx]
-      if (durIdx !== -1 && cells[durIdx]) duration = cells[durIdx]
-      if (depIdx !== -1 && cells[depIdx]) dependsOn = cells[depIdx]
-    }
-
-    if (/^\d+$/.test(duration.trim())) {
-      duration = `${duration.trim()} hari`
-    }
-
-    rows.push({
-      id: `row-import-${idx}-${Date.now()}`,
-      name,
-      assignee,
-      start,
-      duration,
-      end: '',
-      dependsOn,
-    })
-  })
-
-  return rows
-}
 
 export function HeroPlayground() {
 
@@ -244,69 +145,7 @@ export function HeroPlayground() {
     setRawText(presets[type])
   }
 
-  // Dynamic Playground Actions: Add task, shift schedule, delete row
-  const handleAddTask = () => {
-    const currentRows = parseRawText(rawText)
-    const lastRow = currentRows[currentRows.length - 1]
-    const lastTaskName = lastRow?.name?.trim() || ''
-    const refDate = todayRef()
-    const nextStart = lastRow?.start ? addDays(lastRow.start, parseInt(lastRow.duration || '2', 10) || 2) : addDays(refDate, 1)
 
-    const newTaskPool = locale === 'en'
-      ? [
-          { name: 'Quality Review & Polish', pic: 'Alice' },
-          { name: 'Client Feedback Session', pic: 'Team' },
-          { name: 'Final Launch Checklist', pic: 'Lead' },
-          { name: 'Retrospective & Reporting', pic: 'Sarah' },
-        ]
-      : [
-          { name: 'Review Kualitas & Finishing', pic: 'Tim QC' },
-          { name: 'Evaluasi & Serah Terima', pic: 'Tim' },
-          { name: 'Checklist Peluncuran', pic: 'PIC' },
-          { name: 'Laporan & Dokumentasi', pic: 'Budi' },
-        ]
-
-    const item = newTaskPool[currentRows.length % newTaskPool.length]
-    const newRowLine = lastTaskName
-      ? `${item.name} | ${item.pic} | ${nextStart} | 2 hari |  | ${lastTaskName}`
-      : `${item.name} | ${item.pic} | ${nextStart} | 2 hari`
-
-    setRawText(prev => prev.trim() + '\n' + newRowLine)
-  }
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    const reader = new FileReader()
-    reader.onload = event => {
-      const text = event.target?.result as string
-      if (!text) return
-
-      const importedRows = parseSpreadsheetText(text, todayRef())
-      if (importedRows.length > 0) {
-        setRawText(rowsToRawText(importedRows))
-      }
-    }
-    reader.readAsText(file)
-    e.target.value = ''
-  }
-
-  const handleDeleteTableRow = (index: number) => {
-    const currentRows = parseRawText(rawText)
-    if (currentRows.length <= 1) return
-    currentRows.splice(index, 1)
-    setRawText(rowsToRawText(currentRows))
-  }
-
-  // Inline table edit -> re-serialize to raw text (mini-Gantt + handoff follow).
-  const handleUpdateTableRow = (index: number, field: keyof ParseRowState, value: string) => {
-    const currentRows = parseRawText(rawText)
-    if (currentRows[index]) {
-      currentRows[index][field] = value
-      setRawText(rowsToRawText(currentRows))
-    }
-  }
 
   // Table view reads the same raw text
   const tableRows = useMemo(() => parseRawText(rawText), [rawText])
@@ -573,121 +412,94 @@ export function HeroPlayground() {
 
         {/* Split Editor & Mini-Gantt */}
         <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-border">
-          {/* Sisi Kiri: Clean Table Editor with Spreadsheet Import */}
+          {/* Sisi Kiri: Locked Example Template Table */}
           <div className="lg:col-span-5 p-4 flex flex-col">
             <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
               <div>
                 <span className="text-xs font-bold text-text-primary block">{t.hero.tableTitle}</span>
-                <span className="text-[11px] text-muted">{t.hero.tableSubtitle}</span>
+                <span className="text-[11px] text-muted">
+                  {locale === 'en' ? 'Template data preview for sample timeline' : 'Data template contoh untuk preview linimasa'}
+                </span>
               </div>
 
-              {/* Import Spreadsheet / CSV Button */}
-              <label className="cursor-pointer text-xs px-2.5 py-1 rounded-lg font-medium bg-surface border border-border text-text-primary hover:bg-surface-hi hover:border-primary/50 transition-all inline-flex items-center gap-1.5 shadow-2xs">
-                <Upload size={12} className="text-primary" />
-                <span>{t.hero.importSpreadsheet}</span>
-                <input
-                  type="file"
-                  accept=".csv,.tsv,.txt,.xls,.xlsx"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-              </label>
+              {/* Locked indicator badge */}
+              <span className="text-[11px] px-2.5 py-1 rounded-full font-medium bg-surface border border-border text-muted inline-flex items-center gap-1.5 shadow-2xs">
+                <Lock size={11} className="text-primary" />
+                <span>{locale === 'en' ? 'Template (Locked)' : 'Template (Terkunci)'}</span>
+              </span>
             </div>
 
             <div className="flex-1 overflow-x-auto rounded-xl border border-border flex flex-col bg-surface">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-surface-hi/50 border-b border-border text-muted">
-                    <th className="px-2.5 py-2 font-semibold">{locale === 'en' ? 'Task Name' : 'Nama Tugas'}</th>
-                    <th className="px-2 py-2 font-semibold w-20">{locale === 'en' ? 'Assignee' : 'PIC'}</th>
-                    <th className="px-2 py-2 font-semibold w-24">{locale === 'en' ? 'Start' : 'Mulai'}</th>
-                    <th className="px-2 py-2 font-semibold w-16">{locale === 'en' ? 'Duration' : 'Durasi'}</th>
-                    <th className="px-2 py-2 font-semibold w-28">{locale === 'en' ? 'Depends On' : 'Relasi'}</th>
-                    <th className="px-1.5 py-2 font-semibold w-8 text-center"></th>
+                    <th className="px-3 py-2 font-semibold">{locale === 'en' ? 'Task Name' : 'Nama Tugas'}</th>
+                    <th className="px-2.5 py-2 font-semibold w-24">{locale === 'en' ? 'Assignee' : 'PIC'}</th>
+                    <th className="px-2.5 py-2 font-semibold w-24">{locale === 'en' ? 'Start' : 'Mulai'}</th>
+                    <th className="px-2.5 py-2 font-semibold w-20">{locale === 'en' ? 'Duration' : 'Durasi'}</th>
+                    <th className="px-2.5 py-2 font-semibold w-28">{locale === 'en' ? 'Depends On' : 'Relasi'}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {tableRows.map((row, idx) => (
-                    <tr key={row.id} className="hover:bg-surface-hi/20 transition-colors">
-                      <td className="px-1.5 py-1">
-                        <input
-                          aria-label={`Task name row ${idx + 1}`}
-                          value={row.name}
-                          onChange={e => handleUpdateTableRow(idx, 'name', e.target.value)}
-                          className="w-full bg-transparent rounded px-1.5 py-1 text-text-primary focus:outline-none focus:ring-1 focus:ring-primary font-medium"
-                        />
+                  {tableRows.map((row) => (
+                    <tr key={row.id} className="hover:bg-surface-hi/10 transition-colors">
+                      <td className="px-3 py-2 font-medium text-text-primary text-[12px] truncate max-w-[140px]">
+                        {row.name}
                       </td>
-                      <td className="px-1.5 py-1">
-                        <input
-                          aria-label={`Assignee row ${idx + 1}`}
-                          value={row.assignee}
-                          onChange={e => handleUpdateTableRow(idx, 'assignee', e.target.value)}
-                          className="w-full bg-transparent rounded px-1.5 py-1 text-text-primary focus:outline-none focus:ring-1 focus:ring-primary text-[11px]"
-                        />
+                      <td className="px-2.5 py-2 text-[11px] text-muted truncate max-w-[90px]">
+                        {row.assignee ? (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-surface-hi/60 text-text-primary text-[10px]">
+                            {row.assignee}
+                          </span>
+                        ) : (
+                          <span className="text-muted/50">-</span>
+                        )}
                       </td>
-                      <td className="px-1.5 py-1">
-                        <input
-                          aria-label={`Start date row ${idx + 1}`}
-                          value={row.start}
-                          onChange={e => handleUpdateTableRow(idx, 'start', e.target.value)}
-                          className="w-full bg-transparent rounded px-1.5 py-1 font-mono text-[11px] text-text-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                        />
+                      <td className="px-2.5 py-2 font-mono text-[11px] text-text-primary/90">
+                        {row.start}
                       </td>
-                      <td className="px-1.5 py-1">
-                        <input
-                          aria-label={`Duration row ${idx + 1}`}
-                          value={row.duration}
-                          onChange={e => handleUpdateTableRow(idx, 'duration', e.target.value)}
-                          className="w-full bg-transparent rounded px-1.5 py-1 font-mono text-[11px] text-text-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                        />
+                      <td className="px-2.5 py-2 font-mono text-[11px] text-text-primary/90">
+                        {row.duration}
                       </td>
-                      <td className="px-1.5 py-1">
-                        <select
-                          aria-label={`Depends on row ${idx + 1}`}
-                          value={row.dependsOn || ''}
-                          onChange={e => handleUpdateTableRow(idx, 'dependsOn', e.target.value)}
-                          className="w-full bg-surface border border-border/80 rounded px-1.5 py-1 text-[11px] text-text-primary focus:outline-none focus:ring-1 focus:ring-primary truncate cursor-pointer"
-                        >
-                          <option value="">{t.hero.noPredecessor}</option>
-                          {tableRows
-                            .filter((_, otherIdx) => otherIdx !== idx && _.name.trim().length > 0)
-                            .map(other => (
-                              <option key={other.id} value={other.name}>
-                                {other.name}
-                              </option>
-                            ))}
-                        </select>
-                      </td>
-                      <td className="px-1.5 py-1 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteTableRow(idx)}
-                          className="text-muted/60 hover:text-red-500 p-1 rounded hover:bg-surface-hi transition-colors"
-                          title={locale === 'en' ? 'Delete row' : 'Hapus baris'}
-                        >
-                          <Trash2 size={12} />
-                        </button>
+                      <td className="px-2.5 py-2 text-[11px] text-muted truncate max-w-[110px]">
+                        {row.dependsOn ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+                            <GitBranch size={9} />
+                            <span className="truncate max-w-[85px]">{row.dependsOn}</span>
+                          </span>
+                        ) : (
+                          <span className="text-muted/50">{t.hero.noPredecessor}</span>
+                        )}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              <div className="px-3 py-2 border-t border-border bg-surface-hi/30 flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={handleAddTask}
-                  className="text-xs text-primary hover:text-primary-focus font-medium flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-primary/10 transition-colors"
+
+              <div className="px-3 py-2.5 border-t border-border bg-surface-hi/30 flex items-center justify-between">
+                <span className="text-[11px] text-muted flex items-center gap-1.5">
+                  <Lock size={12} className="text-muted/70" />
+                  <span>{locale === 'en' ? 'Table locked to template' : 'Tabel terkunci pada template'}</span>
+                </span>
+                <Link
+                  href={workbenchUrl}
+                  className="text-xs font-semibold text-primary hover:text-primary-focus flex items-center gap-1 transition-colors group"
                 >
-                  <Plus size={12} />
-                  <span>{t.hero.addTask}</span>
-                </button>
-                <span className="text-[10px] text-muted font-mono">{tableRows.length} {locale === 'en' ? 'tasks' : 'tugas'}</span>
+                  <span>{locale === 'en' ? 'Open in Workbench to edit' : 'Buka di Workbench untuk edit'}</span>
+                  <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                </Link>
               </div>
             </div>
 
             <p className="text-[11px] text-muted mt-3 flex items-start gap-1.5">
               <Lightbulb size={13} className="shrink-0 mt-px text-amber-500" />
-              <span><em>{t.hero.tips}</em></span>
+              <span>
+                <em>
+                  {locale === 'en'
+                    ? 'Use the preset buttons above to preview different templates. Open Workbench to edit tasks or import your own Excel/CSV file.'
+                    : 'Gunakan tombol template di atas untuk melihat contoh jadwal. Buka Workbench untuk mengedit tugas atau mengimpor file Excel/CSV Anda sendiri.'}
+                </em>
+              </span>
             </p>
           </div>
 

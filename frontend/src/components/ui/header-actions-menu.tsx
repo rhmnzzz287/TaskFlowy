@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import {
-  MoreHorizontal, Image, ImageDown, FileSpreadsheet, Printer, FileText,
+  MoreHorizontal, Image as ImageIcon, ImageDown, FileSpreadsheet, Printer, FileText,
   Copy, Check, Trash2, CalendarClock, Share2,
 } from 'lucide-react'
 import { exportGanttPNG, exportGanttSVG } from '@/lib/visual-exporter'
@@ -141,7 +141,7 @@ export function HeaderActionsMenu({
               {view === 'gantt' && (
                 <button className="w-full flex items-center gap-2 px-3 py-2 text-[12px] text-text-primary hover:bg-surface-hi/40"
                   onClick={() => { runExport(exportGanttPNG); close() }} title="Export PNG">
-                  <Image size={13} /> {t.workbench.exportPng}
+                  <ImageIcon size={13} /> {t.workbench.exportPng}
                 </button>
               )}
               {view === 'gantt' && (

@@ -1,6 +1,7 @@
 'use client'
 
-import { Diamond, Flame } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Diamond, Flame, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import type { TimelineTask } from '@/lib/schema'
 import { taskStatus } from '@/lib/task-status'
 
@@ -10,23 +11,90 @@ interface ReviewTableProps {
   selectedTaskId?: string | null
 }
 
+type SortKey = 'name' | 'assignee' | 'durationDays' | 'status'
+type SortDir = 'asc' | 'desc'
+
 export function ReviewTable({ tasks, onSelectTask, selectedTaskId }: ReviewTableProps) {
+  const [sortKey, setSortKey] = useState<SortKey | null>(null)
+  const [sortDir, setSortDir] = useState<SortDir>('asc')
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir(d => (d === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDir('asc')
+    }
+  }
+
+  const sortedTasks = useMemo(() => {
+    if (!sortKey) return tasks
+    const arr = [...tasks]
+    arr.sort((a, b) => {
+      let cmp = 0
+      if (sortKey === 'status') {
+        cmp = taskStatus(a).rank - taskStatus(b).rank
+      } else if (sortKey === 'durationDays') {
+        cmp = (a.durationDays ?? 0) - (b.durationDays ?? 0)
+      } else {
+        const va = (a[sortKey] ?? '').trim()
+        const vb = (b[sortKey] ?? '').trim()
+        cmp = va.localeCompare(vb, undefined, { sensitivity: 'base', numeric: true })
+      }
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+    return arr
+  }, [tasks, sortKey, sortDir])
+
   if (tasks.length === 0) return null
+
+  const SortHeader = ({ k, label }: { k: SortKey; label: string }) => {
+    const isActive = sortKey === k
+    return (
+      <button
+        type="button"
+        onClick={() => toggleSort(k)}
+        className={`w-full flex items-center justify-center gap-1 transition-colors hover:text-text-primary uppercase tracking-wider text-[11px] font-medium cursor-pointer select-none group ${
+          isActive ? 'text-primary font-semibold' : 'text-muted'
+        }`}
+        title={`Sort by ${label} (${isActive ? (sortDir === 'asc' ? 'Ascending' : 'Descending') : 'Klik untuk urutkan'})`}
+      >
+        <span>{label}</span>
+        {isActive ? (
+          sortDir === 'asc' ? (
+            <ArrowUp size={10} className="shrink-0 text-primary" />
+          ) : (
+            <ArrowDown size={10} className="shrink-0 text-primary" />
+          )
+        ) : (
+          <ArrowUpDown size={10} className="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity" />
+        )}
+      </button>
+    )
+  }
 
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="h-9 bg-surface/50 flex items-center px-2 text-muted text-[11px] font-medium uppercase tracking-wider border-b border-border">
         <div className="w-6 text-center shrink-0">#</div>
-        <div className="flex-1 min-w-0 px-1">Task</div>
-        <div className="w-14 text-center shrink-0">Lead</div>
-        <div className="w-12 text-center shrink-0">Days</div>
-        <div className="w-16 text-center shrink-0">Status</div>
+        <div className="flex-1 min-w-0 px-1 text-center">
+          <SortHeader k="name" label="Task" />
+        </div>
+        <div className="w-14 text-center shrink-0">
+          <SortHeader k="assignee" label="Lead" />
+        </div>
+        <div className="w-12 text-center shrink-0">
+          <SortHeader k="durationDays" label="Days" />
+        </div>
+        <div className="w-16 text-center shrink-0">
+          <SortHeader k="status" label="Status" />
+        </div>
       </div>
 
       {/* Rows */}
       <div className="flex-1 overflow-y-auto divide-y divide-border/50">
-        {tasks.map((t, i) => {
+        {sortedTasks.map((t, i) => {
           const st = taskStatus(t)
           const statusColors: Record<string, string> = {
             'completed': 'text-completed',
@@ -57,7 +125,7 @@ export function ReviewTable({ tasks, onSelectTask, selectedTaskId }: ReviewTable
                 </span>
               </div>
               {/* Name */}
-              <div className="flex-1 min-w-0 px-1 flex items-center gap-1">
+              <div className="flex-1 min-w-0 px-1 flex items-center justify-center gap-1 text-center">
                 {t.isMilestone ? (
                   <Diamond size={12} className="shrink-0 text-milestone" />
                 ) : t.isCritical ? (
@@ -92,7 +160,19 @@ export function ReviewTable({ tasks, onSelectTask, selectedTaskId }: ReviewTable
 
       {/* Quick add footer */}
       <div className="h-9 bg-surface/30 border-t border-border px-3 flex items-center justify-between">
-        <span className="text-muted text-[11px]">{tasks.length} task{tasks.length > 1 ? 's' : ''}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-muted text-[11px]">{tasks.length} task{tasks.length > 1 ? 's' : ''}</span>
+          {sortKey && (
+            <button
+              type="button"
+              onClick={() => setSortKey(null)}
+              className="text-[10px] text-primary hover:underline transition-colors"
+              title="Reset urutan ke awal"
+            >
+              Reset sort
+            </button>
+          )}
+        </div>
         <span className="text-muted text-[11px] font-mono">
           {tasks.reduce((s, t) => s + (t.isMilestone ? 0 : t.durationDays), 0)} days
         </span>

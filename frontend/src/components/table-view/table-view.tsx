@@ -43,7 +43,7 @@ export function TableView({ tasks, onSelectTask, selectedTaskId }: TableViewProp
   const statusBadge = (t: TimelineTask) => taskStatus(t)
 
   const SortHeader = ({ k, children }: { k: SortKey; children: React.ReactNode }) => (
-    <button className="flex items-center gap-1 hover:text-text-primary transition-colors text-inherit"
+    <button className="w-full flex items-center justify-center gap-1 hover:text-text-primary transition-colors text-inherit"
       onClick={() => toggleSort(k)}>
       {children}
       <ArrowUpDown size={10} className={`${sortKey === k ? 'text-primary' : 'opacity-30'}`} />
@@ -63,7 +63,7 @@ export function TableView({ tasks, onSelectTask, selectedTaskId }: TableViewProp
       {/* Header */}
       <div className="h-10 bg-surface/80 flex items-center px-3 text-muted text-[11px] font-medium uppercase tracking-wider border-b border-border shrink-0 sticky top-0 z-10">
         <div className="w-8 text-center shrink-0">#</div>
-        <div className="flex-1 min-w-0 px-1"><SortHeader k="name">Task</SortHeader></div>
+        <div className="flex-1 min-w-0 px-1 text-center"><SortHeader k="name">Task</SortHeader></div>
         <div className="w-20 text-center shrink-0"><SortHeader k="assignee">Lead</SortHeader></div>
         <div className="w-24 text-center shrink-0"><SortHeader k="start">Start</SortHeader></div>
         <div className="w-24 text-center shrink-0"><SortHeader k="end">End</SortHeader></div>
@@ -88,7 +88,7 @@ export function TableView({ tasks, onSelectTask, selectedTaskId }: TableViewProp
               aria-label={`Select task ${t.name}`}
             >
               <div className="w-8 text-center shrink-0 text-muted font-mono text-[12px]">{i + 1}</div>
-              <div className="flex-1 min-w-0 px-1 flex items-center gap-1.5">
+              <div className="flex-1 min-w-0 px-1 flex items-center justify-center gap-1.5 text-center">
                 {t.isMilestone && <Diamond size={12} className="shrink-0 text-milestone" />}
                 {t.isCritical && !t.isMilestone && <Flame size={12} className="shrink-0 text-critical" />}
                 <span className="truncate text-text-primary">{t.name}</span>
@@ -97,7 +97,7 @@ export function TableView({ tasks, onSelectTask, selectedTaskId }: TableViewProp
                 {t.assignee || '-'}
               </div>
               <div className="w-24 text-center shrink-0 font-mono text-[12px] text-text-dim">{formatDateDisplay(t.start)}</div>
-              <div className="w-24 text-center shrink-0 font-mono text-[12px]">
+              <div className="w-24 text-center shrink-0 font-mono text-[12px] flex items-center justify-center">
                 <span className="text-text-dim">{formatDateDisplay(t.end)}</span>
                 {badgeDeadline && (
                   <span className={`ml-1 px-1 rounded text-[9px] font-semibold ${badgeDeadline.cls}`}>{badgeDeadline.label}</span>

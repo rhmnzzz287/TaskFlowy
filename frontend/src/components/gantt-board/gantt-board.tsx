@@ -28,11 +28,11 @@ interface GanttBoardProps {
 // Base time-column widths mirror frappe-gantt's per-mode defaults so zoom 3
 // (factor 1) renders exactly like an un-zoomed chart.
 const BASE_COLUMN_WIDTH: Record<'Day' | 'Week' | 'Month', number> = {
-  Day: 45,
-  Week: 140,
+  Day: 50,
+  Week: 150,
   Month: 120,
 }
-const ZOOM_FACTORS = [0.5, 0.75, 1, 1.5, 2]
+const ZOOM_FACTORS = [0.7, 0.85, 1, 1.4, 1.8]
 
 export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
   function GanttBoard({ tasks, selectedAssignees, onTasksChange, onSelectTask, viewMode = 'Week', showCritical = true, zoom = 3, generationTick = 0, focusTaskName = null }, ref) {
@@ -148,10 +148,10 @@ export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
     const ganttTasks = toGanttTasks(tasks, selectedAssignees)
     // Render key must cover EVERYTHING frappe paints: dates, names (labels
     // embed assignee), progress fills, critical/milestone classes — plus the
-    // time-column width, so zoom re-lays-out instead of CSS-scaling.
+    const minColWidth = viewMode === 'Week' ? 105 : viewMode === 'Month' ? 80 : 35
     const columnWidth = Math.max(
-      20,
-      Math.round((BASE_COLUMN_WIDTH[viewMode] ?? 45) * (ZOOM_FACTORS[zoom - 1] ?? 1)),
+      minColWidth,
+      Math.round((BASE_COLUMN_WIDTH[viewMode] ?? 50) * (ZOOM_FACTORS[zoom - 1] ?? 1)),
     )
     const renderKey = JSON.stringify([ganttTasks.map(t => [t.id, t.start, t.end, t.name, t.progress, t.custom_class || '', t.dependencies || '']), viewMode, columnWidth, generationTick])
 

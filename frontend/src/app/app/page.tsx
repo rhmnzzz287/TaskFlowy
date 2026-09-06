@@ -3,10 +3,10 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import {
   Play, ChevronLeft, ChevronRight, ZoomIn, ZoomOut,
-  BarChart3, Table2, GitBranch, Loader2, FileText, Check,
+  BarChart3, Table2, GitBranch, Loader2, Check, Upload,
 } from 'lucide-react'
 import { RowEditor } from '@/components/task-input/row-editor'
-import { RawTextEditor } from '@/components/task-input/raw-text-editor'
+import { parseSpreadsheetText } from '@/lib/format/spreadsheet-parser'
 import { ReviewTable } from '@/components/parse-review/review-table'
 import { AssigneeFilter } from '@/components/assignee-filter/filter-bar'
 import { GanttBoard } from '@/components/gantt-board/gantt-board'
@@ -38,13 +38,10 @@ import { ProfileDashboardModal } from '@/components/profile/profile-dashboard-mo
 import { AvatarIcon } from '@/components/profile/avatar-icon'
 import { loadUserProfile } from '@/lib/profile-store'
 
-type InputMode = 'raw' | 'table'
-
 export default function Home() {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
   const { saveDraft, loadDraft, listDrafts, deleteDraft, currentDraftId } = useDrafts()
   const [activeTemplate, setActiveTemplate] = useState<string | null>('software-sprint')
-  const [inputMode, setInputMode] = useState<InputMode>('raw')
   const [rawText, setRawText] = useState('')
   const [inputRows, setInputRows] = useState<ParseRowState[]>([])
   const [tasks, setTasks] = useState<TimelineTask[]>([])
@@ -87,7 +84,7 @@ export default function Home() {
     return () => window.removeEventListener('storage', sync)
   }, [listDrafts])
 
-  // Core parse logic — runs against provided rows.
+  // Core parse logic: runs against provided rows.
   // silent = background auto-update: renders on success, never flashes the error banner.
   const runParse = useCallback((rows: ParseRowState[], silent = false) => {
     const referenceDate = todayRef()
@@ -134,7 +131,7 @@ export default function Home() {
     const criticalIds = computeCriticalPath(tasksWithMeta, deps)
     const cycles = detectCycles(tasksWithMeta, deps)
     // Bar fill/stroke is owned by the stylesheet (.bar-critical rules) so it
-    // stays theme-aware — no inline color here.
+    // stays theme-aware (no inline color here).
     // Display order is chronological: any add/date change re-slots the chart.
     const sorted = tasksWithMeta
       .map(t => ({ ...t, isCritical: criticalIds.has(t.id) }))
@@ -187,12 +184,11 @@ export default function Home() {
   useEffect(() => {
     if (autoTimerRef.current) clearTimeout(autoTimerRef.current)
     autoTimerRef.current = setTimeout(() => {
-      const rows = inputMode === 'raw' ? (rawText.trim() ? parseRawText(rawText) : []) : inputRows
-      if (rows.length === 0) return
-      runParse(rows, true) // silent best-effort
+      if (inputRows.length === 0) return
+      runParse(inputRows, true) // silent best-effort
     }, 350)
     return () => { if (autoTimerRef.current) clearTimeout(autoTimerRef.current) }
-  }, [rawText, inputRows, inputMode, runParse])
+  }, [inputRows, runParse])
 
   // --- Explicit user actions show validation feedback + loading ---
   const handleParse = useCallback(() => {
@@ -202,14 +198,12 @@ export default function Home() {
 
     // 280ms gives a smooth, tactile feel confirming that calculation is happening
     window.setTimeout(() => {
-      const rows = inputMode === 'raw' && rawText.trim() ? parseRawText(rawText) : inputRows
-      if (inputMode === 'raw' && rawText.trim()) setInputRows(rows)
-      const ok = runParse(rows, false)
+      const ok = runParse(inputRows, false)
       setIsParsing(false)
       if (ok) {
         setGenerationTick(t => t + 1)
         setGenerateSuccess(true)
-        setToastMessage(`Timeline updated! (${rows.length} task${rows.length > 1 ? 's' : ''})`)
+        setToastMessage(`Timeline updated! (${inputRows.length} task${inputRows.length > 1 ? 's' : ''})`)
         successTimeoutRef.current = setTimeout(() => {
           setGenerateSuccess(false)
           setToastMessage(null)
@@ -221,7 +215,7 @@ export default function Home() {
         }
       }
     }, 280)
-  }, [inputRows, rawText, inputMode, runParse])
+  }, [inputRows, runParse])
 
   const handleTemplateSelect = useCallback((rows: ParseRowState[], templateName?: string) => {
     setActiveTemplate(templateName || null)
@@ -232,7 +226,7 @@ export default function Home() {
     runParse(rows, false)
   }, [runParse])
 
-  // Draft management — restore previously autosaved rows
+  // Draft management: restore previously autosaved rows
   const refreshDrafts = useCallback(() => setDrafts(listDrafts()), [listDrafts])
 
   const handleRowsChange = useCallback((next: ParseRowState[]) => {
@@ -255,7 +249,6 @@ export default function Home() {
 
   const handleShiftDates = useCallback((delta: number) => {
     const ref = todayRef()
-    const sourceRows = inputMode === 'raw' && rawText.trim() ? parseRawText(rawText) : inputRows
     const move = (v: string) => {
       const res = parseDate(v, ref)
       if (!res.ok) return v
@@ -263,7 +256,7 @@ export default function Home() {
       d.setDate(d.getDate() + delta)
       return formatDateISO(d)
     }
-    const shifted = sourceRows.map(r => ({
+    const shifted = inputRows.map(r => ({
       ...r,
       start: r.start ? move(r.start) : r.start,
       end: r.end ? move(r.end) : r.end,
@@ -271,7 +264,32 @@ export default function Home() {
     setInputRows(shifted)
     setRawText(rowsToRawText(shifted))
     runParse(shifted)
-  }, [inputMode, rawText, inputRows, runParse])
+  }, [inputRows, runParse])
+
+  const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = event => {
+      const text = event.target?.result as string
+      if (!text) return
+
+      const importedRows = parseSpreadsheetText(text, todayRef())
+      if (importedRows.length > 0) {
+        setActiveTemplate(null)
+        setInputRows(importedRows)
+        setRawText(rowsToRawText(importedRows))
+        runParse(importedRows, false)
+        setToastMessage(locale === 'en'
+          ? `Imported ${importedRows.length} tasks from spreadsheet!`
+          : `Berhasil mengimpor ${importedRows.length} tugas dari spreadsheet!`)
+        setTimeout(() => setToastMessage(null), 2500)
+      }
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }, [locale, runParse])
 
   // Single bridge: any task mutation (Gantt drag, inspector save/delete)
   // syncs the editable rows + raw text, so a later Generate never reverts it.
@@ -298,7 +316,7 @@ export default function Home() {
     // IMPORTANT: raw text must stay in the parseable pipe order
     // (name | assignee | start | duration | end). A display-order serialiser
     // (start | end | durasi | status) would map to the wrong columns on
-    // re-parse — every later Generate then fails on all rows and the button
+    // re-parse, every later Generate then fails on all rows and the button
     // looks dead. So always serialise via rowsToRawText().
     syncRowsFromTasks(sorted)
   }, [syncRowsFromTasks])
@@ -324,7 +342,7 @@ export default function Home() {
     syncRowsFromTasks(next)
   }, [tasks, syncRowsFromTasks])
 
-  const canGenerate = inputMode === 'raw' ? rawText.trim().length > 0 : inputRows.some(r => r.name.trim().length > 0)
+  const canGenerate = inputRows.some(r => r.name.trim().length > 0)
   const selectedTask = useMemo(() => tasks.find(t => t.id === selectedTaskId) || null, [tasks, selectedTaskId])
 
   return (
@@ -393,35 +411,33 @@ export default function Home() {
 
         {/* === CONTENT === */}
         <div className="flex-1 flex flex-col min-w-0">
-          {/* --- Input area: Raw Text / Table tabs (capped so the chart never gets squeezed out) --- */}
+          {/* --- Input area: Task Table with Spreadsheet Import --- */}
           <section className="bg-surface-dim border-b border-border max-h-[42vh] overflow-y-auto no-print">
-            <div className="flex items-center justify-between px-3 py-1.5">
-              <div className="flex items-center gap-1 bg-surface-hi/30 rounded overflow-hidden">
-                <button
-                  className={`px-3 py-1 text-[12px] transition-colors ${inputMode === 'raw' ? 'bg-primary/20 text-primary font-medium' : 'text-muted hover:text-text-primary'}`}
-                  onClick={() => setInputMode('raw')}>
-                  <FileText size={13} className="inline mr-1" />Raw Text
-                </button>
-                <button
-                  className={`px-3 py-1 text-[12px] transition-colors ${inputMode === 'table' ? 'bg-primary/20 text-primary font-medium' : 'text-muted hover:text-text-primary'}`}
-                  onClick={() => setInputMode('table')}>
-                  <Table2 size={13} className="inline mr-1" />Table Rows
-                </button>
+            <div className="flex items-center justify-between px-3 py-1.5 border-b border-border/60">
+              <div className="flex items-center gap-2">
+                <span className="text-[12px] font-semibold text-text-primary flex items-center gap-1.5">
+                  <Table2 size={13} className="text-primary" />
+                  <span>{locale === 'en' ? 'Task Table Editor' : 'Editor Tabel Tugas'}</span>
+                </span>
+                <span className="text-[11px] text-muted font-mono">
+                  ({inputRows.length} {locale === 'en' ? 'tasks' : 'tugas'})
+                </span>
               </div>
-            </div>
-            <div className="px-3 pb-2">
-              {inputMode === 'raw' ? (
-                <RawTextEditor
-                  value={rawText}
-                  onChange={(text) => {
-                    setActiveTemplate(null)
-                    setRawText(text)
-                  }}
-                  onParse={handleParse}
+
+              {/* Import Spreadsheet / CSV Button */}
+              <label className="cursor-pointer text-[11px] px-2.5 py-1 rounded-md font-medium bg-surface border border-border text-text-primary hover:bg-surface-hi hover:border-primary/50 transition-all inline-flex items-center gap-1.5 shadow-2xs">
+                <Upload size={12} className="text-primary" />
+                <span>{t.hero.importSpreadsheet}</span>
+                <input
+                  type="file"
+                  accept=".csv,.tsv,.txt,.xls,.xlsx"
+                  onChange={handleFileUpload}
+                  className="hidden"
                 />
-              ) : (
-                <RowEditor rows={inputRows} onChange={handleRowsChange} errors={errors} />
-              )}
+              </label>
+            </div>
+            <div className="px-3 pb-2 pt-1">
+              <RowEditor rows={inputRows} onChange={handleRowsChange} errors={errors} />
             </div>
           </section>
 
@@ -443,7 +459,7 @@ export default function Home() {
           )}
 
           {/* --- Timeline controls toolbar (Gantt-only: every control here
-              drives the chart — view mode, scroll, assignee filter, critical
+              drives the chart: view mode, scroll, assignee filter, critical
               highlight, zoom. Hidden in Table/Dependency views where they
               would look broken doing nothing.) --- */}
           {view === 'gantt' && (

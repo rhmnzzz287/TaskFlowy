@@ -61,6 +61,14 @@
   .cell-input {
     @apply w-full bg-transparent outline-none rounded px-2 py-1 text-[13px] text-text-primary placeholder:text-muted focus:ring-1 focus:ring-primary;
   }
+  input[type="date"].text-center::-webkit-datetime-edit {
+    text-align: center;
+  }
+  input[type="date"].text-center::-webkit-datetime-edit-fields-wrapper {
+    display: inline-flex;
+    justify-content: center;
+    width: 100%;
+  }
 }
 
 /* Upstream frappe-gantt.css is imported via layout.tsx and owns all
@@ -169,10 +177,31 @@ html:not(.dark) .gantt .tick { stroke: rgb(var(--border)) !important; }
 html:not(.dark) .gantt .bar-label.big { fill: #0f172a !important; }
 /* Same for critical-path peach labels — unreadable on a light grid. */
 html:not(.dark) .show-critical .gantt .bar-wrapper.bar-critical .bar-label { fill: #9a3412 !important; }
-.gantt .lower-text, .gantt .upper-text, .gantt-container .lower-text, .gantt-container .upper-text { fill: rgb(var(--text-muted)) !important; color: rgb(var(--text-muted)) !important; font-size: 10px !important; font-weight: 600; letter-spacing: 0.05em; }
+.gantt .lower-text, .gantt .upper-text, .gantt-container .lower-text, .gantt-container .upper-text {
+  fill: rgb(var(--text-muted)) !important;
+  color: rgb(var(--text-muted)) !important;
+  font-size: 10px !important;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  white-space: nowrap !important;
+}
+.gantt-container .lower-text {
+  white-space: nowrap !important;
+  overflow: visible !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  width: var(--gv-column-width) !important;
+  margin: 0 !important;
+}
+.gantt-container .upper-text {
+  white-space: nowrap !important;
+  overflow: visible !important;
+}
 /* Frappe v1.2 renders its own Today button + view-mode select inside the
    chart (.side-header). The app toolbar already owns those controls, and the
-   upstream light styling clashes with the dark theme — hide it. */
+   upstream light styling clashes with the dark theme: hide it. */
 .gantt-container .side-header { display: none !important; }
 /* Upstream theme vars default to light; remap the ones we don't override
    directly so chrome (headers, weekend wash, arrows) follows .dark.
