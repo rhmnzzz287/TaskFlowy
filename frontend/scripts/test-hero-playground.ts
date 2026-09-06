@@ -1,67 +1,52 @@
-import { parseRawText } from '../src/lib/format/raw-text'
-import { parseRows } from '../src/lib/parser/row-parser'
-import { buildUmkmPreset, buildPmPreset } from '../src/lib/landing-presets'
+import { parseRawText } from '../src/lib/format/raw-text';
+import { parseRows } from '../src/lib/parser/row-parser';
+import { buildPmPreset, buildUmkmPreset } from '../src/lib/landing-presets';
+import { createSuite } from './_suite';
 
-const REF = '2026-09-07'
+const REF = '2026-09-07';
+const EXPECTED_TASKS = 4;
+const EXPECTED_DEPS = 3;
 
-function toInput(rows: ReturnType<typeof parseRawText>) {
-  return rows.map(r => ({
+const suite = createSuite('test-hero-playground');
+
+function toRowInputs(rows: ReturnType<typeof parseRawText>) {
+  return rows.map((r) => ({
     name: r.name,
-    assignee: r.assignee,
+    assignee: r.assignee || null,
     start: r.start,
-    duration: r.duration,
-    end: r.end,
-  }))
+    duration: r.duration || null,
+    end: r.end || null,
+    dependsOn: r.dependsOn || null,
+  }));
 }
 
-console.log('--- TEST 1: Playground UMKM Preset Parsing ---')
-const umkmResult = parseRows(toInput(parseRawText(buildUmkmPreset(REF))), REF)
+function checkPreset(label: string, build: (ref: string) => string) {
+  suite.section(`${label} preset parses cleanly`);
+  const result = parseRows(toRowInputs(parseRawText(build(REF))), REF);
+  suite.check(`${label}: ${EXPECTED_TASKS} tasks`, result.tasks.length === EXPECTED_TASKS, {
+    tasks: result.tasks.length,
+    errors: result.errors,
+  });
+  // Error rows are dropped in /app, so fixtures must be error-free.
+  suite.check(`${label}: zero errors`, Object.keys(result.errors).length === 0, result.errors);
+  return result;
+}
 
-if (umkmResult.tasks.length !== 4) {
-  console.error('FAIL: Expected 4 parsed tasks for UMKM, got:', umkmResult.tasks.length, umkmResult.errors)
-  process.exit(1)
-}
-if (Object.keys(umkmResult.errors).length !== 0) {
-  console.error('FAIL: UMKM preset must parse with ZERO errors (error rows are dropped in /app):', umkmResult.errors)
-  process.exit(1)
-}
-// Chained schedule: each task starts after (or when) its predecessor starts.
-const umkmStarts = umkmResult.tasks.map(t => t.start)
-const umkmSorted = [...umkmStarts].sort()
-if (JSON.stringify(umkmStarts) !== JSON.stringify(umkmSorted)) {
-  console.error('FAIL: UMKM tasks not in chronological chain:', umkmStarts)
-  process.exit(1)
-}
-console.log('✓ UMKM preset: 4 task valid, tanpa error, berurutan kronologis.')
+const umkm = checkPreset('UMKM', buildUmkmPreset);
+checkPreset('PM', buildPmPreset);
 
-console.log('--- TEST 2: Playground PM Preset Parsing ---')
-const pmResult = parseRows(toInput(parseRawText(buildPmPreset(REF))), REF)
+suite.section('chronological chain');
+const starts = umkm.tasks.map((t) => t.start);
+suite.check('UMKM tasks in chronological order', JSON.stringify(starts) === JSON.stringify([...starts].sort()), { starts });
 
-if (pmResult.tasks.length !== 4) {
-  console.error('FAIL: Expected 4 parsed tasks for PM, got:', pmResult.tasks.length, pmResult.errors)
-  process.exit(1)
-}
-if (Object.keys(pmResult.errors).length !== 0) {
-  console.error('FAIL: PM preset must parse with ZERO errors (error rows are dropped in /app):', pmResult.errors)
-  process.exit(1)
-}
-console.log('✓ PM preset: 4 task valid, tanpa error.')
+suite.section('dependsOn round-trip (dependency arrows in /app)');
+const umkmRows = parseRawText(buildUmkmPreset(REF));
+const rowDepCount = umkmRows.filter((r) => r.dependsOn.trim().length > 0).length;
+suite.check(`${EXPECTED_DEPS} dependsOn relations survive raw-text`, rowDepCount === EXPECTED_DEPS, { rowDepCount });
 
-console.log('--- TEST 3: dependsOn Round-Trip (panah dependensi di /app) ---')
-const umkmRows = parseRawText(buildUmkmPreset(REF))
-const depCount = umkmRows.filter(r => r.dependsOn && r.dependsOn.trim().length > 0).length
-if (depCount !== 3) {
-  console.error('FAIL: Expected 3 dependsOn relations in UMKM preset, got:', depCount)
-  process.exit(1)
-}
-console.log('✓ 3 relasi dependsOn terbawa untuk panah dependensi & critical path.')
+const parsedDeps = parseRows(umkmRows, REF).tasks.filter((t) => (t.dependsOn ?? '').trim().length > 0);
+suite.check('TimelineTask[] keeps dependsOn for Gantt arrows', parsedDeps.length === EXPECTED_DEPS, {
+  found: parsedDeps.length,
+});
 
-console.log('--- TEST 4: Verifikasi dependsOn pada TimelineTask[] ---')
-const parsedWithDeps = parseRows(umkmRows, REF)
-const taskDeps = parsedWithDeps.tasks.filter(t => t.dependsOn && t.dependsOn.trim().length > 0)
-if (taskDeps.length !== 3) {
-  console.error('FAIL: Expected 3 tasks with dependsOn in parsed tasks, got:', taskDeps.length)
-  process.exit(1)
-}
-console.log('✓ TimelineTask[] mempertahankan data dependsOn untuk rendering panah Gantt.')
-console.log('All hero playground tests passed!')
+suite.finish('hero playground presets render.');

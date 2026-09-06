@@ -1,47 +1,41 @@
-import { idDict } from '../src/lib/i18n/id'
-import { enDict } from '../src/lib/i18n/en'
+import { enDict } from '../src/lib/i18n/en';
+import { idDict } from '../src/lib/i18n/id';
+import { createSuite } from './_suite';
 
-console.log('--- TEST 1: Key Parity Verification (idDict vs enDict) ---')
+type Dict = Record<string, unknown>;
 
-function checkKeys(idObj: Record<string, any>, enObj: Record<string, any>, path = '') {
-  const idKeys = Object.keys(idObj)
-  const enKeys = Object.keys(enObj)
+const EM_DASH = '—';
+const suite = createSuite('test-i18n-dictionaries');
 
-  for (const key of idKeys) {
-    const currentPath = path ? `${path}.${key}` : key
-    if (!(key in enObj)) {
-      console.error(`FAIL: Key "${currentPath}" exists in ID but is missing in EN!`)
-      process.exit(1)
+function isPlainObject(value: unknown): value is Dict {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/** Collect every dotted path present on one side but missing on the other. */
+function collectKeyDiffs(a: Dict, b: Dict, path = '', side: 'id' | 'en' = 'id'): string[] {
+  const diffs: string[] = [];
+  for (const key of Object.keys(a)) {
+    const current = path ? `${path}.${key}` : key;
+    if (!(key in b)) {
+      diffs.push(`${current} (missing in ${side === 'id' ? 'EN' : 'ID'})`);
+      continue;
     }
-    if (typeof idObj[key] === 'object' && idObj[key] !== null && !Array.isArray(idObj[key])) {
-      checkKeys(idObj[key], enObj[key], currentPath)
+    if (isPlainObject(a[key]) && isPlainObject(b[key])) {
+      diffs.push(...collectKeyDiffs(a[key] as Dict, b[key] as Dict, current, side));
     }
   }
-
-  for (const key of enKeys) {
-    const currentPath = path ? `${path}.${key}` : key
-    if (!(key in idObj)) {
-      console.error(`FAIL: Key "${currentPath}" exists in EN but is missing in ID!`)
-      process.exit(1)
-    }
-  }
+  return diffs;
 }
 
-checkKeys(idDict, enDict)
-console.log('✓ 100% key parity verified between id.ts and en.ts.')
+suite.section('key parity (idDict vs enDict)');
+const missing = [
+  ...collectKeyDiffs(idDict as unknown as Dict, enDict as unknown as Dict, '', 'id'),
+  ...collectKeyDiffs(enDict as unknown as Dict, idDict as unknown as Dict, '', 'en'),
+];
+suite.check('100% key parity between id.ts and en.ts', missing.length === 0, missing.slice(0, 20));
 
-console.log('--- TEST 2: Anti-Slop Check on Dictionaries (No Em Dashes) ---')
-const idJson = JSON.stringify(idDict)
-const enJson = JSON.stringify(enDict)
+suite.section('anti-slop: no em dashes');
+suite.check('idDict has zero em dashes', !JSON.stringify(idDict).includes(EM_DASH));
+suite.check('enDict has zero em dashes', !JSON.stringify(enDict).includes(EM_DASH));
 
-if (idJson.includes('\u2014') || idJson.includes('—')) {
-  console.error('FAIL: idDict contains forbidden em dash (—)!')
-  process.exit(1)
-}
-if (enJson.includes('\u2014') || enJson.includes('—')) {
-  console.error('FAIL: enDict contains forbidden em dash (—)!')
-  process.exit(1)
-}
-console.log('✓ Zero em dashes found in both dictionaries.')
-
-console.log('All i18n dictionary tests passed!')
+suite.finish('i18n dictionaries are in sync.');
