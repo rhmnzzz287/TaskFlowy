@@ -54,10 +54,17 @@ export function parseRow(
     }
   }
 
-  // Parse start date — optional when an end date is provided (schedule back-computes)
+  // Parse start date — a BLANK start is legal: every downstream branch below
+  // back-solves it (end+duration, end-only) or falls back to referenceDate.
+  // Only a non-empty unparseable value is an error. (Previously blank start
+  // hard-errored => any table row where the user never touched the native
+  // date input blocked the ENTIRE chart from rendering.)
   let startDate: Date | null = null
   if (!row.start || row.start.trim() === '') {
-    if (!hasEnd) errors.push('Start atau End date wajib diisi salah satu')
+    if (!hasEnd && !hasDuration) {
+      // nothing to go on: fall through to the "single-day task today" default
+      warnings.push('Tanggal mulai kosong — dijadwalkan hari ini')
+    }
   } else {
     const parsed = parseDate(row.start, referenceDate)
     if (parsed.ok) {
@@ -166,19 +173,4 @@ export function parseRows(
   })
 
   return { tasks, warnings, errors }
-}
-
-export function validateTaskConsistency(tasks: TimelineTask[]): string[] {
-  const issues: string[] = []
-  tasks.forEach(t => {
-    const start = new Date(t.start)
-    const end = new Date(t.end)
-    if (end < start) {
-      issues.push(`Task "${t.name}": end (${t.end}) before start (${t.start})`)
-    }
-    if (t.durationDays < 1) {
-      issues.push(`Task "${t.name}": duration ${t.durationDays}d < 1`)
-    }
-  })
-  return issues
 }

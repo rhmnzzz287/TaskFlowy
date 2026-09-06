@@ -11,7 +11,7 @@ import { formatDateDisplay } from '@/lib/parser/date-grammar'
  * First line may be a header row — auto-skip if it contains heading-like labels.
  */
 
-const HEADER_PATTERN = /^(task|name|pic|assignee|lead|owner|start|date|mulai|durasi|duration|end|selesai|status)/i
+const HEADER_PATTERN = /^(task|name|pic|assignee|lead|owner|start|date|mulai|durasi|duration|end|selesai|status|dep|ket|predecessor)/i
 
 function detectSeparator(line: string): string | null {
   const pipeCount = (line.match(/\|/g) || []).length
@@ -87,9 +87,16 @@ export function parseRawText(text: string): ParseRowState[] {
  * Column order matches parseRawText: name | assignee | start | duration | end.
  */
 export function rowsToRawText(rows: ParseRowState[]): string {
+  const hasDepends = rows.some(r => r.dependsOn && r.dependsOn.trim().length > 0)
   return rows
     .filter(r => r.name.trim() || r.start.trim() || r.end.trim())
-    .map(r => [r.name || '-', r.assignee, r.start, r.duration, r.end].join(' | '))
+    .map(r => {
+      const cols = [r.name || '-', r.assignee || '', r.start || '', r.duration || '', r.end || '']
+      if (hasDepends) {
+        cols.push(r.dependsOn || '')
+      }
+      return cols.join(' | ')
+    })
     .join('\n')
 }
 

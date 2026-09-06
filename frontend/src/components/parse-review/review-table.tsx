@@ -1,17 +1,16 @@
 'use client'
 
-import { CheckCircle2, AlertCircle, Diamond, Flame } from 'lucide-react'
+import { Diamond, Flame } from 'lucide-react'
 import { TimelineTask } from '@/lib/schema'
 
 interface ReviewTableProps {
   tasks: TimelineTask[]
   warnings: string[]
-  compact?: boolean
   onSelectTask?: (taskId: string) => void
   selectedTaskId?: string | null
 }
 
-export function ReviewTable({ tasks, warnings, compact, onSelectTask, selectedTaskId }: ReviewTableProps) {
+export function ReviewTable({ tasks, warnings, onSelectTask, selectedTaskId }: ReviewTableProps) {
   if (tasks.length === 0) return null
 
   return (

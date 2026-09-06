@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { TimelineTask, TimelineDependency } from '@/lib/schema'
-import { GitBranch, AlertTriangle, ArrowRight, Circle, CheckCircle2 } from 'lucide-react'
-import { detectCycles } from '@/lib/schema'
+import { TimelineTask, TimelineDependency, detectCycles } from '@/lib/schema'
+import { GitBranch, AlertTriangle } from 'lucide-react'
 
 interface DependencyViewProps {
   tasks: TimelineTask[]
@@ -130,7 +129,7 @@ export function DependencyView({ tasks, dependencies, onSelectTask, selectedTask
               <g key={e.dep.id || i} onMouseEnter={() => setHighlightDep(e.dep.id)} onMouseLeave={() => setHighlightDep(null)}>
                 <line
                   x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
-                  stroke={active ? '#6366F1' : isCyclic ? '#F59E0B' : '#A8B5C8'}
+                  className={`dep-edge${active ? ' dep-edge-active' : ''}${isCyclic ? ' dep-cyclic' : ''}`}
                   strokeWidth={active ? 2.5 : 1.5}
                   strokeOpacity={active ? 1 : 0.7}
                   strokeDasharray={isCyclic ? '6 3' : undefined}
@@ -138,11 +137,11 @@ export function DependencyView({ tasks, dependencies, onSelectTask, selectedTask
                 {/* arrowhead */}
                 <path
                   d={`M${e.x2} ${e.y2} l-8 -4 v8 z`}
-                  fill={active ? '#6366F1' : isCyclic ? '#F59E0B' : '#A8B5C8'}
+                  className={`dep-arrow${active ? ' dep-arrow-active' : ''}${isCyclic ? ' dep-cyclic' : ''}`}
                 />
                 {/* dependency type label */}
                 <text x={(e.x1 + e.x2) / 2} y={(e.y1 + e.y2) / 2 - 4}
-                  textAnchor="middle" fontSize={9} fill="#A8B5C8" fontFamily="monospace">
+                  textAnchor="middle" fontSize={9} className="dep-edge-label" fontFamily="monospace">
                   {e.dep.type}
                 </text>
               </g>
@@ -168,19 +167,18 @@ export function DependencyView({ tasks, dependencies, onSelectTask, selectedTask
                 {/* node body */}
                 <rect
                   width={LAYOUT.nodeW} height={LAYOUT.nodeH} rx={6}
-                  fill={isSel ? '#4F46E5' : t.isCritical ? '#7C2D12' : '#1E293B'}
-                  stroke={isSel ? '#6366F1' : t.isCritical ? '#EA580C' : '#334155'}
+                  className={`dep-node${t.isCritical ? ' dep-critical' : ''}${isSel ? ' dep-selected' : ''}`}
                   strokeWidth={isSel ? 2 : 1.5}
                 />
                 <rect x={4} y={4} width={44} height={LAYOUT.nodeH - 8} rx={4}
-                  fill={t.isCritical ? '#EA580C22' : '#4F46E522'} />
-                <text x={26} y={LAYOUT.nodeH - 16} textAnchor="middle" fontSize={15} fill={t.isCritical ? '#EA580C' : '#14B8A6'}>
+                  className={`dep-node-tint${t.isCritical ? ' dep-critical' : ''}`} />
+                <text x={26} y={LAYOUT.nodeH - 16} textAnchor="middle" fontSize={15} className={`dep-node-glyph${t.isCritical ? ' dep-critical' : ''}`}>
                   {t.isMilestone ? '◆' : ''}
                 </text>
-                <text x={58} y={18} fontSize={11} fontWeight={600} fill={isSel ? '#fff' : '#E2E8F0'}>
+                <text x={58} y={18} fontSize={11} fontWeight={600} className={`dep-node-title${isSel ? ' dep-selected' : ''}`}>
                   {t.name.length > 18 ? t.name.slice(0, 18) + '…' : t.name}
                 </text>
-                <text x={58} y={34} fontSize={10} fill={isSel ? '#E2E8F0' : '#A8B5C8'}>
+                <text x={58} y={34} fontSize={10} className={`dep-node-sub${isSel ? ' dep-selected' : ''}`}>
                   {t.start} → {t.end}
                   {t.status ? ' · ' + t.status : ''}
                 </text>

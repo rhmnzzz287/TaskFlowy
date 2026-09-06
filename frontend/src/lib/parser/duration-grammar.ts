@@ -23,15 +23,15 @@ export function parseDuration(raw: string | null | undefined): DurationResult {
     return { ok: true, days: 0 }
   }
 
-  // "3 hari" or "3 day" or "3 days" or "3 hr" or "3 hour" or "3 hours"
-  const days = /^(\d+)\s*(hari|hrs?|hours?|days?)$/.exec(s)
+  // "3 hari" / "3 hr" / "3 days" / shorthand "3d"
+  const days = /^(\d+)\s*(hari|d|hr|hrs|hour|hours|day|days)$/.exec(s)
   if (days) {
     // n >= 0: 0 is a valid zero-duration milestone checkpoint
     return { ok: true, days: parseInt(days[1], 10) }
   }
 
-  // "1 minggu" / "1 week" / "2 weeks"
-  const weeks = /^(\d+)\s*(minggu|week|weeks)$/.exec(s)
+  // "1 minggu" / "2 weeks" / shorthand "2w"
+  const weeks = /^(\d+)\s*(minggu|w|wk|weeks?)$/.exec(s)
   if (weeks) {
     return { ok: true, days: parseInt(weeks[1], 10) * 7 }
   }

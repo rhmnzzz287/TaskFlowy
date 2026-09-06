@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import {
-  Play, Download, Image, Share2, ChevronLeft, ChevronRight, ZoomIn, ZoomOut,
+  Play, Image, ChevronLeft, ChevronRight, ZoomIn, ZoomOut,
   BarChart3, Table2, GitBranch, Loader2, FileText, ImageDown, Copy, Check, Trash2, Printer,
 } from 'lucide-react'
 import { RowEditor } from '@/components/task-input/row-editor'
@@ -17,7 +17,7 @@ import { AmbiguityAlert } from '@/components/ui/ambiguity-alert'
 import { ParseTelemetryBar } from '@/components/ui/parse-telemetry-bar'
 import { TableView } from '@/components/table-view/table-view'
 import { DependencyView } from '@/components/dependency-view/dependency-view'
-import { TemplatePicker } from '@/components/task-input/template-picker'
+import { TemplatePicker, getDefaultTemplate } from '@/components/task-input/template-picker'
 import { InspectorDrawer } from '@/components/inspector/inspector-drawer'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import type { GanttBoardHandle } from '@/components/gantt-board/gantt-board'
@@ -38,11 +38,10 @@ type InputMode = 'raw' | 'table'
 
 export default function Home() {
   const { saveDraft, loadDraft, listDrafts, deleteDraft, currentDraftId, setCurrentDraftId } = useDrafts()
+  const [activeTemplate, setActiveTemplate] = useState<string | null>('software-sprint')
   const [inputMode, setInputMode] = useState<InputMode>('raw')
   const [rawText, setRawText] = useState('')
-  const [inputRows, setInputRows] = useState<ParseRowState[]>([
-    { id: createRowId(), name: '', assignee: '', start: '', duration: '', end: '', dependsOn: '' },
-  ])
+  const [inputRows, setInputRows] = useState<ParseRowState[]>([])
   const [tasks, setTasks] = useState<TimelineTask[]>([])
   const [dependencies, setDependencies] = useState<TimelineDependency[]>([])
   const [warnings, setWarnings] = useState<string[]>([])
@@ -62,25 +61,6 @@ export default function Home() {
   const ganttRef = useRef<GanttBoardHandle>(null)
   const restoredRef = useRef(false)
   const [copiedSummary, setCopiedSummary] = useState(false)
-
-  // On mount: restore from URL hash, else from latest autosave draft.
-  useEffect(() => {
-    if (restoredRef.current) return
-    restoredRef.current = true
-    let rows: ParseRowState[] | null = null
-    const hashRows = decodeHashToRows()
-    if (hashRows && hashRows.length > 0) {
-      rows = hashRows.map(r => ({ id: createRowId(), ...r })) as ParseRowState[]
-    } else {
-      const list = listDrafts()
-      if (list.length > 0) rows = loadDraft(list[0].id)
-    }
-    if (rows && rows.length > 0) {
-      setInputRows(rows)
-      setRawText(rowsToRawText(rows))
-      // auto-render effect will pick this up and render the timeline
-    }
-  }, [listDrafts, loadDraft]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Core parse logic — runs against provided rows.
   // silent = background auto-update: renders on success, never flashes the error banner.
@@ -104,37 +84,71 @@ export default function Home() {
     if (!silent) setParseErrors(errList)
     setErrors(errMap)
 
-    if (errList.length === 0) {
-      const deps: TimelineDependency[] = []
-      const nameToId = new Map(result.tasks.map(t => [t.name, t.id]))
-      rows.forEach((r, i) => {
-        const depName = r.dependsOn?.trim()
-        if (depName && nameToId.has(depName) && i < result.tasks.length) {
-          deps.push({ id: createDepId(), sourceId: nameToId.get(depName)!, targetId: result.tasks[i].id, type: 'FS' })
-        }
-      })
-      const tasksWithMeta = result.tasks.map((t, i) => ({
-        ...t,
-        progress: parseInt(rows[i]?.progress || '0'),
-        isMilestone: t.durationDays === 0,
-        status: 'in-progress' as const,
-        dependsOn: rows[i]?.dependsOn?.trim() || null,
-      }))
-      const criticalIds = computeCriticalPath(tasksWithMeta, deps)
-      const cycles = detectCycles(tasksWithMeta, deps)
-      setTasks(tasksWithMeta.map(t => ({
-        ...t,
-        isCritical: criticalIds.has(t.id),
-        color: criticalIds.has(t.id) ? '#EA580C' : undefined,
-      })))
-      setDependencies(deps)
-      setWarnings([...result.warnings, ...cycles])
-      setHasGenerated(true)
-      saveDraft(rows)
-      return true
-    }
-    return false
+    // Partial render: rows that parsed cleanly still build the chart; broken
+    // rows are ringed individually. (Previously the first invalid row blocked
+    // the ENTIRE chart, which reads as "generate does nothing" while typing.)
+    const badIdx = new Set(Object.keys(result.errors).map(Number))
+    const goodRows = rows.filter((_, i) => !badIdx.has(i))
+    const goodTasks = result.tasks.filter((_, i) => !badIdx.has(i))
+    if (goodTasks.length === 0) return false
+
+    const deps: TimelineDependency[] = []
+    const nameToId = new Map(goodTasks.map(t => [t.name, t.id]))
+    goodRows.forEach((r, i) => {
+      const depName = r.dependsOn?.trim()
+      if (depName && nameToId.has(depName) && i < goodTasks.length) {
+        deps.push({ id: createDepId(), sourceId: nameToId.get(depName)!, targetId: goodTasks[i].id, type: 'FS' })
+      }
+    })
+    const tasksWithMeta = goodTasks.map((t, i) => ({
+      ...t,
+      progress: parseInt(goodRows[i]?.progress || '0'),
+      isMilestone: t.durationDays === 0,
+      status: 'in-progress' as const,
+      dependsOn: goodRows[i]?.dependsOn?.trim() || null,
+    }))
+    const criticalIds = computeCriticalPath(tasksWithMeta, deps)
+    const cycles = detectCycles(tasksWithMeta, deps)
+    // Bar fill/stroke is owned by the stylesheet (.bar-critical rules) so it
+    // stays theme-aware — no inline color here.
+    setTasks(tasksWithMeta.map(t => ({ ...t, isCritical: criticalIds.has(t.id) })))
+    setDependencies(deps)
+    setWarnings([...result.warnings, ...cycles])
+    setHasGenerated(true)
+    saveDraft(rows)
+    return true
   }, [saveDraft])
+
+  // On mount: restore from URL hash, else from latest autosave draft, else load default template (first use).
+  useEffect(() => {
+    if (restoredRef.current) return
+    restoredRef.current = true
+    let rows: ParseRowState[] | null = null
+    const hashRows = decodeHashToRows()
+    if (hashRows && hashRows.length > 0) {
+      rows = hashRows.map(r => ({ id: createRowId(), ...r })) as ParseRowState[]
+      setActiveTemplate(null)
+    } else {
+      const list = listDrafts()
+      if (list.length > 0) {
+        rows = loadDraft(list[0].id)
+        setActiveTemplate(null)
+      }
+    }
+    if (rows && rows.length > 0) {
+      setInputRows(rows)
+      setRawText(rowsToRawText(rows))
+      runParse(rows, true)
+    } else {
+      // First-time use (penggunaan pertama): auto-assign default template with pre-assigned dates and durations
+      // so the Gantt chart is immediately generated and visible on first load!
+      const defaultTpl = getDefaultTemplate()
+      setInputRows(defaultTpl.rows)
+      setRawText(rowsToRawText(defaultTpl.rows))
+      setActiveTemplate(defaultTpl.name)
+      runParse(defaultTpl.rows, false)
+    }
+  }, [listDrafts, loadDraft, runParse])
 
   // --- Live auto-render: any input change updates the Gantt (debounced) ---
   const autoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -159,20 +173,20 @@ export default function Home() {
     }, 30)
   }, [inputRows, rawText, inputMode, runParse])
 
-  const handleTemplateSelect = useCallback((rows: ParseRowState[]) => {
+  const handleTemplateSelect = useCallback((rows: ParseRowState[], templateName?: string) => {
+    setActiveTemplate(templateName || null)
     setInputRows(rows)
     setRawText(rowsToRawText(rows))
-    setHasGenerated(false)
-    setTasks([])
-    setWarnings([])
-    setErrors({})
     setParseErrors([])
-  }, [])
+    setErrors({})
+    runParse(rows, false)
+  }, [runParse])
 
   // Draft management — restore previously autosaved rows
   const refreshDrafts = useCallback(() => setDrafts(listDrafts()), [listDrafts])
 
   const handleRowsChange = useCallback((next: ParseRowState[]) => {
+    setActiveTemplate(null)
     setInputRows(next)
     setRawText(rowsToRawText(next))
   }, [])
@@ -180,6 +194,7 @@ export default function Home() {
   const restoreDraft = useCallback((id: string) => {
     const rows = loadDraft(id)
     if (!rows) return
+    setActiveTemplate(null)
     setInputRows(rows)
     setRawText(rowsToRawText(rows))
     setHasGenerated(false)
@@ -284,7 +299,7 @@ export default function Home() {
           </svg>
           <h1 className="text-text-primary text-[15px] font-semibold tracking-tight">TaskFlowy Gantt</h1>
           <span className="text-muted text-[11px] font-mono tracking-wide">v1.0</span>
-          <div className="ml-2"><TemplatePicker onSelect={handleTemplateSelect} /></div>
+          <div className="ml-2"><TemplatePicker onSelect={handleTemplateSelect} activeTemplate={activeTemplate} /></div>
         </div>
         <div className="flex items-center gap-2">
           {hasGenerated && (
@@ -398,7 +413,10 @@ export default function Home() {
               {inputMode === 'raw' ? (
                 <RawTextEditor
                   value={rawText}
-                  onChange={setRawText}
+                  onChange={(text) => {
+                    setActiveTemplate(null)
+                    setRawText(text)
+                  }}
                   onParse={handleParse}
                 />
               ) : (
@@ -469,7 +487,7 @@ export default function Home() {
           <div className="flex-1 flex min-h-0">
             {hasGenerated && (
               <div className="w-[390px] xl:w-[420px] shrink-0 border-r border-border bg-surface/30 flex flex-col no-print">
-                <ReviewTable tasks={tasks} warnings={[]} compact onSelectTask={handleSelectTask} selectedTaskId={selectedTaskId} />
+                <ReviewTable tasks={tasks} warnings={[]} onSelectTask={handleSelectTask} selectedTaskId={selectedTaskId} />
               </div>
             )}
             <div className="flex-1 flex flex-col min-w-0">
@@ -508,7 +526,7 @@ export default function Home() {
           </div>
           ) : view === 'table' ? (
             <div className="flex-1 flex min-h-0">
-              <TableView tasks={tasks} onSelectTask={handleSelectTask} selectedTaskId={selectedTaskId} onTasksChange={handleTasksChange} />
+              <TableView tasks={tasks} onSelectTask={handleSelectTask} selectedTaskId={selectedTaskId} />
             </div>
           ) : (
             <div className="flex-1 flex min-h-0">

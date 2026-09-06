@@ -28,6 +28,32 @@ export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
   const scrollRef = useRef<HTMLDivElement>(null)
   const [loading, setLoading] = useState(true)
   const lastRenderRef = useRef<string>('')
+  // A mid-drag setTasks() from frappe's date_change must NOT re-init the chart:
+  // el.innerHTML='' detaches the svg, which kills the pointer chain and aborts
+  // the user's drag (v1.2 binds move/up on that svg). While a bar/handle drag
+  // is active, re-init is skipped; the mouseup tick below re-runs the effect
+  // so the chart commits exactly once on release.
+  const draggingRef = useRef(false)
+  const [commitTick, setCommitTick] = useState(0)
+
+  useEffect(() => {
+    const down = (e: MouseEvent) => {
+      const t = e.target as Element | null
+      if (t?.closest?.('.bar-wrapper, .handle')) draggingRef.current = true
+    }
+    const up = () => {
+      if (!draggingRef.current) return
+      draggingRef.current = false
+      setCommitTick(n => n + 1)
+    }
+    const el = containerRef.current
+    el?.addEventListener('mousedown', down)
+    document.addEventListener('mouseup', up)
+    return () => {
+      el?.removeEventListener('mousedown', down)
+      document.removeEventListener('mouseup', up)
+    }
+  }, [])
   // Scroll the first paint onto the action: only when the task SET changes
   // (generate/template/load), never on date-drags — otherwise every drag
   // would yank the viewport back to day one.
@@ -80,9 +106,10 @@ export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
+    if (draggingRef.current) return // hold off until mouseup tick re-runs this
 
     const ganttTasks = toGanttTasks(tasks, selectedAssignees)
-    const renderKey = JSON.stringify([ganttTasks.map(t => [t.id, t.start, t.end, t.dependencies || '']), viewMode, showCritical])
+    const renderKey = JSON.stringify([ganttTasks.map(t => [t.id, t.start, t.end, t.dependencies || '']), viewMode])
 
     if (renderKey === lastRenderRef.current) {
       setLoading(false)
@@ -112,7 +139,6 @@ export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
       (gantt) => {
         if (!cancelled) {
           setLoading(false)
-          applyDarkTheme(showCritical)
           if (gantt && taskSig !== lastTaskSigRef.current) {
             lastTaskSigRef.current = taskSig
             // frappe-gantt v1.2.2 pads gantt_start ~3 weeks before the first
@@ -146,7 +172,8 @@ export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
     return () => {
       cancelled = true
     }
-  }, [tasks, selectedAssignees, handleDateChange, handleClick, viewMode, showCritical])
+    // showCritical no longer re-renders the chart — it only toggles a CSS class now
+  }, [tasks, selectedAssignees, handleDateChange, handleClick, viewMode, commitTick])
 
   // Zoom via CSS transform
   const zoomScale = 0.6 + (zoom - 1) * 0.2 // 1→0.6, 3→1.0, 5→1.4
@@ -155,7 +182,7 @@ export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
     <div className="flex-1 bg-surface-dim rounded-none border-none overflow-hidden flex flex-col min-h-0">
       <div
         ref={scrollRef}
-        className="gantt-wrapper flex-1 overflow-auto relative"
+        className={`gantt-wrapper flex-1 overflow-auto relative${showCritical ? ' show-critical' : ''}`}
         style={{ minHeight: '280px' }}
       >
         <div ref={containerRef} style={{ transform: `scale(${zoomScale})`, transformOrigin: 'top left' }} />
@@ -163,42 +190,3 @@ export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
     </div>
   )
 })
-
-function applyDarkTheme(showCritical: boolean) {
-  const existing = document.getElementById('gantt-dark-theme')
-  if (existing) existing.remove()
-  const style = document.createElement('style')
-  style.id = 'gantt-dark-theme'
-  style.textContent = `
-    .gantt {
-      --font-family: 'Inter', sans-serif;
-      --bar-color: #0D9488;
-      --bar-progress-color: #14B8A6;
-      --bar-stroke: #0D9488;
-      border: none !important;
-    }
-    .gantt .grid-background { fill: #0F172A !important; }
-    .gantt .grid-header { fill: #1E293B !important; stroke: #334155 !important; }
-    .gantt .grid-row { fill: #0F172A !important; }
-    .gantt .grid-row:nth-child(even) { fill: #131B2E !important; }
-    .gantt .row-line { stroke: #334155 !important; }
-    .gantt .tick { stroke: #334155 !important; }
-    /* Today marker styling lives in globals.css (.gantt-container .current-highlight) */
-    .gantt .arrow { stroke: #64748B !important; fill: none !important; }
-    .gantt .bar-label, .gantt .bar-label.big { fill: #E2E8F0 !important; font-size: 11px !important; font-weight: 500; }
-    .gantt .lower-text, .gantt .upper-text { fill: #A8B5C8 !important; font-size: 10px !important; font-weight: 600; letter-spacing: 0.05em; }
-    .gantt .bar-wrapper .bar { fill: #0D9488 !important; stroke: #14B8A6 !important; }
-    .gantt .bar-wrapper .bar-progress { fill: #14B8A6 !important; }
-    .gantt .bar-wrapper.active .bar { fill: #4F46E5 !important; stroke: #6366F1 !important; }
-    .gantt .bar-wrapper.active .bar-progress { fill: #6366F1 !important; }
-    .gantt .handle { fill: #fff !important; opacity: 0.6; }
-    ${showCritical ? `
-    .gantt .bar-wrapper.bar-critical .bar { fill: #EA580C !important; stroke: #F97316 !important; }
-    .gantt .bar-wrapper.bar-critical .bar-progress { fill: #F97316 !important; }
-    .gantt .bar-wrapper.bar-critical .bar-label { fill: #FED7AA !important; }
-    ` : `
-    .gantt .bar-wrapper.bar-critical .bar { fill: #0D9488 !important; stroke: #14B8A6 !important; }
-    `}
-  `
-  document.head.appendChild(style)
-}

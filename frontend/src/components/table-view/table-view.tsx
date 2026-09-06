@@ -3,23 +3,20 @@
 import { useState, useMemo } from 'react'
 import { TimelineTask } from '@/lib/schema'
 import { formatDateDisplay, deadlineBadge } from '@/lib/parser/date-grammar'
-import { CheckCircle2, AlertCircle, Diamond, Flame, ArrowUpDown, Pencil } from 'lucide-react'
+import { Diamond, Flame, ArrowUpDown } from 'lucide-react'
 
 interface TableViewProps {
   tasks: TimelineTask[]
   onSelectTask?: (taskId: string) => void
   selectedTaskId?: string | null
-  onTasksChange?: (tasks: TimelineTask[]) => void
 }
 
 type SortKey = 'name' | 'assignee' | 'start' | 'end' | 'durationDays' | 'status'
 type SortDir = 'asc' | 'desc'
 
-export function TableView({ tasks, onSelectTask, selectedTaskId, onTasksChange }: TableViewProps) {
+export function TableView({ tasks, onSelectTask, selectedTaskId }: TableViewProps) {
   const [sortKey, setSortKey] = useState<SortKey>('start')
   const [sortDir, setSortDir] = useState<SortDir>('asc')
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editField, setEditField] = useState<string | null>(null)
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
@@ -91,10 +88,7 @@ export function TableView({ tasks, onSelectTask, selectedTaskId, onTasksChange }
               key={t.id}
               className={`h-11 flex items-center px-3 transition-colors cursor-pointer text-[13px] focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none
                 ${selectedTaskId === t.id ? 'bg-primary/10 border-l-2 border-l-primary' : 'border-l-2 border-l-transparent hover:bg-surface-hi/30'}`}
-              onClick={() => {
-                setEditingId(null)
-                onSelectTask?.(t.id)
-              }}
+              onClick={() => onSelectTask?.(t.id)}
               onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectTask?.(t.id) } }}
               tabIndex={0}
               role="button"

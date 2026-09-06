@@ -43,6 +43,12 @@ export async function initGantt(opts: GanttOptions): Promise<any | null> {
       bar_height: 28,
       bar_corner_radius: 4,
       padding: 18,
+      // frappe-gantt.css is NOT imported, so its v1.2 tooltip (.gantt-popup
+      // pointer-events:none) is missing: the popup spawns on mouseup right
+      // under the cursor and steals the native `click` from .bar-wrapper,
+      // breaking bar → Inspector selection. InspectorDrawer is our detail
+      // view — disable the built-in popup entirely.
+      popup: false,
       on_date_change: (_task: { id: string }, start: Date, end: Date) => {
         onDateChange(_task.id, start, end)
       },

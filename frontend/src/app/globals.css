@@ -129,11 +129,81 @@
 }
 
 /* ============================================================
+   Gantt SVG palette — theme-aware via root `.dark` class.
+   (Was JS-injected by applyDarkTheme with dark-only !important
+   rules — that kept the chart dark in light mode.)
+   Semantic colors (teal/indigo/orange/violet bars, today marker,
+   milestones) keep literals; structural colors use the same
+   values as the CSS variable tokens.
+   ============================================================ */
+.gantt {
+  --font-family: 'Inter', sans-serif;
+  border: none !important;
+}
+.gantt .grid-background { fill: rgb(var(--bg-background)) !important; }
+/* Interaction-critical: upstream ships grid-background fill:none (unpainted →
+   no SVG hit-testing). We paint it for the theme, but frappe APPENDS this rect
+   after the bar layer, so without this rule it intercepts EVERY click/drag on
+   bars (inspector never opens, drags do nothing). Same reason .hide exists. */
+.gantt .grid-background { pointer-events: none; }
+.gantt-container .hide { display: none !important; }
+.gantt .grid-header { fill: rgb(var(--bg-surface-hi)) !important; stroke: rgb(var(--border)) !important; }
+.gantt .grid-row { fill: rgb(var(--bg-background)) !important; }
+.gantt .grid-row:nth-child(even) { fill: rgb(var(--bg-surface-hi)) !important; }
+.gantt .row-line { stroke: rgb(var(--border)) !important; }
+.gantt .tick { stroke: rgb(var(--border)) !important; }
+/* Today marker styling lives below (.gantt-container .current-highlight) */
+.gantt .arrow { stroke: rgb(var(--text-muted)) !important; fill: none !important; }
+.gantt .bar-label, .gantt .bar-label.big { fill: #F8FAFC !important; font-size: 11px !important; font-weight: 500; }
+.gantt .lower-text, .gantt .upper-text { fill: rgb(var(--text-muted)) !important; font-size: 10px !important; font-weight: 600; letter-spacing: 0.05em; }
+.gantt .bar-wrapper .bar { fill: #0D9488 !important; stroke: #14B8A6 !important; }
+.gantt .bar-wrapper .bar-progress { fill: #14B8A6 !important; }
+.gantt .bar-wrapper.active .bar { fill: #4F46E5 !important; stroke: #6366F1 !important; }
+.gantt .bar-wrapper.active .bar-progress { fill: #6366F1 !important; }
+.gantt .handle { fill: #fff !important; opacity: 0.6; }
+/* Critical bars: orange when the show-critical toggle is on, default teal off.
+   Class lives on .gantt-wrapper (ancestor of the svg). */
+.gantt .bar-wrapper.bar-critical .bar { fill: #0D9488 !important; stroke: #14B8A6 !important; }
+.show-critical .gantt .bar-wrapper.bar-critical .bar { fill: #EA580C !important; stroke: #F97316 !important; }
+.show-critical .gantt .bar-wrapper.bar-critical .bar-progress { fill: #F97316 !important; }
+.show-critical .gantt .bar-wrapper.bar-critical .bar-label { fill: #FED7AA !important; }
+
+/* ============================================================
+   Dependency graph — theme-aware node/edge colors
+   (SVG presentation attributes lose to these !important rules.)
+   ============================================================ */
+.dep-edge { stroke: rgb(var(--border)) !important; }
+.dep-arrow { fill: rgb(var(--border)) !important; }
+.dep-edge-label { fill: rgb(var(--text-muted)) !important; }
+.dep-node { fill: rgb(var(--bg-surface)) !important; stroke: rgb(var(--border)) !important; }
+.dep-node-tint { fill: rgb(var(--bg-surface-hi)) !important; }
+.dep-node-glyph { fill: rgb(var(--text-dim)) !important; }
+.dep-node-title { fill: rgb(var(--text-primary)) !important; }
+.dep-node-sub { fill: rgb(var(--text-muted)) !important; }
+.dark .dep-edge, .dark .dep-arrow { stroke: #A8B5C8 !important; fill: #A8B5C8 !important; }
+.dark .dep-edge-active, .dark .dep-arrow-active { stroke: #6366F1 !important; fill: #6366F1 !important; }
+.dark .dep-node { fill: #1E293B !important; stroke: #334155 !important; }
+.dark .dep-node-tint { fill: #4F46E5 !important; fill-opacity: 0.13 !important; }
+.dark .dep-node-glyph { fill: #14B8A6 !important; }
+.dark .dep-node-title { fill: #E2E8F0 !important; }
+.dark .dep-node-sub { fill: #A8B5C8 !important; }
+/* Semantic states (same in both themes) */
+.dep-critical { stroke: #EA580C !important; fill: #EA580C !important; }
+.dark .dep-node.dep-critical { fill: #7C2D12 !important; }
+.dep-node-tint.dep-critical { fill: #EA580C !important; }
+.dep-node-glyph.dep-critical { fill: #EA580C !important; }
+.dep-cyclic { stroke: #F59E0B !important; fill: #F59E0B !important; }
+.dep-selected { fill: #4F46E5 !important; stroke: #6366F1 !important; }
+.dep-node-title.dep-selected, .dep-node-sub.dep-selected { fill: #fff !important; }
+/* Hover-highlight edge — placed last so it beats base/cyclic rules in both themes */
+.dep-edge-active { stroke: #4F46E5 !important; }
+.dep-arrow-active { fill: #4F46E5 !important; }
+
+/* ============================================================
    Print / PDF (Ctrl+P, A4 landscape executive report)
    Print chrome: only the metrics strip + Gantt chart survive.
-   Dark-theme overrides use extra specificity (.gantt-container
-   prefix) because applyDarkTheme injects its !important rules
-   later in source order than this stylesheet.
+   Rules below come after the theme palette in source order with
+   matching specificity, so they win in both themes.
    ============================================================ */
 @media print {
   @page {
@@ -178,10 +248,12 @@
   .gantt-container .gantt .grid-row:nth-child(even) { fill: #ffffff !important; }
   .gantt-container .gantt .row-line,
   .gantt-container .gantt .tick { stroke: #e2e8f0 !important; }
-  .gantt-container .gantt .bar-label,
-  .gantt-container .gantt .bar-label.big { fill: #171717 !important; }
   .gantt-container .gantt .lower-text,
   .gantt-container .gantt .upper-text { fill: #525252 !important; }
+  /* Labels that overflow the bar render outside on white grid → dark.
+     In-bar labels keep white fill (bars keep semantic colors in print). */
+  .gantt-container .gantt .bar-label.big { fill: #171717 !important; }
+  .gantt-container .gantt .arrow { stroke: #94a3b8 !important; }
   /* Bars keep their semantic colors (teal/indigo/orange/violet) in print */
   .gantt-container .current-highlight { border-left-color: #dc2626 !important; }
 }

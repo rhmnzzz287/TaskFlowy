@@ -40,19 +40,6 @@ export interface ExtractTelemetry {
   confidence: number
 }
 
-export interface ParseTimelineRequest {
-  rows: ParseRowInput[]
-  referenceDate: string
-  timezone: string
-}
-
-export interface ParseTimelineResponse {
-  tasks: TimelineTask[]
-  dependencies: TimelineDependency[]
-  warnings: string[]
-  telemetry: ExtractTelemetry
-}
-
 export interface ParseRowState {
   id: string
   name: string
@@ -63,28 +50,6 @@ export interface ParseRowState {
   dependsOn: string
   progress?: string
 }
-
-export interface TimelineState {
-  inputRows: ParseRowState[]
-  tasks: TimelineTask[]
-  dependencies: TimelineDependency[]
-  selectedAssignees: string[]
-  warnings: string[]
-  errors: Record<string, string>  // rowId -> error message per field
-  parseStatus: 'idle' | 'loading' | 'success' | 'error'
-  error: string | null
-  telemetry: ExtractTelemetry | null
-  selectedTaskId: string | null
-}
-
-export type TaskValidationError =
-  | { kind: 'empty-name' }
-  | { kind: 'invalid-date'; field: string; value: string }
-  | { kind: 'empty-start' }
-  | { kind: 'invalid-duration'; value: string }
-  | { kind: 'end-before-start'; start: string; end: string }
-  | { kind: 'short-duration' }
-  | { kind: 'cycle-dependency'; task: string; dependsOn: string }
 
 // Frappe Gantt adapter type
 export interface GanttTask {

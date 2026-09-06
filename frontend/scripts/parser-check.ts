@@ -37,6 +37,11 @@ const zeroRes = parseDuration('0 hari')
 check('zero = milestone', zeroRes.ok && zeroRes.days === 0)
 check('milestone keyword', parseDuration('milestone').ok)
 check('negative rejected', !parseDuration('-1 hari').ok)
+// shorthand units used by table-mode typers
+const d4 = parseDuration('4d')
+const w2 = parseDuration('2w')
+check('4d shorthand', d4.ok && d4.days === 4)
+check('2w shorthand', w2.ok && w2.days === 14)
 
 // row-parser: FR-02 workflow example
 const rows = [
@@ -55,6 +60,16 @@ const bad = parseRows([
   { name: 'X', assignee: null, start: 'bad-date', duration: null, end: null },
 ], REF)
 check('bad date flagged', Object.keys(bad.errors).length === 1)
+
+// blank start + duration must NOT error (was blocking the whole chart render)
+const blank = parseRows([
+  { name: 'No Start', assignee: null, start: '', duration: '3 hari', end: null },
+  { name: 'Nothing', assignee: null, start: '', duration: '', end: '' },
+], REF)
+check('blank start + duration parses', Object.keys(blank.errors).length === 0)
+const bt = blank.tasks[0]
+check('blank start falls back to reference day', bt.start === REF && bt.durationDays === 3)
+check('name-only = 1d task', blank.tasks[1].durationDays === 1 && blank.tasks[1].start === REF)
 
 console.log(failures === 0 ? '\nALL PASS' : `\n${failures} FAILURES`)
 process.exit(failures === 0 ? 0 : 1)

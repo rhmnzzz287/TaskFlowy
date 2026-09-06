@@ -17,6 +17,9 @@ declare module 'frappe-gantt' {
     arrow_curve?: number
     padding?: number
     language?: string
+    /** false disables the built-in tooltip popup (pointer-events: none rule
+     *  ships with frappe-gantt.css, which this app does NOT import). */
+    popup?: false | ((task: unknown) => string)
     on_date_change?: (task: { id: string }, start: Date, end: Date) => void
     on_click?: (task: unknown) => void
     on_contextmenu?: (task: unknown) => void
