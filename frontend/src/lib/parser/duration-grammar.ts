@@ -18,12 +18,16 @@ export function parseDuration(raw: string | null | undefined): DurationResult {
   }
   const s = raw.trim().toLowerCase()
 
+  // Milestone checkpoint: zero-duration keywords & aliases
+  if (s === 'milestone' || s === '0' || s === '0 hari' || s === '0 days' || s === '0 d') {
+    return { ok: true, days: 0 }
+  }
+
   // "3 hari" or "3 day" or "3 days" or "3 hr" or "3 hour" or "3 hours"
   const days = /^(\d+)\s*(hari|hrs?|hours?|days?)$/.exec(s)
   if (days) {
-    const n = parseInt(days[1], 10)
-    if (n >= 1) return { ok: true, days: n }
-    return { ok: false, error: `Duration must be >= 1 day, got ${n}` }
+    // n >= 0: 0 is a valid zero-duration milestone checkpoint
+    return { ok: true, days: parseInt(days[1], 10) }
   }
 
   // "1 minggu" / "1 week" / "2 weeks"

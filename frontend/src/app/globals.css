@@ -4,29 +4,31 @@
 
 @layer base {
   :root {
-    /* Light theme tokens */
-    --bg-background: #F8FAFC;
-    --bg-surface: #FFFFFF;
-    --bg-surface-hi: #F1F5F9;
-    --bg-surface-dim: #E2E8F0;
-    --border: #CBD5E1;
-    --border-lt: #E2E8F0;
-    --text-primary: #0F172A;
-    --text-dim: #334155;
-    --text-muted: #64748B;
+    /* Light theme — RGB channel triplets so Tailwind alpha (/50) works */
+    --bg-background: 248 250 252;
+    --bg-surface: 255 255 255;
+    --bg-surface-hi: 241 245 249;
+    --bg-surface-dim: 226 232 240;
+    --border: 203 213 225;
+    --border-lt: 226 232 240;
+    --text-primary: 15 23 42;
+    --text-dim: 51 65 85;
+    --text-muted: 100 116 139;
+    color-scheme: light;
   }
 
   .dark {
-    /* Dark theme tokens */
-    --bg-background: #0F172A;
-    --bg-surface: #1E293B;
-    --bg-surface-hi: #283044;
-    --bg-surface-dim: #0B1326;
-    --border: #334155;
-    --border-lt: #E2E8F0;
-    --text-primary: #E2E8F0;
-    --text-dim: #CBD5E1;
-    --text-muted: #A8B5C8;
+    /* Dark theme */
+    --bg-background: 15 23 42;
+    --bg-surface: 30 41 59;
+    --bg-surface-hi: 40 48 68;
+    --bg-surface-dim: 11 19 38;
+    --border: 51 65 85;
+    --border-lt: 226 232 240;
+    --text-primary: 226 232 240;
+    --text-dim: 203 213 225;
+    --text-muted: 168 181 200;
+    color-scheme: dark;
   }
 
   html {
@@ -35,11 +37,10 @@
   body {
     @apply bg-background text-text-primary antialiased;
     overscroll-behavior: none;
-    scrollbar-color: var(--border) transparent;
   }
   * {
     scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
+    scrollbar-color: rgb(var(--border)) transparent;
   }
 }
 
@@ -59,4 +60,128 @@
   .cell-input {
     @apply w-full bg-transparent outline-none rounded px-2 py-1 text-[13px] text-text-primary placeholder:text-muted focus:ring-1 focus:ring-primary;
   }
+}
+
+/* ============================================================
+   Enhanced Today Marker on Gantt Chart
+   frappe-gantt v1.2 renders "today" as DOM overlays inside
+   .gantt-container (frappe-gantt.css is NOT imported by this app,
+   so positioning + colors must come from here):
+   - .current-highlight        → vertical line through the grid
+   - .current-ball-highlight   → dot anchored on the date header
+   - .current-date-highlight    → highlighted today's header cell
+   ============================================================ */
+.gantt-container .current-highlight {
+  position: absolute !important;
+  /* frappe v1.2.2 create_el does not apply height inline and we don't load
+     frappe-gantt.css — span the full grid vertically ourselves */
+  top: 0 !important;
+  bottom: 0 !important;
+  height: auto !important;
+  width: 0 !important;
+  background: transparent !important;
+  border-left: 2px dashed #ef4444;
+  z-index: 999;
+  pointer-events: none;
+}
+
+.gantt-container .current-ball-highlight {
+  position: absolute !important;
+  background: #ef4444 !important;
+  border-radius: 9999px !important;
+  z-index: 1001;
+  pointer-events: none;
+}
+
+.gantt-container .current-date-highlight {
+  background: rgba(239, 68, 68, 0.18);
+  color: #ef4444;
+  border-radius: 5px;
+}
+
+.dark .gantt-container .current-highlight {
+  border-left-color: #f87171;
+}
+
+.dark .gantt-container .current-ball-highlight {
+  background: #f87171 !important;
+}
+
+.dark .gantt-container .current-date-highlight {
+  background: rgba(248, 113, 113, 0.22);
+  color: #f87171;
+}
+
+/* Zero-duration milestone → diamond checkpoint (0-width rect would be invisible,
+   so CSS geometry props force a 13px square rotated 45°) */
+.gantt .bar-wrapper.bar-milestone .bar {
+  width: 13px !important;
+  height: 13px !important;
+  fill: #7C3AED !important;
+  stroke: #A78BFA !important;
+  transform: translateY(7px) rotate(45deg);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.gantt .bar-wrapper.bar-milestone .bar-progress,
+.gantt .bar-wrapper.bar-milestone .handle {
+  display: none;
+}
+
+/* ============================================================
+   Print / PDF (Ctrl+P, A4 landscape executive report)
+   Print chrome: only the metrics strip + Gantt chart survive.
+   Dark-theme overrides use extra specificity (.gantt-container
+   prefix) because applyDarkTheme injects its !important rules
+   later in source order than this stylesheet.
+   ============================================================ */
+@media print {
+  @page {
+    size: landscape;
+    margin: 1cm;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  header,
+  nav,
+  .no-print,
+  button,
+  .panel:has(textarea),
+  .panel:has(.cell-input) {
+    display: none !important;
+  }
+  /* App shell is a clipped h-screen flex app — unclip for pagination */
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .gantt-wrapper {
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  /* Neutralize zoom scaling so the chart prints at natural size */
+  [style*="transform: scale"] {
+    transform: none !important;
+  }
+  .gantt-container,
+  .gantt {
+    overflow: visible !important;
+    width: 100% !important;
+  }
+  /* Force light palette regardless of active theme */
+  .gantt-container .gantt .grid-background { fill: #ffffff !important; }
+  .gantt-container .gantt .grid-header { fill: #f8fafc !important; stroke: #cbd5e1 !important; }
+  .gantt-container .gantt .grid-row,
+  .gantt-container .gantt .grid-row:nth-child(even) { fill: #ffffff !important; }
+  .gantt-container .gantt .row-line,
+  .gantt-container .gantt .tick { stroke: #e2e8f0 !important; }
+  .gantt-container .gantt .bar-label,
+  .gantt-container .gantt .bar-label.big { fill: #171717 !important; }
+  .gantt-container .gantt .lower-text,
+  .gantt-container .gantt .upper-text { fill: #525252 !important; }
+  /* Bars keep their semantic colors (teal/indigo/orange/violet) in print */
+  .gantt-container .current-highlight { border-left-color: #dc2626 !important; }
 }

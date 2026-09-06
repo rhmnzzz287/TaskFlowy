@@ -48,6 +48,13 @@ export function parseDate(raw: string, referenceDate: string): DateResult {
     if (!isNaN(d.getTime())) return { ok: true, value: d }
   }
 
+  // dd/mm/yy (2-digit year → 20yy)
+  const slashShort = /^(\d{1,2})\/(\d{1,2})\/(\d{2})$/.exec(s)
+  if (slashShort) {
+    const d = new Date(2000 + +slashShort[3], +slashShort[2] - 1, +slashShort[1])
+    if (!isNaN(d.getTime())) return { ok: true, value: d }
+  }
+
   // dd Month yyyy or dd Month yyyy (e.g. "10 September 2026")
   const named = /^(\d{1,2})\s+([a-z]+)\s+(\d{4})$/.exec(s)
   if (named) {
@@ -121,4 +128,30 @@ export function formatDateISO(d: Date): string {
   const m = String(d.getMonth() + 1).padStart(2, '0')
   const day = String(d.getDate()).padStart(2, '0')
   return `${y}-${m}-${day}`
+}
+
+/** Human display format: dd/mm/yy (Indonesian convention). */
+export function formatDateDisplay(d: Date | string): string {
+  const date = typeof d === 'string' ? new Date(d) : d
+  if (isNaN(date.getTime())) return '-'
+  const dd = String(date.getDate()).padStart(2, '0')
+  const mm = String(date.getMonth() + 1).padStart(2, '0')
+  const yy = String(date.getFullYear()).slice(-2)
+  return `${dd}/${mm}/${yy}`
+}
+
+/** Deadline proximity vs today. Negative = overdue. */
+export function daysUntil(dateStr: string): number {
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  const end = new Date(dateStr); end.setHours(0, 0, 0, 0)
+  return Math.round((end.getTime() - today.getTime()) / 86400000)
+}
+
+/** Days-until-deadline badge state for UI. */
+export function deadlineBadge(dateStr: string): { label: string; cls: string } | null {
+  const d = daysUntil(dateStr)
+  if (d < 0) return { label: `Telat ${Math.abs(d)}d`, cls: 'text-error bg-error/10' }
+  if (d === 0) return { label: 'Deadline 23:59', cls: 'text-critical bg-critical/10' }
+  if (d <= 3) return { label: `${d}d lagi`, cls: 'text-warning bg-warning/10' }
+  return null
 }

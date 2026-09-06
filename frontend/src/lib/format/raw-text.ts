@@ -1,4 +1,5 @@
 import type { ParseRowState, TimelineTask } from '@/lib/schema'
+import { formatDateDisplay } from '@/lib/parser/date-grammar'
 
 /**
  * Parse a block of raw text into ParseRowState[].
@@ -27,7 +28,10 @@ function splitLine(line: string, sep: string): string[] {
 }
 
 function isHeaderRow(cells: string[]): boolean {
-  return cells.some(c => HEADER_PATTERN.test(c.trim()))
+  // Only treat the line as a header when MOST cell values are header words —
+  // a single accidental prefix match must not swallow a real data row.
+  const hits = cells.filter(c => HEADER_PATTERN.test(c.trim())).length
+  return hits >= 2 && hits >= cells.length - 1
 }
 
 function generateId(): string {
@@ -79,6 +83,17 @@ export function parseRawText(text: string): ParseRowState[] {
 }
 
 /**
+ * Serialize editable rows back to the pipe format the raw-text editor shows.
+ * Column order matches parseRawText: name | assignee | start | duration | end.
+ */
+export function rowsToRawText(rows: ParseRowState[]): string {
+  return rows
+    .filter(r => r.name.trim() || r.start.trim() || r.end.trim())
+    .map(r => [r.name || '-', r.assignee, r.start, r.duration, r.end].join(' | '))
+    .join('\n')
+}
+
+/**
  * Serialise timeline tasks back to a pipe-aligned text representation.
  */
 export function tasksToRawText(tasks: TimelineTask[]): string {
@@ -88,7 +103,7 @@ export function tasksToRawText(tasks: TimelineTask[]): string {
     const lead = t.assignee || '-'
     const dur  = t.isMilestone ? '0' : `${t.durationDays} hr`
     const st   = t.status || 'planned'
-    return `${name} | ${lead} | ${t.start} | ${t.end} | ${dur} | ${st}`
+    return `${name} | ${lead} | ${formatDateDisplay(t.start)} | ${formatDateDisplay(t.end)} | ${dur} | ${st}`
   })
   return [header, ...lines].join('\n')
 }

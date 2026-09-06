@@ -29,19 +29,6 @@ export function parseRow(
     errors.push('Task name is required')
   }
 
-  // Parse start date
-  let startDate: Date | null = null
-  if (!row.start || row.start.trim() === '') {
-    errors.push('Start date is required')
-  } else {
-    const parsed = parseDate(row.start, referenceDate)
-    if (parsed.ok) {
-      startDate = parsed.value
-    } else {
-      errors.push(parsed.error)
-    }
-  }
-
   // Parse duration
   let durationDays: number | null = null
   const hasDuration = row.duration && row.duration.trim() !== ''
@@ -67,39 +54,75 @@ export function parseRow(
     }
   }
 
-  // Resolve start + duration/end
-  if (startDate) {
-    if (durationDays && !endDate) {
-      // duration -> compute end
-      endDate = new Date(startDate)
-      endDate.setDate(endDate.getDate() + durationDays - 1)
-    } else if (endDate && !durationDays) {
-      // end -> compute duration
-      if (endDate >= startDate) {
-        durationDays = dateDiffDays(startDate, endDate)
-      } else {
-        errors.push('End date is before start date')
-      }
-    } else if (durationDays && endDate) {
-      // both provided — validate consistency
-      const computedEnd = new Date(startDate)
-      computedEnd.setDate(computedEnd.getDate() + durationDays - 1)
-      if (formatDateISO(computedEnd) !== formatDateISO(endDate)) {
-        warnings.push(`Duration (${durationDays}d) and end date (${formatDateISO(endDate)}) disagree; using duration`)
-      }
-      endDate = computedEnd
+  // Parse start date — optional when an end date is provided (schedule back-computes)
+  let startDate: Date | null = null
+  if (!row.start || row.start.trim() === '') {
+    if (!hasEnd) errors.push('Start atau End date wajib diisi salah satu')
+  } else {
+    const parsed = parseDate(row.start, referenceDate)
+    if (parsed.ok) {
+      startDate = parsed.value
     } else {
-      // neither — default 1 day
-      durationDays = 1
-      endDate = new Date(startDate)
+      errors.push(parsed.error)
     }
+  }
 
-    // Validate minimum duration
-    if (durationDays !== null && durationDays < 1) {
-      errors.push('Duration must be at least 1 day')
-      durationDays = 1
-      endDate = new Date(startDate)
+  // Resolve start + duration/end
+  // hasDur: 0-day is a valid milestone, so truthiness of durationDays is NOT a
+  // proxy for "provided" — check null explicitly.
+  const hasDur = durationDays !== null
+  // Inclusive span offset; milestone (0 days) collapses end onto start.
+  const spanOf = (d: number) => Math.max(0, d - 1)
+  if (startDate && endDate && !hasDur) {
+    // end -> compute duration
+    if (endDate >= startDate) {
+      durationDays = dateDiffDays(startDate, endDate)
+    } else {
+      errors.push('End date is before start date')
     }
+  } else if (endDate && !startDate && hasDur) {
+    // no start but end+duration given -> back-compute start
+    startDate = new Date(endDate)
+    startDate.setDate(startDate.getDate() - spanOf(durationDays!))
+  } else if (startDate && hasDur && endDate) {
+    // all three provided — validate consistency
+    const computedEnd = new Date(startDate!)
+    computedEnd.setDate(computedEnd.getDate() + spanOf(durationDays!))
+    if (formatDateISO(computedEnd) !== formatDateISO(endDate)) {
+      warnings.push(`Duration (${durationDays}d) and end date (${formatDateISO(endDate)}) disagree; using duration`)
+    }
+    endDate = computedEnd
+  } else if (startDate && hasDur) {
+    // start + duration -> compute end
+    endDate = new Date(startDate!)
+    endDate.setDate(endDate.getDate() + spanOf(durationDays!))
+  } else if (startDate && endDate) {
+    durationDays = 1
+  } else if (startDate) {
+    // start only — default 1 day
+    durationDays = 1
+    endDate = new Date(startDate!)
+  } else if (endDate) {
+    // end only, no duration — minimal 1-day task ending at end
+    durationDays = 1
+    startDate = new Date(endDate!)
+  } else if (hasDur) {
+    // duration only — start today (milestone => checkpoint today)
+    startDate = new Date(referenceDate)
+    endDate = new Date(referenceDate)
+    endDate.setDate(endDate.getDate() + spanOf(durationDays!))
+  } else {
+    // nothing meaningful — single-day task today
+    startDate = new Date(referenceDate)
+    durationDays = 1
+    endDate = new Date(referenceDate)
+  }
+
+  // Validate non-negative duration (0 is allowed: milestone checkpoint)
+  if (durationDays !== null && durationDays < 0) {
+    errors.push('Duration must be at least 0 days')
+    durationDays = 0
+    endDate = new Date(startDate!)
   }
 
   const task: TimelineTask = {

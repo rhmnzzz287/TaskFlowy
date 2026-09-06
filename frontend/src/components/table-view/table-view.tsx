@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { TimelineTask } from '@/lib/schema'
+import { formatDateDisplay, deadlineBadge } from '@/lib/parser/date-grammar'
 import { CheckCircle2, AlertCircle, Diamond, Flame, ArrowUpDown, Pencil } from 'lucide-react'
 
 interface TableViewProps {
@@ -84,6 +85,7 @@ export function TableView({ tasks, onSelectTask, selectedTaskId, onTasksChange }
       <div className="flex-1 overflow-y-auto divide-y divide-border/30">
         {sorted.map((t, i) => {
           const badge = statusBadge(t)
+          const badgeDeadline = deadlineBadge(t.end)
           return (
             <div
               key={t.id}
@@ -107,8 +109,13 @@ export function TableView({ tasks, onSelectTask, selectedTaskId, onTasksChange }
               <div className="w-20 text-center shrink-0 text-text-dim font-mono text-[12px] truncate px-1">
                 {t.assignee || '-'}
               </div>
-              <div className="w-24 text-center shrink-0 text-text-dim font-mono text-[12px]">{t.start}</div>
-              <div className="w-24 text-center shrink-0 text-text-dim font-mono text-[12px]">{t.end}</div>
+              <div className="w-24 text-center shrink-0 font-mono text-[12px] text-text-dim">{formatDateDisplay(t.start)}</div>
+              <div className="w-24 text-center shrink-0 font-mono text-[12px]">
+                <span className="text-text-dim">{formatDateDisplay(t.end)}</span>
+                {badgeDeadline && (
+                  <span className={`ml-1 px-1 rounded text-[9px] font-semibold ${badgeDeadline.cls}`}>{badgeDeadline.label}</span>
+                )}
+              </div>
               <div className="w-16 text-center shrink-0">
                 <span className={`font-mono text-[12px] ${t.isMilestone ? 'text-milestone' : 'text-text-dim'}`}>
                   {t.isMilestone ? '◆' : `${t.durationDays}d`}

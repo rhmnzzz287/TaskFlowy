@@ -28,6 +28,10 @@ export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
   const scrollRef = useRef<HTMLDivElement>(null)
   const [loading, setLoading] = useState(true)
   const lastRenderRef = useRef<string>('')
+  // Scroll the first paint onto the action: only when the task SET changes
+  // (generate/template/load), never on date-drags — otherwise every drag
+  // would yank the viewport back to day one.
+  const lastTaskSigRef = useRef<string>('')
 
   const handleDateChange = useCallback(
     (id: string, newStart: Date, newEnd: Date) => {
@@ -58,11 +62,15 @@ export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
     scrollToToday: () => {
       const el = scrollRef.current
       if (!el) return
-      // Find today-highlight rect inside the gantt SVG
-      const today = el.querySelector('.today-highlight') as SVGRectElement
+      // frappe-gantt v1.2 renders today as a DOM overlay div (.current-highlight)
+      // positioned with inline left/top/height — not an SVG .today-highlight rect.
+      const today = el.querySelector('.current-highlight') as HTMLElement | null
       if (today) {
-        const x = today.getBBox().x
-        el.scrollLeft = Math.max(0, x - el.clientWidth / 3)
+        const x = today.offsetLeft
+        el.scrollTo({
+          left: Math.max(0, x - el.clientWidth / 2 + 50),
+          behavior: 'smooth',
+        })
       }
     },
     getContainer: () => scrollRef.current,
@@ -74,7 +82,7 @@ export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
     if (!el) return
 
     const ganttTasks = toGanttTasks(tasks, selectedAssignees)
-    const renderKey = JSON.stringify([ganttTasks.map(t => [t.id, t.start, t.end]), viewMode, showCritical])
+    const renderKey = JSON.stringify([ganttTasks.map(t => [t.id, t.start, t.end, t.dependencies || '']), viewMode, showCritical])
 
     if (renderKey === lastRenderRef.current) {
       setLoading(false)
@@ -93,6 +101,7 @@ export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
     setLoading(true)
 
     let cancelled = false
+    const taskSig = JSON.stringify([ganttTasks.map(t => t.id), viewMode])
     initGantt({
       element: el,
       tasks: ganttTasks,
@@ -100,13 +109,39 @@ export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
       onClick: handleClick,
       viewMode,
     }).then(
-      () => {
+      (gantt) => {
         if (!cancelled) {
           setLoading(false)
           applyDarkTheme(showCritical)
+          if (gantt && taskSig !== lastTaskSigRef.current) {
+            lastTaskSigRef.current = taskSig
+            // frappe-gantt v1.2.2 pads gantt_start ~3 weeks before the first
+            // task; without its own stylesheet its internal scroll_to is a
+            // no-op here, so first paint showed only empty grid columns.
+            // Scroll our wrapper onto the first bar (fallback: today marker).
+            const scale = 0.6 + (zoom - 1) * 0.2
+            requestAnimationFrame(() => {
+              const wrapper = scrollRef.current
+              if (!wrapper) return
+              let x: number | null = null
+              const firstBar = el.querySelector('.bar-wrapper .bar') as SVGRectElement | null
+              if (firstBar) x = parseFloat(firstBar.getAttribute('x') || '')
+              if (!Number.isFinite(x as number | null)) {
+                const today = el.querySelector('.current-highlight') as HTMLElement | null
+                if (today) x = today.offsetLeft
+              }
+              if (x !== null && Number.isFinite(x)) wrapper.scrollLeft = Math.max(0, x * scale - 40)
+            })
+          }
         }
       },
-    )
+    ).catch((e) => {
+      if (!cancelled) {
+        setLoading(false)
+        console.error('Gantt render failed:', e)
+        el.innerHTML = `<div class="flex items-center justify-center h-40 text-error text-[13px]">Chart gagal dirender: ${(e as Error)?.message || e}</div>`
+      }
+    })
 
     return () => {
       cancelled = true
@@ -140,7 +175,6 @@ function applyDarkTheme(showCritical: boolean) {
       --bar-color: #0D9488;
       --bar-progress-color: #14B8A6;
       --bar-stroke: #0D9488;
-      --today-color: #4F46E5;
       border: none !important;
     }
     .gantt .grid-background { fill: #0F172A !important; }
@@ -149,7 +183,8 @@ function applyDarkTheme(showCritical: boolean) {
     .gantt .grid-row:nth-child(even) { fill: #131B2E !important; }
     .gantt .row-line { stroke: #334155 !important; }
     .gantt .tick { stroke: #334155 !important; }
-    .gantt .today-highlight { fill: #4F46E5 !important; opacity: 0.12 !important; }
+    /* Today marker styling lives in globals.css (.gantt-container .current-highlight) */
+    .gantt .arrow { stroke: #64748B !important; fill: none !important; }
     .gantt .bar-label, .gantt .bar-label.big { fill: #E2E8F0 !important; font-size: 11px !important; font-weight: 500; }
     .gantt .lower-text, .gantt .upper-text { fill: #A8B5C8 !important; font-size: 10px !important; font-weight: 600; letter-spacing: 0.05em; }
     .gantt .bar-wrapper .bar { fill: #0D9488 !important; stroke: #14B8A6 !important; }

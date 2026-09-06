@@ -31,7 +31,12 @@ check('duration 3 hari', dur.ok && dur.days === 3)
 check('duration 1 minggu', parseDuration('1 minggu').ok)
 check('bare number', parseDuration('5').ok)
 check('empty rejected', !parseDuration('').ok)
-check('zero rejected', !parseDuration('0 hari').ok)
+// Plan-3 Task 3: 0-duration is now a valid milestone checkpoint (days === 0),
+// while a negative/absent count remains invalid.
+const zeroRes = parseDuration('0 hari')
+check('zero = milestone', zeroRes.ok && zeroRes.days === 0)
+check('milestone keyword', parseDuration('milestone').ok)
+check('negative rejected', !parseDuration('-1 hari').ok)
 
 // row-parser: FR-02 workflow example
 const rows = [

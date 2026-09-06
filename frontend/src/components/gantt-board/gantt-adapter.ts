@@ -5,14 +5,22 @@ export function toGanttTasks(tasks: TimelineTask[], selectedAssignees: string[])
     ? tasks.filter(t => t.assignee && selectedAssignees.includes(t.assignee))
     : tasks
 
-  return filtered.map(t => ({
-    id: t.id,
-    name: t.assignee ? `${t.name} [${t.assignee}]` : t.name,
-    start: t.start,
-    end: t.end,
-    progress: t.progress ?? 0,
-    custom_class: t.isCritical ? 'bar-critical' : t.isMilestone ? 'bar-milestone' : '',
-  }))
+  // Resolve predecessor NAMES (row editor binds dependsOn by name) to the task
+  // IDs actually rendered in this chart; deps whose target was filtered out are
+  // dropped so Frappe never references a missing node.
+  const nameToId = new Map(filtered.map(t => [t.name, t.id]))
+  return filtered.map(t => {
+    const sourceId = t.dependsOn ? nameToId.get(t.dependsOn) : undefined
+    return {
+      id: t.id,
+      name: t.assignee ? `${t.name} [${t.assignee}]` : t.name,
+      start: t.start,
+      end: t.end,
+      progress: t.progress ?? 0,
+      dependencies: sourceId && sourceId !== t.id ? sourceId : '',
+      custom_class: t.isCritical ? 'bar-critical' : t.isMilestone ? 'bar-milestone' : '',
+    }
+  })
 }
 
 export interface GanttOptions {
@@ -29,9 +37,7 @@ export async function initGantt(opts: GanttOptions): Promise<any | null> {
   const { element, tasks, onDateChange, onClick, viewMode } = opts
 
   try {
-    const ganttTasks = tasks.map(t => ({ ...t, dependencies: '' }))
-
-    const gantt = new FrappeGantt(element, ganttTasks, {
+    const gantt = new FrappeGantt(element, tasks, {
       view_mode: viewMode || 'Week',
       date_format: 'YYYY-MM-DD',
       bar_height: 28,

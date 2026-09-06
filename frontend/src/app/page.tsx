@@ -3,14 +3,16 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import {
   Play, Download, Image, Share2, ChevronLeft, ChevronRight, ZoomIn, ZoomOut,
-  BarChart3, Table2, GitBranch, Loader2, FileText, ImageDown, Copy, Check,
+  BarChart3, Table2, GitBranch, Loader2, FileText, ImageDown, Copy, Check, Trash2, Printer,
 } from 'lucide-react'
 import { RowEditor } from '@/components/task-input/row-editor'
 import { RawTextEditor } from '@/components/task-input/raw-text-editor'
+import { BulkShiftPopover } from '@/components/task-input/bulk-shift-popover'
 import { ReviewTable } from '@/components/parse-review/review-table'
 import { AssigneeFilter } from '@/components/assignee-filter/filter-bar'
 import { GanttBoard } from '@/components/gantt-board/gantt-board'
 import { LegendBar } from '@/components/ui/legend-bar'
+import { ProjectMetricsStrip } from '@/components/ui/project-metrics-strip'
 import { AmbiguityAlert } from '@/components/ui/ambiguity-alert'
 import { ParseTelemetryBar } from '@/components/ui/parse-telemetry-bar'
 import { TableView } from '@/components/table-view/table-view'
@@ -24,16 +26,18 @@ import {
   createRowId, createDepId, todayRef, DEFAULT_TIMEZONE,
   computeCriticalPath, detectCycles,
 } from '@/lib/schema'
-import { parseRows } from '@/lib/parser/row-parser'
-import { parseRawText, tasksToRawText } from '@/lib/format/raw-text'
+import { parseRawText, tasksToRawText, rowsToRawText } from '@/lib/format/raw-text'
+import { parseRows, type BatchParseResult } from '@/lib/parser/row-parser'
+import { parseDate, formatDateISO } from '@/lib/parser/date-grammar'
 import { encodeRowsToHash, decodeHashToRows, pushHash } from '@/lib/url-state'
 import { exportGanttPNG, exportGanttSVG } from '@/lib/visual-exporter'
+import { generateChatSummary } from '@/lib/format/text-summary'
 import { useDrafts } from '@/hooks/use-drafts'
 
 type InputMode = 'raw' | 'table'
 
 export default function Home() {
-  const { saveDraft, listDrafts } = useDrafts()
+  const { saveDraft, loadDraft, listDrafts, deleteDraft, currentDraftId, setCurrentDraftId } = useDrafts()
   const [inputMode, setInputMode] = useState<InputMode>('raw')
   const [rawText, setRawText] = useState('')
   const [inputRows, setInputRows] = useState<ParseRowState[]>([
@@ -43,6 +47,7 @@ export default function Home() {
   const [dependencies, setDependencies] = useState<TimelineDependency[]>([])
   const [warnings, setWarnings] = useState<string[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [parseErrors, setParseErrors] = useState<string[]>([])
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([])
   const [hasGenerated, setHasGenerated] = useState(false)
   const [isParsing, setIsParsing] = useState(false)
@@ -52,90 +57,136 @@ export default function Home() {
   const [showCritical, setShowCritical] = useState(true)
   const [zoom, setZoom] = useState(3)
   const [copiedLink, setCopiedLink] = useState(false)
+  const [drafts, setDrafts] = useState<ReturnType<typeof listDrafts>>([])
+  const [showDrafts, setShowDrafts] = useState(false)
   const ganttRef = useRef<GanttBoardHandle>(null)
+  const restoredRef = useRef(false)
+  const [copiedSummary, setCopiedSummary] = useState(false)
 
-  // On mount: restore from URL hash or autosave
+  // On mount: restore from URL hash, else from latest autosave draft.
   useEffect(() => {
+    if (restoredRef.current) return
+    restoredRef.current = true
+    let rows: ParseRowState[] | null = null
     const hashRows = decodeHashToRows()
     if (hashRows && hashRows.length > 0) {
-      const restored = hashRows.map(r => ({ id: createRowId(), ...r })) as ParseRowState[]
-      setInputRows(restored)
-      setRawText(tasksToRawText([]))
+      rows = hashRows.map(r => ({ id: createRowId(), ...r })) as ParseRowState[]
+    } else {
+      const list = listDrafts()
+      if (list.length > 0) rows = loadDraft(list[0].id)
     }
-  }, [])
-
-  // Build raw text from rows when in table mode
-  const syncRawFromRows = useCallback((rows: ParseRowState[]) => {
-    if (inputMode === 'table') {
-      setRawText(rows.map(r => `${r.name || '-'} | ${r.assignee} | ${r.start} | ${r.duration} | ${r.end}`).join('\n'))
+    if (rows && rows.length > 0) {
+      setInputRows(rows)
+      setRawText(rowsToRawText(rows))
+      // auto-render effect will pick this up and render the timeline
     }
-  }, [inputMode])
+  }, [listDrafts, loadDraft]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Parse rows — either from raw text or from row editor
+  // Core parse logic — runs against provided rows.
+  // silent = background auto-update: renders on success, never flashes the error banner.
+  const runParse = useCallback((rows: ParseRowState[], silent = false) => {
+    const referenceDate = todayRef()
+    const parseInputs = rows.map(r => ({
+      name: r.name,
+      assignee: r.assignee || null,
+      start: r.start,
+      duration: r.duration || null,
+      end: r.end || null,
+    }))
+    const result = parseRows(parseInputs, referenceDate)
+    const errMap: Record<string, string> = {}
+    const errList: string[] = []
+    for (const [idx, errs] of Object.entries(result.errors)) {
+      errList.push(`Baris ${+idx + 1}: ${errs[0]}`)
+      const rowId = rows[parseInt(idx)]?.id
+      if (rowId) errMap[rowId] = errs[0]
+    }
+    if (!silent) setParseErrors(errList)
+    setErrors(errMap)
+
+    if (errList.length === 0) {
+      const deps: TimelineDependency[] = []
+      const nameToId = new Map(result.tasks.map(t => [t.name, t.id]))
+      rows.forEach((r, i) => {
+        const depName = r.dependsOn?.trim()
+        if (depName && nameToId.has(depName) && i < result.tasks.length) {
+          deps.push({ id: createDepId(), sourceId: nameToId.get(depName)!, targetId: result.tasks[i].id, type: 'FS' })
+        }
+      })
+      const tasksWithMeta = result.tasks.map((t, i) => ({
+        ...t,
+        progress: parseInt(rows[i]?.progress || '0'),
+        isMilestone: t.durationDays === 0,
+        status: 'in-progress' as const,
+        dependsOn: rows[i]?.dependsOn?.trim() || null,
+      }))
+      const criticalIds = computeCriticalPath(tasksWithMeta, deps)
+      const cycles = detectCycles(tasksWithMeta, deps)
+      setTasks(tasksWithMeta.map(t => ({
+        ...t,
+        isCritical: criticalIds.has(t.id),
+        color: criticalIds.has(t.id) ? '#EA580C' : undefined,
+      })))
+      setDependencies(deps)
+      setWarnings([...result.warnings, ...cycles])
+      setHasGenerated(true)
+      saveDraft(rows)
+      return true
+    }
+    return false
+  }, [saveDraft])
+
+  // --- Live auto-render: any input change updates the Gantt (debounced) ---
+  const autoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => {
+    if (autoTimerRef.current) clearTimeout(autoTimerRef.current)
+    autoTimerRef.current = setTimeout(() => {
+      const rows = inputMode === 'raw' ? (rawText.trim() ? parseRawText(rawText) : []) : inputRows
+      if (rows.length === 0) return
+      runParse(rows, true) // silent best-effort
+    }, 350)
+    return () => { if (autoTimerRef.current) clearTimeout(autoTimerRef.current) }
+  }, [rawText, inputRows, inputMode, runParse])
+
+  // --- Explicit user actions show validation feedback + loading ---
   const handleParse = useCallback(() => {
     setIsParsing(true)
     window.setTimeout(() => {
-      // If in raw mode, convert raw text to rows first
-      let rows = inputRows
-      if (inputMode === 'raw' && rawText.trim()) {
-        rows = parseRawText(rawText)
-        setInputRows(rows)
-      }
-      const referenceDate = todayRef()
-      const parseInputs = rows.map(r => ({
-        name: r.name,
-        assignee: r.assignee || null,
-        start: r.start,
-        duration: r.duration || null,
-        end: r.end || null,
-      }))
-      const result = parseRows(parseInputs, referenceDate)
-      const errMap: Record<string, string> = {}
-      for (const [idx, errs] of Object.entries(result.errors)) {
-        const rowId = rows[parseInt(idx)]?.id
-        if (rowId) errMap[rowId] = errs[0]
-      }
-      setErrors(errMap)
-      if (Object.keys(errMap).length === 0) {
-        const deps: TimelineDependency[] = []
-        const nameToId = new Map(result.tasks.map(t => [t.name, t.id]))
-        rows.forEach((r, i) => {
-          const depName = r.dependsOn?.trim()
-          if (depName && nameToId.has(depName) && i < result.tasks.length) {
-            deps.push({ id: createDepId(), sourceId: nameToId.get(depName)!, targetId: result.tasks[i].id, type: 'FS' })
-          }
-        })
-        const tasksWithMeta = result.tasks.map((t, i) => ({
-          ...t,
-          progress: parseInt(rows[i]?.progress || '0'),
-          isMilestone: t.durationDays === 0,
-          status: 'in-progress' as const,
-        }))
-        const criticalIds = computeCriticalPath(tasksWithMeta, deps)
-        const cycles = detectCycles(tasksWithMeta, deps)
-        setTasks(tasksWithMeta.map(t => ({
-          ...t,
-          isCritical: criticalIds.has(t.id),
-          color: criticalIds.has(t.id) ? '#EA580C' : undefined,
-        })))
-        setDependencies(deps)
-        setWarnings([...result.warnings, ...cycles])
-        setHasGenerated(true)
-        // Autosave draft
-        saveDraft(rows)
-      }
+      const rows = inputMode === 'raw' && rawText.trim() ? parseRawText(rawText) : inputRows
+      if (inputMode === 'raw' && rawText.trim()) setInputRows(rows)
+      runParse(rows, false)
       setIsParsing(false)
     }, 30)
-  }, [inputRows, rawText, inputMode, saveDraft])
+  }, [inputRows, rawText, inputMode, runParse])
 
   const handleTemplateSelect = useCallback((rows: ParseRowState[]) => {
     setInputRows(rows)
-    setRawText(rows.map(r => `${r.name} | ${r.assignee} | ${r.start} | ${r.duration} | ${r.end}`).join('\n'))
+    setRawText(rowsToRawText(rows))
     setHasGenerated(false)
     setTasks([])
     setWarnings([])
     setErrors({})
+    setParseErrors([])
   }, [])
+
+  // Draft management — restore previously autosaved rows
+  const refreshDrafts = useCallback(() => setDrafts(listDrafts()), [listDrafts])
+
+  const handleRowsChange = useCallback((next: ParseRowState[]) => {
+    setInputRows(next)
+    setRawText(rowsToRawText(next))
+  }, [])
+
+  const restoreDraft = useCallback((id: string) => {
+    const rows = loadDraft(id)
+    if (!rows) return
+    setInputRows(rows)
+    setRawText(rowsToRawText(rows))
+    setHasGenerated(false)
+    setTasks([])
+    setShowDrafts(false)
+    runParse(rows)
+  }, [loadDraft, runParse])
 
   const handleShareLink = useCallback(() => {
     const hash = encodeRowsToHash(inputRows)
@@ -147,8 +198,56 @@ export default function Home() {
     })
   }, [inputRows])
 
+  const handleCopySummary = useCallback(() => {
+    if (tasks.length === 0) return
+    const text = generateChatSummary(tasks, 'Timeline Proyek')
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedSummary(true)
+      setTimeout(() => setCopiedSummary(false), 2000)
+    })
+  }, [tasks])
+
+  // Bulk shift: move every row's start/end by N days (relative offsets kept).
+  // Source of truth follows input mode (same contract as handleParse): in raw
+  // mode the authoritative text is rawText, NOT the possibly-stale inputRows.
+  const handleShiftDates = useCallback((delta: number) => {
+    const ref = todayRef()
+    const sourceRows = inputMode === 'raw' && rawText.trim() ? parseRawText(rawText) : inputRows
+    const move = (v: string) => {
+      const res = parseDate(v, ref)
+      if (!res.ok) return v
+      const d = new Date(res.value)
+      d.setDate(d.getDate() + delta)
+      return formatDateISO(d)
+    }
+    const shifted = sourceRows.map(r => ({
+      ...r,
+      start: r.start ? move(r.start) : r.start,
+      end: r.end ? move(r.end) : r.end,
+    }))
+    setInputRows(shifted)
+    setRawText(rowsToRawText(shifted))
+    runParse(shifted)
+  }, [inputMode, rawText, inputRows, runParse])
+
+  // 1-click executive report: native print dialog saves as clean A4 landscape PDF
+  // (layout rules live in globals.css @media print).
+  const handlePrint = useCallback(() => window.print(), [])
+
   const handleTasksChange = useCallback((updated: TimelineTask[]) => {
     setTasks(updated)
+    // Two-way bridge: Gantt drag / inspector edits sync back to editable rows + raw text
+    const nextRows: ParseRowState[] = updated.map(t => ({
+      id: t.id,
+      name: t.name,
+      assignee: t.assignee || '',
+      start: t.start.slice(0, 10),
+      duration: `${t.durationDays} hari`,
+      end: t.end.slice(0, 10),
+      dependsOn: t.dependsOn || '',
+    }))
+    setInputRows(nextRows)
+    setRawText(tasksToRawText(updated))
   }, [])
 
   const handleSelectTask = useCallback((taskId: string) => {
@@ -191,13 +290,64 @@ export default function Home() {
           {hasGenerated && (
             <>
               <span className="text-muted text-[12px] font-mono">{tasks.length} tasks</span>
-              <button className="btn-secondary text-[11px]" onClick={exportGanttPNG} title="Export PNG">
-                <Image size={13} /> PNG
-              </button>
-              <button className="btn-secondary text-[11px]" onClick={exportGanttSVG} title="Export SVG">
-                <ImageDown size={13} /> SVG
-              </button>
+              {view === 'gantt' && (
+                <>
+                  <button className="btn-secondary text-[11px]" onClick={() => { exportGanttPNG().catch(() => alert('Export gagal: chart belum siap')) }} title="Export PNG">
+                    <Image size={13} /> PNG
+                  </button>
+                  <button className="btn-secondary text-[11px]" onClick={() => { exportGanttSVG().catch(() => alert('Export gagal: chart belum siap')) }} title="Export SVG">
+                    <ImageDown size={13} /> SVG
+                  </button>
+                </>
+              )}
+              {/* Draft history dropdown */}
+              <div className="relative">
+                <button className="btn-secondary text-[11px]"
+                  onClick={() => { refreshDrafts(); setShowDrafts(s => !s) }}>
+                  <FileText size={13} /> Draft
+                </button>
+                {showDrafts && (
+                  <div className="absolute right-0 top-9 w-64 bg-surface border border-border rounded-lg shadow-xl z-50 py-1">
+                    <p className="label px-3 py-1.5">5 draf terakhir (autosave)</p>
+                    {drafts.length === 0 && <p className="text-muted text-[12px] px-3 py-2">Belum ada draf.</p>}
+                    {drafts.map(d => (
+                      <div key={d.id} className={`flex items-center justify-between px-3 py-1.5 hover:bg-surface-hi/40 ${d.id === currentDraftId ? 'bg-primary/10' : ''}`}>
+                        <button className="flex-1 text-left min-w-0" onClick={() => restoreDraft(d.id)}>
+                          <span className="block text-[12px] text-text-primary truncate">{d.name}</span>
+                          <span className="block text-[10px] text-muted">{d.taskCount} task · {new Date(d.savedAt).toLocaleTimeString('id-ID', { hour12: false })}</span>
+                        </button>
+                        <button className="text-muted hover:text-error p-1" onClick={() => { deleteDraft(d.id); refreshDrafts() }} aria-label={`Hapus draf ${d.name}`}>
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </>
+          )}
+          {hasGenerated && (
+            <BulkShiftPopover onShift={handleShiftDates} />
+          )}
+          {hasGenerated && (
+            <button
+              className="btn-secondary text-[12px] h-7 gap-1"
+              onClick={handleCopySummary}
+              title="Salin ringkasan jadwal untuk Slack / WhatsApp"
+            >
+              {copiedSummary ? <Check size={13} className="text-completed" /> : <FileText size={13} />}
+              <span>{copiedSummary ? 'Copied!' : 'Copy Summary'}</span>
+            </button>
+          )}
+          {hasGenerated && (
+            <button
+              className="btn-secondary text-[12px] h-7 gap-1"
+              onClick={handlePrint}
+              title="Cetak / simpan sebagai PDF (A4 landscape)"
+            >
+              <Printer size={13} />
+              <span>Print PDF</span>
+            </button>
           )}
           <button className="btn-secondary text-[11px]" onClick={handleShareLink} title="Copy share link">
             {copiedLink ? <Check size={13} className="text-completed" /> : <Copy size={13} />}
@@ -228,8 +378,8 @@ export default function Home() {
 
         {/* === CONTENT === */}
         <div className="flex-1 flex flex-col min-w-0">
-          {/* --- Input area: Raw Text / Table tabs --- */}
-          <section className="bg-surface-dim border-b border-border">
+          {/* --- Input area: Raw Text / Table tabs (capped so the chart never gets squeezed out) --- */}
+          <section className="bg-surface-dim border-b border-border max-h-[42vh] overflow-y-auto no-print">
             <div className="flex items-center justify-between px-3 py-1.5">
               <div className="flex items-center gap-1 bg-surface-hi/30 rounded overflow-hidden">
                 <button
@@ -252,10 +402,22 @@ export default function Home() {
                   onParse={handleParse}
                 />
               ) : (
-                <RowEditor rows={inputRows} onChange={(r) => { setInputRows(r); syncRawFromRows(r) }} errors={errors} />
+                <RowEditor rows={inputRows} onChange={handleRowsChange} errors={errors} />
               )}
             </div>
           </section>
+
+          {/* --- Parse error feedback (visible in raw + table modes) --- */}
+          {parseErrors.length > 0 && (
+            <div className="bg-error/10 border-b border-error/30 px-3 py-2">
+              <p className="text-error text-[12px] font-semibold mb-1">
+                {parseErrors.length} error parsing — perbaiki baris berikut:
+              </p>
+              <ul className="text-error text-[11px] space-y-0.5">
+                {parseErrors.map((e, i) => <li key={i}>• {e}</li>)}
+              </ul>
+            </div>
+          )}
 
           {/* --- Ambiguity/validation alert --- */}
           {hasGenerated && warnings.length > 0 && (
@@ -263,7 +425,7 @@ export default function Home() {
           )}
 
           {/* --- Timeline controls toolbar --- */}
-          <div className="h-10 bg-surface border-b border-border flex items-center justify-between px-3 shrink-0">
+          <div className="h-10 bg-surface border-b border-border flex items-center justify-between px-3 shrink-0 no-print">
             <div className="flex items-center gap-2">
               <div className="hidden md:flex items-center bg-surface-hi/30 rounded overflow-hidden">
                 {(['Day', 'Week', 'Month'] as const).map(m => (
@@ -299,11 +461,14 @@ export default function Home() {
             </div>
           </div>
 
+          {/* --- Project health strip (above Gantt, market-facing summary) --- */}
+          {hasGenerated && view === 'gantt' && <ProjectMetricsStrip tasks={tasks} />}
+
           {/* --- Master-detail workspace --- */}
           {view === 'gantt' ? (
           <div className="flex-1 flex min-h-0">
             {hasGenerated && (
-              <div className="w-[390px] xl:w-[420px] shrink-0 border-r border-border bg-surface/30 flex flex-col">
+              <div className="w-[390px] xl:w-[420px] shrink-0 border-r border-border bg-surface/30 flex flex-col no-print">
                 <ReviewTable tasks={tasks} warnings={[]} compact onSelectTask={handleSelectTask} selectedTaskId={selectedTaskId} />
               </div>
             )}
@@ -355,6 +520,7 @@ export default function Home() {
         {/* === INSPECTOR DRAWER === */}
         {selectedTask && (
           <InspectorDrawer
+            key={selectedTask.id}
             task={selectedTask}
             onClose={handleCloseInspector}
             onUpdate={handleUpdateTaskFromInspector}

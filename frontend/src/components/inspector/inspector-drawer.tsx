@@ -3,8 +3,10 @@
 import { useState, useCallback } from 'react'
 import { X, Trash2 } from 'lucide-react'
 import { TimelineTask } from '@/lib/schema'
-import { formatDateISO } from '@/lib/parser/date-grammar'
+import { parseDate, formatDateISO } from '@/lib/parser/date-grammar'
+import { parseDuration } from '@/lib/parser/duration-grammar'
 import { dateDiffDays } from '@/lib/schema'
+import { DurationInput } from '@/components/task-input/duration-input'
 
 interface InspectorDrawerProps {
   task: TimelineTask
@@ -19,25 +21,45 @@ export function InspectorDrawer({ task, onClose, onUpdate, onDelete }: Inspector
   const [start, setStart] = useState(task.start)
   const [end, setEnd] = useState(task.end)
   const [progress, setProgress] = useState(task.progress ?? 0)
+  const [duration, setDuration] = useState(`${task.durationDays} hari`)
+
+  // Editing duration re-derives the end date (start + days - 1), mirroring the
+  // deterministic auto-compute used in the row editor. Manual End edits stay
+  // authoritative — handleApply recomputes durationDays from the date range.
+  const handleDurationChange = useCallback((val: string) => {
+    setDuration(val)
+    const res = parseDuration(val)
+    const s = parseDate(start, new Date().toISOString().slice(0, 10))
+    if (res.ok && s.ok) {
+      const e = new Date(s.value)
+      e.setDate(e.getDate() + Math.max(0, res.days - 1))
+      setEnd(formatDateISO(e))
+    }
+  }, [start])
 
   const handleApply = useCallback(() => {
     const s = new Date(start)
     const e = new Date(end)
-    const duration = Math.max(1, dateDiffDays(s, e))
+    const durRes = parseDuration(duration)
+    // Preserve 0-day milestones: end==start alone cannot distinguish them
+    // from a genuine 1-day task, so trust the explicit duration input.
+    const durationDays = durRes.ok && durRes.days === 0
+      ? 0
+      : Math.max(1, dateDiffDays(s, e))
     onUpdate({
       ...task,
       name,
       assignee: assignee || null,
       start: formatDateISO(s),
       end: formatDateISO(e),
-      durationDays: duration,
+      durationDays,
       progress,
     })
     onClose()
-  }, [task, name, assignee, start, end, progress, onUpdate, onClose])
+  }, [task, name, assignee, start, end, duration, progress, onUpdate, onClose])
 
   return (
-    <div className="w-[330px] bg-surface border-l border-border flex flex-col shrink-0 z-30 shadow-xl overflow-hidden">
+    <div className="w-[330px] bg-surface border-l border-border flex flex-col shrink-0 z-30 shadow-xl overflow-hidden no-print">
       {/* Drawer header */}
       <div className="h-12 bg-surface/80 px-3 flex items-center justify-between border-b border-border">
         <div className="flex items-center gap-2 min-w-0">
@@ -66,7 +88,12 @@ export function InspectorDrawer({ task, onClose, onUpdate, onDelete }: Inspector
           </div>
           <div className="flex flex-col gap-1">
             <label className="label">Duration</label>
-            <span className="w-full bg-surface-hi/20 rounded px-2.5 py-1.5 text-[13px] text-text-primary font-mono">{task.durationDays} days</span>
+            <DurationInput
+              error={!parseDuration(duration).ok}
+              value={duration}
+              onChange={handleDurationChange}
+              className="bg-surface-hi/20 rounded px-2.5 py-1.5 text-[13px] font-mono"
+            />
           </div>
         </div>
 
