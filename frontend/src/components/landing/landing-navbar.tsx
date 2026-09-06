@@ -6,6 +6,7 @@ import { ArrowRight, ShieldCheck } from 'lucide-react'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { LanguageSwitcher } from '@/components/ui/language-switcher'
 import { Logo } from '@/components/ui/logo'
+import { UserButton } from '@/components/auth/user-button'
 import { useTranslation } from '@/lib/i18n/context'
 
 export function LandingNavbar() {
@@ -36,6 +37,7 @@ export function LandingNavbar() {
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
           <ThemeToggle />
+          <UserButton />
           <Link
             href="/app"
             className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1.5 shadow-sm hover:shadow transition-all"

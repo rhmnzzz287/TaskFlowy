@@ -1,0 +1,11 @@
+{
+  "name": "taskflowy",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TaskFlowy monorepo — run frontend and backend separately.",
+  "scripts": {
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix backend && npm run build --prefix frontend"
+  }
+}

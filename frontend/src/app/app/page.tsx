@@ -36,6 +36,7 @@ import { decodeHashToRows } from '@/lib/url-state'
 import { useDrafts } from '@/hooks/use-drafts'
 import { ProfileDashboardModal } from '@/components/profile/profile-dashboard-modal'
 import { AvatarIcon } from '@/components/profile/avatar-icon'
+import { UserButton } from '@/components/auth/user-button'
 import { loadUserProfile } from '@/lib/profile-store'
 
 export default function Home() {
@@ -391,6 +392,7 @@ export default function Home() {
           </button>
           <LanguageSwitcher />
           <ThemeToggle />
+          <UserButton />
         </div>
       </header>
 

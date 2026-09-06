@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Zap, CheckCircle2, RotateCcw, Store, Briefcase, Lightbulb, FileText, Table2, GitBranch, ChevronLeft, ChevronRight, Clock, Megaphone, Calendar, Lock } from 'lucide-react'
+import { ArrowRight, CheckCircle2, RotateCcw, Store, Briefcase, Lightbulb, FileText, Table2, GitBranch, ChevronLeft, ChevronRight, Clock, Megaphone, Calendar, Lock } from 'lucide-react'
 import { parseRawText, rowsToRawText } from '@/lib/format/raw-text'
 import { parseRows } from '@/lib/parser/row-parser'
 import { encodeRowsToHash } from '@/lib/url-state'
@@ -335,10 +335,6 @@ export function HeroPlayground() {
     <section id="playground" className="relative pt-12 pb-16 px-4 sm:px-6 max-w-6xl mx-auto">
       {/* Hero Headline */}
       <div className="text-center max-w-3xl mx-auto mb-10">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-primary/10 border border-primary/20 text-primary text-xs font-semibold mb-4">
-          <Zap size={13} />
-          <span>{t.hero.pillBadge}</span>
-        </div>
         <h1 className="text-3xl sm:text-5xl font-extrabold text-text-primary tracking-tight leading-tight">
           {t.hero.titlePart1} <br className="hidden sm:inline" />
           <span className="text-primary">{t.hero.titlePart2}</span>

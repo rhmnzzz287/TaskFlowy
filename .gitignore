@@ -2,3 +2,16 @@ node_modules/
 .next/
 *.zip
 .hermes/
+
+# better-auth local SQLite + secrets (per-environment)
+frontend/data/
+backend/data/
+backend/dist/
+backend/.env
+*.db
+*.db-shm
+*.db-wal
+frontend/.env.local
+frontend/.env.*.local
+
+docs/

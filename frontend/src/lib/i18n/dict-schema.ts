@@ -9,7 +9,6 @@ export interface TranslationDictionary {
     backToHome: string
   }
   hero: {
-    pillBadge: string
     titlePart1: string
     titlePart2: string
     description: string
@@ -119,5 +118,28 @@ export interface TranslationDictionary {
     viewDependency: string
     zoomIn: string
     zoomOut: string
+  }
+  auth: {
+    signInTitle: string
+    signInSubtitle: string
+    signUpTitle: string
+    signUpSubtitle: string
+    nameLabel: string
+    namePlaceholder: string
+    emailLabel: string
+    passwordLabel: string
+    passwordPlaceholder: string
+    passwordPlaceholderSignUp: string
+    signInButton: string
+    signUpButton: string
+    signOut: string
+    signInFailed: string
+    signUpFailed: string
+    genericError: string
+    haveAccount: string
+    signInLink: string
+    noAccount: string
+    signUpLink: string
+    backHome: string
   }
 }
