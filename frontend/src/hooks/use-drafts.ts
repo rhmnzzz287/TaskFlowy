@@ -33,6 +33,18 @@ function saveStore(store: DraftStore) {
   } catch { /* quota */ }
 }
 
+// crypto.randomUUID() only exists in secure contexts (https / localhost).
+// Without this guard, autosave throws on plain-http hosts and the pending
+// parse/render cycle surfaces an uncaught error.
+function safeDraftId(): string {
+  try {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID().slice(0, 8)
+    }
+  } catch { /* fall through */ }
+  return `${Date.now().toString(36)}-${Math.floor(Math.random() * 0xffffff).toString(36)}`
+}
+
 export function useDrafts() {
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null)
 
@@ -46,7 +58,7 @@ export function useDrafts() {
 
   const saveDraft = useCallback((rows: ParseRowState[]) => {
     const store = loadStore()
-    const id = currentDraftId || crypto.randomUUID().slice(0, 8)
+    const id = currentDraftId || safeDraftId()
     const name = rows.find(r => r.name.trim())?.name.trim().slice(0, 40) || 'Untitled'
     const existing = store.drafts.find(d => d.id === id)
     const meta: DraftMeta = {

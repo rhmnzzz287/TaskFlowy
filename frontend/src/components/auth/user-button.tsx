@@ -53,7 +53,13 @@ export function UserButton() {
   const label = user.name || user.email;
 
   async function handleSignOut() {
-    await authClient.signOut();
+    // Backend may be unreachable (frontend-only dev) — sign out locally
+    // regardless so the user is never stuck on a dead button.
+    try {
+      await authClient.signOut();
+    } catch {
+      /* proceed to local navigation anyway */
+    }
     setOpen(false);
     router.push('/');
     router.refresh();

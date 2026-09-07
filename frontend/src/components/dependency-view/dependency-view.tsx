@@ -4,7 +4,7 @@ import { useState, useMemo, useRef, useEffect } from 'react'
 import { TimelineTask, TimelineDependency, detectCycles } from '@/lib/schema'
 import { formatDateDisplay } from '@/lib/parser/date-grammar'
 import { taskStatus } from '@/lib/task-status'
-import { GitBranch, AlertTriangle } from 'lucide-react'
+import { GitBranch, AlertTriangle, List } from 'lucide-react'
 
 interface DependencyViewProps {
   tasks: TimelineTask[]
@@ -58,9 +58,19 @@ interface LayoutNode {
   y: number
 }
 
+const DEP_TYPE_LABEL: Record<string, string> = {
+  FS: 'Finish-to-start',
+  SS: 'Start-to-start',
+  FF: 'Finish-to-finish',
+  SF: 'Start-to-finish',
+}
+
 export function DependencyView({ tasks, dependencies, onSelectTask, selectedTaskId }: DependencyViewProps) {
   const [highlightDep, setHighlightDep] = useState<string | null>(null)
   const [pinnedDep, setPinnedDep] = useState<string | null>(null)
+  const [showList, setShowList] = useState(false)
+
+  const nameOf = (id: string): string => tasks.find(t => t.id === id)?.name ?? id
   const scrollBoxRef = useRef<HTMLDivElement>(null)
   const lastTaskSigRef = useRef('')
 
@@ -178,13 +188,54 @@ export function DependencyView({ tasks, dependencies, onSelectTask, selectedTask
           <span className="text-muted">·</span>
           <span className="font-mono">{edges.length} edges</span>
         </div>
-        {cycles.length > 0 && (
-          <div className="flex items-center gap-1.5 text-warning text-[12px]">
-            <AlertTriangle size={14} />
-            {cycles.length} cycle{cycles.length > 1 ? 's' : ''}
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {edges.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowList(s => !s)}
+              aria-expanded={showList}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${showList ? 'bg-primary/20 text-primary' : 'text-muted hover:text-text-primary hover:bg-surface-hi/40'}`}
+              title="Toggle accessible dependency list"
+            >
+              <List size={12} aria-hidden="true" /> List
+            </button>
+          )}
+          {cycles.length > 0 && (
+            <div className="flex items-center gap-1.5 text-warning text-[12px]" role="alert">
+              <AlertTriangle size={14} aria-hidden="true" />
+              {cycles.length} cycle{cycles.length > 1 ? 's' : ''}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Cycle warnings with navigation to affected tasks */}
+      {cycles.length > 0 && (
+        <div className="bg-warning/10 border-b border-warning/30 px-3 py-1.5 flex flex-col gap-1" role="alert">
+          {cycles.map((c, i) => {
+            const ids = Array.from(new Set(c.match(/task-[A-Za-z0-9_-]+/g) ?? []))
+            return (
+              <div key={i} className="flex items-center gap-2 min-w-0 text-[12px]">
+                <AlertTriangle size={12} className="text-warning shrink-0" aria-hidden="true" />
+                <span className="text-text-primary truncate flex-1" title={c}>Dependency cycle detected</span>
+                <span className="flex items-center gap-1 shrink-0">
+                  {ids.map(id => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => onSelectTask?.(id)}
+                      className="px-1.5 py-0.5 rounded bg-warning/15 text-warning text-[11px] font-mono font-semibold hover:bg-warning/25 transition-colors focus-visible:ring-2 focus-visible:ring-warning focus-visible:outline-none"
+                      title={`Open task "${nameOf(id)}"`}
+                    >
+                      {nameOf(id).slice(0, 14)}
+                    </button>
+                  ))}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       {/* Graph canvas */}
       <div ref={scrollBoxRef} className="flex-1 overflow-auto bg-surface-dim/50 relative">
@@ -234,7 +285,12 @@ export function DependencyView({ tasks, dependencies, onSelectTask, selectedTask
                 onMouseEnter={() => setHighlightDep(e.dep.id)}
                 onMouseLeave={() => setHighlightDep(null)}
                 onClick={() => setPinnedDep(p => (p === e.dep.id ? null : e.dep.id))}
-                className="cursor-pointer"
+                onKeyDown={ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); setPinnedDep(p => (p === e.dep.id ? null : e.dep.id)) } }}
+                tabIndex={0}
+                focusable="true"
+                role="button"
+                aria-label={`Dependency: ${nameOf(e.dep.sourceId)} to ${nameOf(e.dep.targetId)}, ${DEP_TYPE_LABEL[e.dep.type] ?? e.dep.type}${e.isCyclic ? ', in a dependency cycle' : ''}`}
+                className="cursor-pointer outline-none focus:outline-2 focus:outline-primary focus:outline-offset-2 focus:rounded"
               >
                 <path
                   d={e.dAttr}
@@ -281,7 +337,9 @@ export function DependencyView({ tasks, dependencies, onSelectTask, selectedTask
                 tabIndex={0}
                 focusable="true"
                 role="button"
-                aria-label={`Task: ${t.name}`}
+                aria-current={isSel ? 'true' : undefined}
+                data-task-id={t.id}
+                aria-label={`Task: ${t.name}, ${formatDateDisplay(t.start)} to ${formatDateDisplay(t.end)}${isSel ? ', selected' : ''}`}
                 className="cursor-pointer outline-none focus:outline-2 focus:outline-primary focus:outline-offset-2 focus:rounded"
               >
                 {/* node body */}
@@ -315,6 +373,28 @@ export function DependencyView({ tasks, dependencies, onSelectTask, selectedTask
         </svg>
         )}
       </div>
+
+      {/* Accessible list fallback: every relationship as text with navigation */}
+      {showList && edges.length > 0 && (
+        <div className="max-h-44 overflow-y-auto border-b border-border bg-surface/40" role="list" aria-label="Dependencies list">
+          <ul className="divide-y divide-border/40">
+            {edges.map(e => {
+              const s = nameOf(e.dep.sourceId)
+              const tg = nameOf(e.dep.targetId)
+              const pinned = pinnedDep === e.dep.id
+              return (
+                <li key={e.dep.id} role="listitem" className={`px-3 py-1.5 flex items-center gap-2 text-[12px] ${pinned ? 'bg-primary/10' : ''}`}>
+                  <button type="button" onClick={() => { setPinnedDep(e.dep.id); onSelectTask?.(e.dep.sourceId) }} className="font-medium text-text-primary hover:text-primary hover:underline truncate focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded" title={`Open source task "${s}"`}>{s}</button>
+                  <span className="text-muted shrink-0" aria-hidden="true">→</span>
+                  <button type="button" onClick={() => { setPinnedDep(e.dep.id); onSelectTask?.(e.dep.targetId) }} className="font-medium text-text-primary hover:text-primary hover:underline truncate focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded" title={`Open target task "${tg}"`}>{tg}</button>
+                  <span className={`ml-auto shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase font-mono ${e.isCyclic ? 'text-warning bg-warning/10' : 'text-muted bg-surface-hi/40'}`} title={DEP_TYPE_LABEL[e.dep.type] ?? e.dep.type}>{e.dep.type}</span>
+                  <span className="sr-only">{DEP_TYPE_LABEL[e.dep.type] ?? e.dep.type}{e.isCyclic ? ', in a dependency cycle' : ''}</span>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="h-9 bg-surface/30 border-t border-border px-3 flex items-center justify-between shrink-0 text-[11px] text-muted">

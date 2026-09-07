@@ -8,7 +8,7 @@ import { authClient } from '@/lib/auth-client';
 import { Logo } from '@/components/ui/logo';
 import { useTranslation } from '@/lib/i18n/context';
 
-export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
+export function AuthForm({ mode, expired = false }: { mode: 'sign-in' | 'sign-up'; expired?: boolean }) {
   const router = useRouter();
   const { t } = useTranslation();
   const [name, setName] = useState('');
@@ -44,7 +44,13 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
       router.push('/app');
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.auth.genericError);
+      // Network/DNS failure surfaces as TypeError — say so plainly instead
+      // of blaming the user's credentials.
+      if (err instanceof TypeError) {
+        setError('Cannot reach the server. Check your connection and try again.');
+      } else {
+        setError(err instanceof Error ? err.message : t.auth.genericError);
+      }
     } finally {
       setLoading(false);
     }
@@ -66,6 +72,13 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
           <p className="text-xs text-muted text-center mt-1 mb-5">
             {isSignUp ? t.auth.signUpSubtitle : t.auth.signInSubtitle}
           </p>
+
+          {expired && !error && mode === 'sign-in' && (
+            <div className="flex items-start gap-2 p-2.5 mb-4 rounded-lg text-xs bg-warning/10 text-warning border border-warning/20">
+              <AlertCircle size={14} className="shrink-0 mt-0.5" />
+              <span>Your session expired. Please sign in again — your local drafts are safe.</span>
+            </div>
+          )}
 
           {error && (
             <div className="flex items-start gap-2 p-2.5 mb-4 rounded-lg text-xs bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20">

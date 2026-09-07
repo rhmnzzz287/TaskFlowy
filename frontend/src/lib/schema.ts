@@ -215,3 +215,27 @@ export function detectCycles(tasks: TimelineTask[], deps: TimelineDependency[]):
   tasks.forEach(t => { if (state.get(t.id) === 0) dfs(t.id) })
   return problems
 }
+
+// An edge u→v lies on a cycle iff v can reach u (DFS).
+export function findCyclicEdgeIds(tasks: TimelineTask[], deps: TimelineDependency[]): Set<string> {
+  const adj = new Map<string, string[]>()
+  tasks.forEach(t => adj.set(t.id, []))
+  deps.forEach(d => {
+    if (adj.has(d.sourceId) && adj.has(d.targetId)) adj.get(d.sourceId)!.push(d.targetId)
+  })
+  const reaches = (from: string, to: string): boolean => {
+    const seen = new Set<string>([from])
+    const stack = [from]
+    while (stack.length > 0) {
+      const cur = stack.pop()!
+      for (const nxt of adj.get(cur) ?? []) {
+        if (nxt === to) return true
+        if (!seen.has(nxt)) { seen.add(nxt); stack.push(nxt) }
+      }
+    }
+    return false
+  }
+  const out = new Set<string>()
+  deps.forEach(d => { if (reaches(d.targetId, d.sourceId)) out.add(d.id) })
+  return out
+}

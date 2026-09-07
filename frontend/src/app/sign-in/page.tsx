@@ -5,6 +5,10 @@ export const metadata = {
   description: 'Sign in to your TaskFlowy account to sync timelines across devices.',
 };
 
-export default function SignInPage() {
-  return <AuthForm mode="sign-in" />;
+export default function SignInPage({
+  searchParams,
+}: {
+  searchParams?: { expired?: string };
+}) {
+  return <AuthForm mode="sign-in" expired={searchParams?.expired === '1'} />;
 }

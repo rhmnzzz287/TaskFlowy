@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHand
 import { TimelineTask } from '@/lib/schema'
 import { toGanttTasks, initGantt, ensureTimelineOverflow } from './gantt-adapter'
 import { formatDateISO } from '@/lib/parser/date-grammar'
+import type { SimulatedTaskDiff } from '@/lib/simulation/slippage-engine'
 
 export interface GanttBoardHandle {
   scrollLeft: (px: number) => void
@@ -23,6 +24,7 @@ interface GanttBoardProps {
   /** Task NAME to reveal (scroll to) when the task set changes. Names are
    *  used because task ids regenerate on every parse. Null = first bar. */
   focusTaskName?: string | null
+  simulatedDiffs?: Map<string, SimulatedTaskDiff> | null
 }
 
 // Base time-column widths mirror frappe-gantt's per-mode defaults so zoom 3
@@ -35,7 +37,7 @@ const BASE_COLUMN_WIDTH: Record<'Day' | 'Week' | 'Month', number> = {
 const ZOOM_FACTORS = [0.7, 0.85, 1, 1.4, 1.8]
 
 export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
-  function GanttBoard({ tasks, selectedAssignees, onTasksChange, onSelectTask, viewMode = 'Week', showCritical = true, zoom = 3, generationTick = 0, focusTaskName = null }, ref) {
+  function GanttBoard({ tasks, selectedAssignees, onTasksChange, onSelectTask, viewMode = 'Week', showCritical = true, zoom = 3, generationTick = 0, focusTaskName = null, simulatedDiffs = null }, ref) {
   const containerRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const lastRenderRef = useRef<string>('')
@@ -264,6 +266,125 @@ export const GanttBoard = forwardRef<GanttBoardHandle, GanttBoardProps>(
     }
     // showCritical no longer re-renders the chart — it only toggles a CSS class now
   }, [tasks, selectedAssignees, handleDateChange, handleClick, handleProgressChange, viewMode, zoom, commitTick, generationTick, focusTaskName])
+
+  // Render / synchronize Ghost Bars for What-If Slippage Simulation
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const svg = el.querySelector('svg.gantt') as SVGSVGElement | null
+    if (!svg) return
+
+    const oldLayer = svg.querySelector('.ghost-bars-layer')
+    if (oldLayer) oldLayer.remove()
+
+    if (!simulatedDiffs || simulatedDiffs.size === 0) return
+
+    let defs = svg.querySelector('defs')
+    if (!defs) {
+      defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs')
+      svg.insertBefore(defs, svg.firstChild)
+    }
+    if (!defs.querySelector('#ghost-stripe-pattern')) {
+      const pattern = document.createElementNS('http://www.w3.org/2000/svg', 'pattern')
+      pattern.setAttribute('id', 'ghost-stripe-pattern')
+      pattern.setAttribute('width', '8')
+      pattern.setAttribute('height', '8')
+      pattern.setAttribute('patternUnits', 'userSpaceOnUse')
+      pattern.setAttribute('patternTransform', 'rotate(45)')
+      pattern.innerHTML = `
+        <rect width="4" height="8" fill="#f59e0b" fill-opacity="0.30" />
+        <rect x="4" width="4" height="8" fill="#f59e0b" fill-opacity="0.10" />
+      `
+      defs.appendChild(pattern)
+    }
+
+    const ghostLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+    ghostLayer.setAttribute('class', 'ghost-bars-layer')
+    ghostLayer.setAttribute('style', 'pointer-events: none;')
+
+    let pxPerDay = 0
+    for (const t of tasks) {
+      if (t.isMilestone || t.durationDays <= 0) continue
+      const barEl = svg.querySelector(`.bar-wrapper[data-id="${t.id}"] .bar`) as SVGRectElement | null
+      if (barEl) {
+        const w = parseFloat(barEl.getAttribute('width') || '0')
+        if (w > 0) {
+          pxPerDay = w / t.durationDays
+          break
+        }
+      }
+    }
+    if (pxPerDay <= 0) {
+      const minColWidth = viewMode === 'Week' ? 105 : viewMode === 'Month' ? 80 : 35
+      const colW = Math.max(minColWidth, Math.round((BASE_COLUMN_WIDTH[viewMode] ?? 50) * (ZOOM_FACTORS[zoom - 1] ?? 1)))
+      pxPerDay = viewMode === 'Week' ? colW / 7 : viewMode === 'Month' ? colW / 30 : colW
+    }
+
+    simulatedDiffs.forEach((diff) => {
+      if (diff.varianceDays === 0) return
+      const barWrapper = svg.querySelector(`.bar-wrapper[data-id="${diff.taskId}"]`) as SVGGElement | null
+      if (!barWrapper) return
+
+      const bar = barWrapper.querySelector('.bar') as SVGRectElement | null
+      if (!bar) return
+
+      const origX = parseFloat(bar.getAttribute('x') || '0')
+      const y = parseFloat(bar.getAttribute('y') || '0')
+      const h = parseFloat(bar.getAttribute('height') || '24')
+      const shiftPx = diff.varianceDays * pxPerDay
+      const ghostX = origX + shiftPx
+      const ghostW = parseFloat(bar.getAttribute('width') || `${pxPerDay}`)
+
+      if (diff.isMilestone) {
+        const size = h * 0.8
+        const cx = ghostX
+        const cy = y + h / 2
+        const diamond = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
+        diamond.setAttribute('points', `${cx},${cy - size / 2} ${cx + size / 2},${cy} ${cx},${cy + size / 2} ${cx - size / 2},${cy}`)
+        diamond.setAttribute('fill', '#f59e0b')
+        diamond.setAttribute('fill-opacity', '0.4')
+        diamond.setAttribute('stroke', '#f59e0b')
+        diamond.setAttribute('stroke-width', '1.5')
+        diamond.setAttribute('stroke-dasharray', '3 2')
+        ghostLayer.appendChild(diamond)
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+        text.setAttribute('x', `${cx + size / 2 + 6}`)
+        text.setAttribute('y', `${cy + 4}`)
+        text.setAttribute('fill', '#f59e0b')
+        text.setAttribute('font-family', 'monospace')
+        text.setAttribute('font-size', '11')
+        text.setAttribute('font-weight', '600')
+        text.textContent = diff.varianceDays > 0 ? `+${diff.varianceDays}d ⚠️` : `${diff.varianceDays}d`
+        ghostLayer.appendChild(text)
+      } else {
+        const ghostRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+        ghostRect.setAttribute('x', `${ghostX}`)
+        ghostRect.setAttribute('y', `${y - 2}`)
+        ghostRect.setAttribute('width', `${ghostW}`)
+        ghostRect.setAttribute('height', `${h + 4}`)
+        ghostRect.setAttribute('rx', '3')
+        ghostRect.setAttribute('ry', '3')
+        ghostRect.setAttribute('fill', 'url(#ghost-stripe-pattern)')
+        ghostRect.setAttribute('stroke', '#f59e0b')
+        ghostRect.setAttribute('stroke-width', '1.5')
+        ghostRect.setAttribute('stroke-dasharray', '4 2')
+        ghostLayer.appendChild(ghostRect)
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+        text.setAttribute('x', `${ghostX + ghostW + 6}`)
+        text.setAttribute('y', `${y + h / 2 + 4}`)
+        text.setAttribute('fill', '#f59e0b')
+        text.setAttribute('font-family', 'monospace')
+        text.setAttribute('font-size', '11')
+        text.setAttribute('font-weight', '600')
+        text.textContent = diff.varianceDays > 0 ? `+${diff.varianceDays}d` : `${diff.varianceDays}d`
+        ghostLayer.appendChild(text)
+      }
+    })
+
+    svg.appendChild(ghostLayer)
+  }, [simulatedDiffs, tasks, viewMode, zoom])
 
   return (
     <div className="flex-1 bg-surface-dim dark:bg-[#0B0F19] rounded-none border-none overflow-hidden flex flex-col min-h-0">

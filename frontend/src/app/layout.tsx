@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 }
 
 import { LocaleProvider } from '@/lib/i18n/context'
+import { TelemetryInit } from '@/components/ui/telemetry-init'
 
 export default function RootLayout({
   children,
@@ -22,6 +23,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`${inter.className} h-screen`}>
         <LocaleProvider>
+          <TelemetryInit />
           {children}
         </LocaleProvider>
       </body>

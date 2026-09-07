@@ -26,6 +26,8 @@ interface HeaderActionsMenuProps {
   onShift: (delta: number) => void
   /** Called when the menu transitions closed → open (e.g. refresh draft list). */
   onMenuOpen?: () => void
+  /** Surface non-blocking feedback (clipboard/export failures) in the shell toast. */
+  onNotify?: (message: string) => void
 }
 
 const SHIFT_OPTIONS: Array<{ label: string; delta: number }> = [
@@ -39,7 +41,7 @@ const SHIFT_OPTIONS: Array<{ label: string; delta: number }> = [
 
 export function HeaderActionsMenu({
   hasGenerated, view, tasks, inputRows, drafts, currentDraftId,
-  onRestoreDraft, onDeleteDraft, onShift, onMenuOpen,
+  onRestoreDraft, onDeleteDraft, onShift, onMenuOpen, onNotify,
 }: HeaderActionsMenuProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -60,24 +62,49 @@ export function HeaderActionsMenu({
 
   const close = () => { setOpen(false); setShowDrafts(false); setShowShift(false) }
 
+  // Clipboard API throws on insecure contexts / denied permissions — never
+  // leave the promise unhandled (unhandledrejection) and always offer a
+  // selectable fallback so the user can copy manually.
+  const copyText = useCallback(async (text: string, onOk: () => void, what: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      onOk()
+    } catch {
+      try {
+        const ta = document.createElement('textarea')
+        ta.value = text
+        ta.style.position = 'fixed'
+        ta.style.opacity = '0'
+        document.body.appendChild(ta)
+        ta.select()
+        document.execCommand('copy')
+        document.body.removeChild(ta)
+        onOk()
+      } catch {
+        window.prompt(`Copy your ${what} manually:`, text)
+        onNotify?.(`Couldn't access the clipboard — copy your ${what} from the dialog.`)
+      }
+    }
+  }, [onNotify])
+
   const handleShareLink = useCallback(() => {
     const hash = encodeRowsToHash(inputRows)
     pushHash(hash)
     const url = `${window.location.origin}${window.location.pathname}${hash}`
-    navigator.clipboard.writeText(url).then(() => {
+    void copyText(url, () => {
       setCopiedLink(true)
       setTimeout(() => setCopiedLink(false), 2000)
-    })
-  }, [inputRows])
+    }, 'share link')
+  }, [inputRows, copyText])
 
   const handleCopySummary = useCallback(() => {
     if (tasks.length === 0) return
     const text = generateChatSummary(tasks, 'Timeline Proyek')
-    navigator.clipboard.writeText(text).then(() => {
+    void copyText(text, () => {
       setCopiedSummary(true)
       setTimeout(() => setCopiedSummary(false), 2000)
-    })
-  }, [tasks])
+    }, 'summary')
+  }, [tasks, copyText])
 
   const handleExportCSV = useCallback(() => {
     if (tasks.length === 0) return
@@ -87,7 +114,9 @@ export function HeaderActionsMenu({
   }, [tasks])
 
   const runExport = (fn: () => Promise<void>) => {
-    fn().catch(() => alert('Export gagal: chart belum siap'))
+    // Non-blocking toast instead of alert(): never trap the user in a modal
+    // for a recoverable export failure.
+    fn().catch(() => onNotify?.('Export gagal: chart belum siap. Tunggu chart selesai render lalu coba lagi.'))
   }
 
   return (

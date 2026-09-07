@@ -212,7 +212,7 @@ export function RowEditor({ rows, onChange, errors }: RowEditorProps) {
         {rows.map((row, idx) => {
           const err = errors[row.id] || ''
           return (
-            <div key={row.id} className="h-10 flex items-center px-2 hover:bg-surface-hi/30 transition-colors group">
+            <div key={row.id} data-row-id={row.id} className="h-10 flex items-center px-2 hover:bg-surface-hi/30 transition-colors group">
               <div className="w-[30%] min-w-[140px] pr-1">
                 <input
                   ref={idx === rows.length - 1 ? lastNameRef : undefined}
